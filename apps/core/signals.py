@@ -297,7 +297,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         if issue.state_category.is_done:
             capacity_done += issue.estimation_category.value
 
-    sprint_estimation = SprintEstimation.objects \
+    SprintEstimation.objects \
         .create(workspace=instance.workspace,
                 project=instance.project,
                 sprint=started_sprint.get(),
