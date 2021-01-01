@@ -301,5 +301,5 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         .create(workspace=instance.workspace,
                 project=instance.project,
                 sprint=started_sprint.get(),
-                total=sprint_total_capacity,
-                done=capacity_done)
+                total_value=sprint_total_capacity,
+                done_value=capacity_done)

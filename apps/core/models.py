@@ -949,7 +949,7 @@ class SprintEstimation(models.Model):
     updated_at = models.DateTimeField(verbose_name=_('Updated at'),
                                       auto_now=True)
 
-    estimation_value = models.IntegerField(verbose_name=_('Current total capacity'))
+    total_value = models.IntegerField(verbose_name=_('Current total capacity'))
 
     done_value = models.IntegerField(verbose_name=_('Current estimation'))
 
@@ -959,6 +959,6 @@ class SprintEstimation(models.Model):
         verbose_name_plural = 'Sprint Estimations'
 
     def __str__(self):
-        return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.estimation_value} - {self.updated_at}'
+        return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.total_value} - {self.updated_at}'
 
     __repr__ = __str__
