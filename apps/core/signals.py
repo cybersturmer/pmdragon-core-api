@@ -13,7 +13,7 @@ from .models import Project, \
     IssueStateCategory, \
     Sprint, \
     Issue, \
-    IssueMessage, IssueEstimationCategory
+    IssueMessage, IssueEstimationCategory, SprintEstimation
 
 
 class ActionM2M(Enum):
@@ -265,3 +265,41 @@ def signal_mentioned_in_description_emails(instance: Issue, created: bool, **kwa
         return False
 
     send_mentioned_in_description_email.delay(instance.pk)
+
+
+@receiver(post_save, sender=Issue)
+def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
+    """
+    Create Sprint Estimation on changing Issue, that belong to started sprint
+    We watching such changes as estimation category and state category
+    """
+
+    """
+    First of all getting started sprint to understand do this issue belong to it"""
+    started_sprint = Sprint.objects \
+        .filter(workspace=instance.workspace,
+                project=instance.project,
+                is_started=True)
+
+    """
+    If we don't have a started sprint or this sprint do not include current issue
+    then we just exit """
+    if not started_sprint.exists() or instance not in started_sprint.get().issues.all():
+        return True
+
+    sprint_issues = started_sprint.get().issues.all()
+
+    # @todo Better to do it by query. Should be faster.
+    sprint_total_capacity = 0
+    capacity_done = 0
+    for issue in sprint_issues:
+        sprint_total_capacity += issue.estimation_category.value
+        if issue.state_category.is_done:
+            capacity_done += issue.estimation_category.value
+
+    sprint_estimation = SprintEstimation.objects \
+        .create(workspace=instance.workspace,
+                project=instance.project,
+                sprint=started_sprint.get(),
+                total=sprint_total_capacity,
+                done=capacity_done)
