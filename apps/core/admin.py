@@ -110,6 +110,22 @@ class SprintAdmin(admin.ModelAdmin):
         super(SprintAdmin, self).save_model(request, obj, form, change)
 
 
+@admin.register(SprintEstimation)
+class SprintEstimationAdmin(admin.ModelAdmin):
+    model = SprintEstimation
+    list_display = (
+        'project',
+        'sprint',
+        'total_value',
+        'done_value'
+    )
+    readonly_fields = ('workspace',)
+    save_as = True
+
+    def save_model(self, request, obj, form, change):
+        obj.workspace = obj.project.workspace
+        super().save_model(request, obj, form, change)
+
 @admin.register(IssueTypeCategoryIcons)
 class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
     model = IssueTypeCategoryIcons
