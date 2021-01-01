@@ -924,3 +924,41 @@ class Sprint(models.Model):
             backlog.issues.add(_issue)
 
         super(Sprint, self).delete(using, keep_parents)
+
+
+class SprintEstimation(models.Model):
+    workspace = models.ForeignKey(Workspace,
+                                  verbose_name=_('Workspace'),
+                                  db_index=True,
+                                  on_delete=models.CASCADE)
+
+    project = models.ForeignKey(Project,
+                                verbose_name=_('Project'),
+                                db_index=True,
+                                on_delete=models.CASCADE)
+
+    sprint = models.ForeignKey(Sprint,
+                               verbose_name=_('Sprint'),
+                               db_index=True,
+                               on_delete=models.CASCADE,
+                               related_name='estimation_history')
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+                                      auto_now=True)
+
+    estimation_value = models.IntegerField(verbose_name=_('Current total capacity'))
+
+    done_value = models.IntegerField(verbose_name=_('Current estimation'))
+
+    class Meta:
+        db_table = 'core_sprint_estimation'
+        verbose_name = 'Sprint Estimation'
+        verbose_name_plural = 'Sprint Estimations'
+
+    def __str__(self):
+        return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.estimation_value} - {self.updated_at}'
+
+    __repr__ = __str__
