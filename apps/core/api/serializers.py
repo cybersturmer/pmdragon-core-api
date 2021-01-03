@@ -9,7 +9,7 @@ from django.forms import Form
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers, permissions
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt import serializers as serializers_jwt
 
@@ -778,6 +778,20 @@ class SprintWritableSerializer(WorkspaceModelSerializer):
         validated_data = order_issues(validated_data)
         return super(SprintWritableSerializer, self) \
             .update(instance, validated_data)
+
+
+class SprintEstimationSerializer(serializers.ModelSerializer):
+    """
+    Sprint Estimation Serializer to get data and build a Chart
+    """
+    class Meta:
+        model = SprintEstimation
+        fields = (
+            'created_at',
+            'updated_at',
+            'total_value',
+            'done_value'
+        )
 
 
 class IssueListSerializer(serializers.ListSerializer):

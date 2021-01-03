@@ -835,7 +835,8 @@ class Sprint(models.Model):
 
     issues = models.ManyToManyField(Issue,
                                     verbose_name=_('Issues'),
-                                    blank=True)
+                                    blank=True,
+                                    related_name='sprint')
 
     is_started = models.BooleanField(verbose_name=_('Is sprint started'),
                                      default=False)
@@ -949,9 +950,9 @@ class SprintEstimation(models.Model):
     updated_at = models.DateTimeField(verbose_name=_('Updated at'),
                                       auto_now=True)
 
-    total_value = models.IntegerField(verbose_name=_('Current total capacity'))
+    total_value = models.IntegerField(verbose_name=_('Total value'))
 
-    done_value = models.IntegerField(verbose_name=_('Current estimation'))
+    done_value = models.IntegerField(verbose_name=_('Done value'))
 
     class Meta:
         db_table = 'core_sprint_estimation'

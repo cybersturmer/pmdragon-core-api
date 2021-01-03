@@ -378,6 +378,16 @@ class SprintViewSet(WorkspacesModelViewSet):
     serializer_class = SprintWritableSerializer
 
 
+class SprintEstimationViewSet(WorkspacesReadOnlyModelViewSet):
+    """
+    View for getting instances
+    """
+    queryset = SprintEstimation.objects.all()
+    serializer_class = SprintEstimationSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sprint']
+
+
 class PersonSetPasswordView(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSetPasswordSerializer

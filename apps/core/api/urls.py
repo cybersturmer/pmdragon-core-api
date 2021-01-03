@@ -16,6 +16,7 @@ router.register('issue-estimations', views.IssueEstimationCategoryViewSet, basen
 router.register('issue-messages', views.IssueMessagesViewSet, basename='issue-messages')
 router.register('backlogs', views.ProjectBacklogViewSet, basename='backlogs')
 router.register('sprints', views.SprintViewSet, basename='sprints')
+router.register('sprint-estimations', views.SprintEstimationViewSet, basename='sprint-estimations')
 router.register('sprint-durations', views.SprintDurationViewSet, basename='sprint-durations')
 
 
