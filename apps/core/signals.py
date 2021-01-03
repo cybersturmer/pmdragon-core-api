@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db.models import Q
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
@@ -279,27 +281,43 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
     started_sprint = Sprint.objects \
         .filter(workspace=instance.workspace,
                 project=instance.project,
-                is_started=True)
+                is_started=True,
+                issues__in=[instance])
 
     """
     If we don't have a started sprint or this sprint do not include current issue
     then we just exit """
-    if not started_sprint.exists() or instance not in started_sprint.get().issues.all():
+    if not started_sprint.exists():
         return True
 
     sprint_issues = started_sprint.get().issues.all()
 
     # @todo Better to do it by query. Should be faster.
-    sprint_total_capacity = 0
+    total_capacity = 0
     capacity_done = 0
     for issue in sprint_issues:
-        sprint_total_capacity += issue.estimation_category.value
+        if issue.estimation_category:
+            total_capacity += issue.estimation_category.value
         if issue.state_category.is_done:
             capacity_done += issue.estimation_category.value
 
-    SprintEstimation.objects \
-        .create(workspace=instance.workspace,
+    sprint_estimation = SprintEstimation.objects\
+        .filter(workspace=instance.workspace,
                 project=instance.project,
                 sprint=started_sprint.get(),
-                total_value=sprint_total_capacity,
-                done_value=capacity_done)
+                updated_at=date.today())
+
+    """
+    We dont need multiple estimation per day, so we have to save just the last one """
+    if sprint_estimation.exists():
+        _sprint_estimation = sprint_estimation.get()
+        _sprint_estimation.total_value = total_capacity
+        _sprint_estimation.done_value = capacity_done
+        _sprint_estimation.save()
+    else:
+        SprintEstimation.objects \
+            .create(workspace=instance.workspace,
+                    project=instance.project,
+                    sprint=started_sprint.get(),
+                    total_value=total_capacity,
+                    done_value=capacity_done)
