@@ -1,9 +1,11 @@
-from datetime import date
+from datetime import date, datetime, time
 
 from django.db.models import Q
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+
+from libs.helpers.datetimepresets import today_earliest, today_latest
 from .api.tasks import send_mentioned_in_message_email, \
     send_mentioned_in_description_email
 
@@ -290,27 +292,29 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
     if not started_sprint.exists():
         return True
 
-    sprint_issues = started_sprint.get().issues.all()
+    _started_sprint = started_sprint.get()
+    sprint_issues = _started_sprint.issues.all()
 
     # @todo Better to do it by query. Should be faster.
     total_capacity = 0
     capacity_done = 0
     for issue in sprint_issues:
-        if issue.estimation_category:
+        if issue.estimation_category is not None:
             total_capacity += issue.estimation_category.value
+
         if issue.state_category.is_done:
             capacity_done += issue.estimation_category.value
 
     sprint_estimation = SprintEstimation.objects\
         .filter(workspace=instance.workspace,
                 project=instance.project,
-                sprint=started_sprint.get(),
-                updated_at=date.today())
+                sprint=_started_sprint,
+                updated_at__range=(today_earliest(), today_latest()))
 
     """
     We dont need multiple estimation per day, so we have to save just the last one """
     if sprint_estimation.exists():
-        _sprint_estimation = sprint_estimation.get()
+        _sprint_estimation = sprint_estimation.latest('updated_at')
         _sprint_estimation.total_value = total_capacity
         _sprint_estimation.done_value = capacity_done
         _sprint_estimation.save()
@@ -318,6 +322,6 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         SprintEstimation.objects \
             .create(workspace=instance.workspace,
                     project=instance.project,
-                    sprint=started_sprint.get(),
+                    sprint=_started_sprint,
                     total_value=total_capacity,
                     done_value=capacity_done)
