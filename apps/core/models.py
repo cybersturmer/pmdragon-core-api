@@ -944,6 +944,10 @@ class SprintEstimation(models.Model):
                                on_delete=models.CASCADE,
                                related_name='estimation_history')
 
+    point_at = models.DateTimeField(verbose_name=_('Point at'),
+                                    help_text=_('We need this point for manual sorting'),
+                                    default=timezone.now)
+
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
 
@@ -954,12 +958,38 @@ class SprintEstimation(models.Model):
 
     done_value = models.IntegerField(verbose_name=_('Done value'))
 
+    @property
+    def estimated_value(self):
+        return self.total_value - self.done_value
+
     class Meta:
         db_table = 'core_sprint_estimation'
+        ordering = (
+            '-point_at',
+            '-updated_at',
+            '-created_at'
+        )
         verbose_name = 'Sprint Estimation'
         verbose_name_plural = 'Sprint Estimations'
 
+
     def __str__(self):
-        return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.total_value} - {self.updated_at}'
+        return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.total_value} - {self.point_at}'
 
     __repr__ = __str__
+
+    def calculate_estimations(self):
+        estimations = self.sprint.issues \
+            .values_list(
+            'estimation_category__value',
+            'state_category__is_done'
+        )
+
+        self.total_value = sum([estimation[0]
+                                for estimation
+                                in estimations])
+
+        self.done_value = sum([estimation[0]
+                               for estimation
+                               in estimations
+                               if estimation[1]])

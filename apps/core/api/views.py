@@ -380,7 +380,7 @@ class SprintViewSet(WorkspacesModelViewSet):
 
 class SprintEstimationViewSet(WorkspacesReadOnlyModelViewSet):
     """
-    View for getting instances
+    Estimation is auto-calculated so we can just get it.
     """
     queryset = SprintEstimation.objects.all()
     serializer_class = SprintEstimationSerializer

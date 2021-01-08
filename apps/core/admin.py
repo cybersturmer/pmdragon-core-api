@@ -113,11 +113,20 @@ class SprintAdmin(admin.ModelAdmin):
 @admin.register(SprintEstimation)
 class SprintEstimationAdmin(admin.ModelAdmin):
     model = SprintEstimation
+    date_hierarchy = 'point_at'
+    fields = (
+        'project',
+        'sprint',
+        'total_value',
+        'done_value',
+        'point_at'
+    )
     list_display = (
         'project',
         'sprint',
         'total_value',
-        'done_value'
+        'done_value',
+        'point_at'
     )
     readonly_fields = ('workspace',)
     save_as = True

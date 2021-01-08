@@ -787,10 +787,10 @@ class SprintEstimationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SprintEstimation
         fields = (
-            'created_at',
-            'updated_at',
+            'point_at',
             'total_value',
-            'done_value'
+            'done_value',
+            'estimated_value'
         )
 
 

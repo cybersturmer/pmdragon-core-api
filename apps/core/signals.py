@@ -280,7 +280,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 
     """
     First of all getting started sprint to understand do this issue belong to it"""
-    started_sprint = Sprint.objects \
+    sprint = Sprint.objects \
         .filter(workspace=instance.workspace,
                 project=instance.project,
                 is_started=True,
@@ -289,39 +289,24 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
     """
     If we don't have a started sprint or this sprint do not include current issue
     then we just exit """
-    if not started_sprint.exists():
+    if not sprint.exists():
         return True
 
-    _started_sprint = started_sprint.get()
-    sprint_issues = _started_sprint.issues.all()
-
-    # @todo Better to do it by query. Should be faster.
-    total_capacity = 0
-    capacity_done = 0
-    for issue in sprint_issues:
-        if issue.estimation_category is not None:
-            total_capacity += issue.estimation_category.value
-
-        if issue.state_category.is_done:
-            capacity_done += issue.estimation_category.value
-
+    _sprint = sprint.get()
     sprint_estimation = SprintEstimation.objects\
         .filter(workspace=instance.workspace,
                 project=instance.project,
-                sprint=_started_sprint,
+                sprint=_sprint,
                 updated_at__range=(today_earliest(), today_latest()))
 
     """
     We dont need multiple estimation per day, so we have to save just the last one """
     if sprint_estimation.exists():
-        _sprint_estimation = sprint_estimation.latest('updated_at')
-        _sprint_estimation.total_value = total_capacity
-        _sprint_estimation.done_value = capacity_done
+        _sprint_estimation: SprintEstimation = sprint_estimation.latest('updated_at')
+        _sprint_estimation.calculate_estimations()
         _sprint_estimation.save()
     else:
         SprintEstimation.objects \
             .create(workspace=instance.workspace,
                     project=instance.project,
-                    sprint=_started_sprint,
-                    total_value=total_capacity,
-                    done_value=capacity_done)
+                    sprint=_sprint)
