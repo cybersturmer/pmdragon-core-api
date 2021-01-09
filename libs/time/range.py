@@ -5,7 +5,7 @@ from enum import Enum, auto
 from typing import Union
 
 __author__ = 'Wladimir Stürmer'
-__license__ = "GPL"
+__license__ = "MIT"
 __version__ = '1.0.1'
 __maintainer__ = 'Wladimir Stürmer'
 __email__ = 'cybersturmer@ya.ru'

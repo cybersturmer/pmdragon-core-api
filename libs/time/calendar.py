@@ -9,7 +9,7 @@ from analytics.time.range import DatetimeRange, DateRange
 from analytics.time.slices import DatetimeSlices, TimeSlices
 
 __author__ = 'Wladimir Stürmer'
-__license__ = "GPL"
+__license__ = "MIT"
 __version__ = '1.0.1'
 __maintainer__ = 'Wladimir Stürmer'
 __email__ = 'cybersturmer@ya.ru'
