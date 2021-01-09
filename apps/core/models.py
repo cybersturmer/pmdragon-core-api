@@ -312,7 +312,7 @@ class Project(models.Model):
     __repr__ = __str__
 
 
-class IssueTypeCategoryIcons(models.Model):
+class IssueTypeCategoryIcon(models.Model):
     prefix = models.CharField(verbose_name=_('Icon prefix'),
                               max_length=50,
                               unique=True,
@@ -355,7 +355,7 @@ class IssueTypeCategory(models.Model):
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
-    icon = models.ForeignKey(IssueTypeCategoryIcons,
+    icon = models.ForeignKey(IssueTypeCategoryIcon,
                              verbose_name=_('Icon'),
                              on_delete=models.SET_NULL,
                              null=True)

@@ -602,8 +602,9 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
 class IssueTypeIconSerializer(serializers.ModelSerializer):
     class Meta:
-        model = IssueTypeCategoryIcons
+        model = IssueTypeCategoryIcon
         fields = (
+            'id',
             'prefix',
             'color'
         )
@@ -625,6 +626,7 @@ class IssueTypeSerializer(WorkspaceModelSerializer):
             'title',
             'icon',
             'is_subtask',
+            'is_default',
             'ordering'
         )
 

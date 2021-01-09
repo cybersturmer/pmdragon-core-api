@@ -140,9 +140,9 @@ class SprintEstimationAdmin(admin.ModelAdmin):
         obj.workspace = obj.project.workspace
         super().save_model(request, obj, form, change)
 
-@admin.register(IssueTypeCategoryIcons)
+@admin.register(IssueTypeCategoryIcon)
 class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
-    model = IssueTypeCategoryIcons
+    model = IssueTypeCategoryIcon
     list_display = (
         'id',
         'prefix',

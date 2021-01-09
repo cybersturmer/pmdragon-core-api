@@ -316,6 +316,11 @@ class IssueTypeCategoryViewSet(WorkspacesModelViewSet):
     serializer_class = IssueTypeSerializer
 
 
+class IssueTypeIconViewSet(WorkspacesReadOnlyModelViewSet):
+    queryset = IssueTypeCategoryIcon.objects.all()
+    serializer_class = IssueTypeIconSerializer
+
+
 class IssueStateCategoryViewSet(WorkspacesModelViewSet):
     """
     View for getting, editing, deleting instance.
