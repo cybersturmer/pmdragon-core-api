@@ -14,7 +14,7 @@ class IsCreatorOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.created_by == request.user.person
+        return obj.owned_by == request.user.person
 
 
 class IsParticipateInWorkspace(permissions.BasePermission):

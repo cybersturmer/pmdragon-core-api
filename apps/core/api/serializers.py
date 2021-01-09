@@ -486,7 +486,7 @@ class WorkspaceWritableSerializer(serializers.ModelSerializer):
 
         workspace = Workspace(
             prefix_url=prefix_url.upper(),
-            created_by=person
+            owned_by=person
         )
 
         try:
@@ -555,7 +555,9 @@ class ProjectSerializer(WorkspaceModelSerializer):
             'id',
             'workspace',
             'title',
-            'key'
+            'key',
+            'owned_by',
+            'created_at'
         )
 
     def create(self, validated_data):
@@ -566,7 +568,8 @@ class ProjectSerializer(WorkspaceModelSerializer):
         project = Project(
             workspace=workspace,
             title=title.upper(),
-            key=key.upper()
+            key=key.upper(),
+            owned_by=self.context.get('person')
         )
 
         try:

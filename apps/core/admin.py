@@ -36,6 +36,11 @@ class WorkspaceAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
 
 
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    model = Project
+
+
 @admin.register(IssueStateCategory)
 class IssueStateAdmin(admin.ModelAdmin):
     model = IssueStateCategory
@@ -190,7 +195,6 @@ class IssueMessage(admin.ModelAdmin):
         super(IssueMessage, self).save_model(request, obj, form, change)
 
 
-admin.site.register(Project)
 admin.site.register(ProjectBacklog)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

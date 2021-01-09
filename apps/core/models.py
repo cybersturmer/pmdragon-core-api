@@ -139,10 +139,10 @@ class Workspace(models.Model):
                                           related_name='workspaces',
                                           blank=True)
 
-    created_by = models.ForeignKey(Person,
-                                   verbose_name=_('Owner'),
-                                   null=True,
-                                   on_delete=models.SET_NULL)
+    owned_by = models.ForeignKey(Person,
+                                 verbose_name=_('Owner'),
+                                 null=True,
+                                 on_delete=models.SET_NULL)
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
@@ -287,6 +287,11 @@ class Project(models.Model):
     key = models.SlugField(verbose_name=_('Project key'),
                            help_text=_('Short word (must not exceed 10 characters) to mark project'),
                            max_length=10)
+
+    owned_by = models.ForeignKey(Person,
+                                 verbose_name=_('Owner'),
+                                 null=True,
+                                 on_delete=models.SET_NULL)
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
