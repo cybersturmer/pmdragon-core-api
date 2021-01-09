@@ -306,7 +306,9 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         _sprint_estimation.calculate_estimations()
         _sprint_estimation.save()
     else:
-        SprintEstimation.objects \
-            .create(workspace=instance.workspace,
-                    project=instance.project,
-                    sprint=_sprint)
+        _sprint_estimation = SprintEstimation(workspace=instance.workspace,
+                                              project=instance.project,
+                                              sprint=_sprint)
+        _sprint_estimation.calculate_estimations()
+        _sprint_estimation.save()
+

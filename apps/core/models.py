@@ -985,11 +985,13 @@ class SprintEstimation(models.Model):
             'state_category__is_done'
         )
 
+        cleaned_estimations = filter(lambda estimation: estimation[0] is not None, estimations)
+
         self.total_value = sum([estimation[0]
                                 for estimation
-                                in estimations])
+                                in cleaned_estimations])
 
         self.done_value = sum([estimation[0]
                                for estimation
-                               in estimations
+                               in cleaned_estimations
                                if estimation[1]])
