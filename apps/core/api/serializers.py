@@ -586,18 +586,8 @@ class ProjectSerializer(WorkspaceModelSerializer):
         We need just upper title and key
         Workspace cannot be changed through API so we not allow it and ignore any given workspace
         """
-        title: str = validated_data.get('title')
-        key: str = validated_data.get('key')
-
-        if title:
-            instance.title = title.upper()
-
-        if key:
-            instance.key = key.upper()
-
-        instance.save()
-
-        return instance
+        del validated_data['workspace']
+        return super().update(instance, validated_data)
 
 
 class IssueTypeIconSerializer(serializers.ModelSerializer):
