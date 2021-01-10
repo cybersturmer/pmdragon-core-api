@@ -585,6 +585,14 @@ class ProjectSerializer(WorkspaceModelSerializer):
         if attrs not in self.instance.workspace.participants.all():
             raise ValidationError(_('You can change owner only to participant of current project'))
 
+        return attrs
+
+    def validate_title(self, attrs: str):
+        return attrs.upper()
+
+    def validate_key(self, attrs: str):
+        return attrs.upper()
+
 
 class IssueTypeIconSerializer(serializers.ModelSerializer):
     class Meta:
