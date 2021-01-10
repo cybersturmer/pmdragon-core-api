@@ -3,7 +3,7 @@ from rest_framework import permissions
 from apps.core.models import Person
 
 
-class IsCreatorOrReadOnly(permissions.BasePermission):
+class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Allow update / remove to object only if current user
     is determined as an owner in created_by field.

@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .schemas import IssueListUpdateSchema
 from .serializers import *
 from .tasks import send_registration_email, send_invitation_email
-from .permissions import IsParticipateInWorkspace, IsCreatorOrReadOnly
+from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly
 
 
 class TokenObtainPairExtendedView(TokenObtainPairView):
@@ -199,7 +199,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     Of course we need to add information about current person
     to created_by and participant
     """
-    permission_classes = (IsAuthenticated, IsCreatorOrReadOnly)
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
     serializer_class = WorkspaceWritableSerializer
     queryset = Workspace.objects.all()
 
@@ -306,6 +306,9 @@ class ProjectViewSet(WorkspacesModelViewSet):
     """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = (
+        IsOwnerOrReadOnly
+    )
 
 
 class IssueTypeCategoryViewSet(WorkspacesModelViewSet):
@@ -352,7 +355,7 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
     permission_classes = (
         IsAuthenticated,
         IsParticipateInWorkspace,
-        IsCreatorOrReadOnly
+        IsOwnerOrReadOnly
     )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['issue']
