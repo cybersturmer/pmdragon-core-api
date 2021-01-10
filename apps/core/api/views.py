@@ -307,7 +307,7 @@ class ProjectViewSet(WorkspacesModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = (
-        IsOwnerOrReadOnly
+        IsOwnerOrReadOnly,
     )
 
 
