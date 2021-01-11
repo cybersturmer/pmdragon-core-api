@@ -551,7 +551,7 @@ class Issue(models.Model):
                                       db_index=True,
                                       blank=True,
                                       null=True,
-                                      on_delete=models.CASCADE)
+                                      on_delete=models.SET_NULL)
 
     state_category = models.ForeignKey(IssueStateCategory,
                                        verbose_name=_('State Category'),
@@ -576,7 +576,8 @@ class Issue(models.Model):
 
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Created by'),
-                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   on_delete=models.SET_NULL,
                                    related_name='created_issues')
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
@@ -655,7 +656,7 @@ class Issue(models.Model):
             except IssueTypeCategory.DoesNotExist:
                 pass
 
-        if self.state_category is None or self.type_category == 0:
+        if self.state_category is None or self.state_category == 0:
             """
             If default issue state was set for Workspace, we set it as a default
             """
@@ -908,7 +909,7 @@ class Sprint(models.Model):
 
     def delete(self, using=None, keep_parents=False):
         """
-        After deleting sprint we have to send it to backlog
+        After deleting sprint we have to send all issues to backlog
         in the same workspace and project. """
 
         backlog = ProjectBacklog.objects \

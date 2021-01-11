@@ -658,6 +658,23 @@ class IssueEstimationSerializer(WorkspaceModelSerializer):
             'value'
         )
 
+    def validate_value(self, attrs):
+        if attrs != 0:
+            return attrs
+
+        """
+        Default value is maximum value + 1"""
+        workspace = self.initial_data.get('workspace')
+        project = self.initial_data.get('project')
+
+        max_value = IssueEstimationCategory.objects \
+            .filter(workspace=workspace,
+                    project=project) \
+            .aggregate(Max('value')) \
+            .get('value__max')
+
+        return max_value + 1
+
 
 class IssueSerializer(WorkspaceModelSerializer):
     """
