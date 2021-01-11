@@ -17,6 +17,14 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owned_by == request.user.person
 
 
+class IsCreatorOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.created_by == request.user.person
+
+
 class IsParticipateInWorkspace(permissions.BasePermission):
     """
     Allow access to object if object workspace do not determined

@@ -45,6 +45,7 @@ class ProjectAdmin(admin.ModelAdmin):
 class IssueStateAdmin(admin.ModelAdmin):
     model = IssueStateCategory
     list_display = (
+        'id',
         'project',
         'title',
         'is_default',
@@ -58,6 +59,7 @@ class IssueStateAdmin(admin.ModelAdmin):
 class IssueTypeAdmin(admin.ModelAdmin):
     model = IssueTypeCategory
     list_display = (
+        'id',
         'project',
         'title',
         'icon',
@@ -72,6 +74,7 @@ class IssueTypeAdmin(admin.ModelAdmin):
 class IssueEstimationCategoryAdmin(admin.ModelAdmin):
     model = IssueEstimationCategory
     list_display = (
+        'id',
         'project',
         'title',
         'value'
@@ -88,6 +91,7 @@ class IssueEstimationCategoryAdmin(admin.ModelAdmin):
 class SprintDurationAdmin(admin.ModelAdmin):
     model = SprintDuration
     list_display = (
+        'id',
         'workspace',
         'title',
         'duration'

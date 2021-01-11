@@ -1,7 +1,7 @@
 from datetime import date, datetime, time
 
 from django.db.models import Q
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -312,3 +312,20 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         _sprint_estimation.calculate_estimations()
         _sprint_estimation.save()
 
+
+@receiver(post_delete, sender=IssueTypeCategory)
+def signal_set_issue_type_category_by_default_if_no_exists(instance: IssueTypeCategory, **kwargs):
+    if not instance.is_default:
+        return True
+
+    type_categories = IssueTypeCategory.objects\
+        .filter(workspace=instance.workspace,
+                project=instance.project,
+                is_default=True)
+
+    if type_categories.filter(is_default=True).exists():
+        return True
+
+    new_default_type_category = type_categories.all().order_by("id").first()
+    new_default_type_category.is_default = True
+    new_default_type_category.save()

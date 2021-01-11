@@ -609,8 +609,6 @@ class IssueTypeSerializer(WorkspaceModelSerializer):
     Common issue category serializer
     For getting all types of issues
     """
-    icon = IssueTypeIconSerializer()
-
     class Meta:
         model = IssueTypeCategory
         fields = (

@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .schemas import IssueListUpdateSchema
 from .serializers import *
 from .tasks import send_registration_email, send_invitation_email
-from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly
+from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorOrReadOnly
 
 
 class TokenObtainPairExtendedView(TokenObtainPairView):
@@ -355,7 +355,7 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
     permission_classes = (
         IsAuthenticated,
         IsParticipateInWorkspace,
-        IsOwnerOrReadOnly
+        IsCreatorOrReadOnly
     )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['issue']

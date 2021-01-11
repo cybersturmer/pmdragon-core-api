@@ -396,15 +396,19 @@ class IssueTypeCategory(models.Model):
     def save(self, *args, **kwargs):
         if self.is_default:
             try:
-                temp = IssueTypeCategory.objects \
+                default_issue_types = IssueTypeCategory.objects \
                     .filter(workspace=self.workspace,
                             project=self.project,
                             is_default=True) \
-                    .get()
+                    .all()
 
-                if self != temp:
-                    temp.is_default = False
-                    temp.save()
+                for item in default_issue_types:
+                    if item == self:
+                        continue
+
+                    item.is_default = False
+                    item.save()
+
             except IssueTypeCategory.DoesNotExist:
                 pass
 
@@ -473,26 +477,12 @@ class IssueStateCategory(models.Model):
                         is_default=True) \
                 .all()
 
-            for state in default_issue_states:
-                if state == self:
+            for item in default_issue_states:
+                if item == self:
                     continue
 
-                state.is_default = False
-                state.save()
-
-        if self.is_done:
-            done_issue_states = IssueStateCategory.objects \
-                .filter(workspace=self.workspace,
-                        project=self.project,
-                        is_done=True) \
-                .all()
-
-            for state in done_issue_states:
-                if state == self:
-                    continue
-
-                state.is_done = False
-                state.save()
+                item.is_default = False
+                item.save()
 
         super(IssueStateCategory, self).save(*args, **kwargs)
 
