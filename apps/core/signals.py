@@ -293,7 +293,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         return True
 
     _sprint = sprint.get()
-    sprint_estimation = SprintEstimation.objects\
+    sprint_estimation = SprintEstimation.objects \
         .filter(workspace=instance.workspace,
                 project=instance.project,
                 sprint=_sprint,
@@ -313,35 +313,30 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
         _sprint_estimation.save()
 
 
-@receiver(post_delete, sender=IssueTypeCategory)
-def signal_set_issue_type_category_by_default_if_no_exists(instance: IssueTypeCategory, **kwargs):
+def set_default_for_instance(instance, sender):
+    """
+    Just set default is somehow default value was deleted.
+     """
     if not instance.is_default:
         return True
 
-    type_categories = IssueTypeCategory.objects\
+    categories = sender.objects \
         .filter(workspace=instance.workspace,
                 project=instance.project)
 
-    if not type_categories.exists() or type_categories.filter(is_default=True).exists():
+    if not categories.exists() or categories.filter(is_default=True).exists():
         return True
 
-    new_default_type_category = type_categories.all().order_by("id").first()
-    new_default_type_category.is_default = True
-    new_default_type_category.save()
+    new_default_category = categories.all().order_by('id').first()
+    new_default_category.is_default = True
+    new_default_category.save()
+
+
+@receiver(post_delete, sender=IssueTypeCategory)
+def signal_set_issue_type_category_by_default_if_no_exists(instance: IssueTypeCategory, **kwargs):
+    return set_default_for_instance(instance=instance, sender=IssueTypeCategory)
 
 
 @receiver(post_delete, sender=IssueStateCategory)
 def signal_set_issue_state_category_by_default_if_no_exists(instance: IssueStateCategory, **kwargs):
-    if not instance.is_default:
-        return True
-
-    state_categories = IssueStateCategory.objects\
-        .filter(workspace=instance.workspace,
-                project=instance.project)
-
-    if not state_categories.exists() or state_categories.filter(is_default=True).exists():
-        return True
-
-    new_default_state_category = state_categories.all().order_by("id").first()
-    new_default_state_category.is_default = True
-    new_default_state_category.save()
+    return set_default_for_instance(instance=instance, sender=IssueStateCategory)

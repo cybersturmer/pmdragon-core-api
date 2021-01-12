@@ -397,6 +397,9 @@ class SprintEstimationViewSet(WorkspacesReadOnlyModelViewSet):
 
 
 class PersonSetPasswordView(GenericAPIView):
+    """
+    We use it to update password for user.
+    """
     queryset = User.objects.all()
     serializer_class = UserSetPasswordSerializer
     permission_classes = [IsAuthenticated]
@@ -416,6 +419,7 @@ class PersonSetPasswordView(GenericAPIView):
 class PersonAvatarUpload(views.APIView):
     """
     Person avatar picture APIView
+    We need it to upload user avatar and update it.
     """
     parser_classes = [MultiPartParser]
 
@@ -449,6 +453,12 @@ class PersonAvatarUpload(views.APIView):
 
 class UserUpdateView(generics.UpdateAPIView,
                      viewsets.ViewSetMixin):
+    """
+    We use this view for updating user data such as:
+     - First Name
+     - Last Name
+     - username
+    """
     queryset = User.objects.all()
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticated]

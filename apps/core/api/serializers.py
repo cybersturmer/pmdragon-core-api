@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Dict, Any
 
 from django.contrib.auth import get_user_model
@@ -170,6 +171,12 @@ class PersonInvitationRequestSerializer(serializers.ModelSerializer):
 
 
 class PersonInvitationRequestList(serializers.Serializer):
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
     invites = PersonInvitationRequestSerializer(many=True)
 
     class Meta:
@@ -770,7 +777,7 @@ class SprintDurationSerializer(WorkspaceModelSerializer):
 
 class SprintWritableSerializer(WorkspaceModelSerializer):
     """
-    Common sprint data
+    If we want to update sprint data - we use this serializer.
     """
 
     class Meta:
@@ -797,6 +804,7 @@ class SprintWritableSerializer(WorkspaceModelSerializer):
 class SprintEstimationSerializer(serializers.ModelSerializer):
     """
     Sprint Estimation Serializer to get data and build a Chart
+    (BurnDown Chart for example)
     """
 
     class Meta:
@@ -810,6 +818,10 @@ class SprintEstimationSerializer(serializers.ModelSerializer):
 
 
 class IssueListSerializer(serializers.ListSerializer):
+    """
+    Look at IssueChildOrderingSerializer,
+    This serializer exist only for this purpose.
+    """
     def update(self, instance, validated_data):
         issue_mapping = {issue.id: issue
                          for issue
@@ -832,6 +844,10 @@ class IssueListSerializer(serializers.ListSerializer):
 
 
 class IssueChildOrderingSerializer(WorkspaceModelSerializer):
+    """
+    We use this serializer for update ordering for any amount of issues.
+    Order is the same for any presence (backlog, sprint).
+    """
     def update(self, instance, validated_data):
         instance.ordering = [validated_datum['ordering']
                              for validated_datum
