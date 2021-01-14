@@ -102,6 +102,10 @@ class Person(models.Model):
     def created_at(self):
         return self.user.date_joined
 
+    @property
+    def last_login(self):
+        return self.user.last_login
+
     class Meta:
         db_table = 'core_person'
         ordering = ['-updated_at']

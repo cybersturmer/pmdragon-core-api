@@ -1,4 +1,4 @@
-from abc import ABC
+from django.contrib.auth.models import update_last_login
 from typing import Dict, Any
 
 from django.contrib.auth import get_user_model
@@ -59,6 +59,10 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
         token['username'] = user.username
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
+
+        """
+        Update last login on obtaining token """
+        update_last_login(None, user)
 
         return token
 
@@ -460,10 +464,12 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
+            'email',
             'avatar',
             'first_name',
             'last_name',
             'is_active',
+            'last_login',
             'created_at'
         )
         extra_kwargs = {
