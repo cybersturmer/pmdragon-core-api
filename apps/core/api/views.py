@@ -421,6 +421,9 @@ class PersonAvatarUpload(views.APIView):
     Person avatar picture APIView
     We need it to upload user avatar and update it.
     """
+    permission_classes = (
+        IsAuthenticated,
+    )
     parser_classes = [MultiPartParser]
 
     def put(self, request):
