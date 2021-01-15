@@ -183,6 +183,11 @@ class IssueAdmin(admin.ModelAdmin):
         super(IssueAdmin, self).save_model(request, obj, form, change)
 
 
+@admin.register(IssueHistory)
+class IssueHistoryAdmin(admin.ModelAdmin):
+    model = IssueHistory
+
+
 @admin.register(IssueMessage)
 class IssueMessage(admin.ModelAdmin):
     model = IssueMessage

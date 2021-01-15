@@ -1,7 +1,11 @@
 from datetime import date, datetime, time
 
 from django.db.models import Q
-from django.db.models.signals import post_save, m2m_changed, post_delete
+from django.db.models.signals import \
+    pre_save, \
+    post_save,\
+    m2m_changed,\
+    post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,7 +21,7 @@ from .models import Project, \
     IssueStateCategory, \
     Sprint, \
     Issue, \
-    IssueMessage, IssueEstimationCategory, SprintEstimation
+    IssueMessage, IssueEstimationCategory, SprintEstimation, IssueHistory
 
 
 class ActionM2M(Enum):
@@ -340,3 +344,58 @@ def signal_set_issue_type_category_by_default_if_no_exists(instance: IssueTypeCa
 @receiver(post_delete, sender=IssueStateCategory)
 def signal_set_issue_state_category_by_default_if_no_exists(instance: IssueStateCategory, **kwargs):
     return set_default_for_instance(instance=instance, sender=IssueStateCategory)
+
+
+@receiver(pre_save, sender=Issue)
+def signal_set_issue_history(instance: Issue, **kwargs):
+    all_fields = Issue._meta.concrete_fields
+    db_version = Issue.objects.get(pk=instance.id)
+
+    foreign_data = [
+        'workspace',
+        'project',
+        'type_category',
+        'state_category',
+        'estimation_category',
+        'assignee'
+    ]
+
+    do_not_watch_fields = [
+        'workspace',
+        'created_by',
+        'created_at',
+        'updated_at'
+    ]
+
+    for field in all_fields:
+        _db_value = getattr(db_version, field.name)
+        _instance_value = getattr(instance, field.name)
+
+        if _db_value == _instance_value or\
+                field.name in do_not_watch_fields:
+            continue
+
+        _edited_field = field.name
+        _before_value = _db_value
+        _after_value = _instance_value
+
+        if _edited_field in foreign_data:
+            _before_value = getattr(_db_value, 'title')
+            _after_value = getattr(_instance_value, 'title')
+
+        if _before_value is None:
+            _before_value = 'None'
+
+        if _after_value is None:
+            _after_value = 'None'
+
+        """
+        Issue history instance """
+        history_entry = IssueHistory(
+            edited_field=_edited_field,
+            before_value=_before_value,
+            after_value=_after_value,
+            changed_by=instance.updated_by
+        )
+
+        history_entry.save()

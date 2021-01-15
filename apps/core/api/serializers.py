@@ -723,8 +723,13 @@ class IssueSerializer(WorkspaceModelSerializer):
 
     def validate(self, attrs):
         data = super(IssueSerializer, self).validate(attrs)
-        data['created_by'] = self.context['person']
+        data['updated_by'] = self.context['person']
         return data
+
+    def create(self, validated_data):
+        instance = Issue.objects.create(**validated_data)
+        instance.created_by = self.context['person']
+        instance.save()
 
 
 class IssueMessageSerializer(WorkspaceModelSerializer):

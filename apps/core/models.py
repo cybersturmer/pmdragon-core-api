@@ -582,7 +582,13 @@ class Issue(models.Model):
                                    verbose_name=_('Created by'),
                                    null=True,
                                    on_delete=models.SET_NULL,
-                                   related_name='created_issues')
+                                   related_name='created_by_issues')
+
+    updated_by = models.ForeignKey(Person,
+                                   verbose_name=_('Updated by'),
+                                   null=True,
+                                   on_delete=models.SET_NULL,
+                                   related_name='updated_by_issues')
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
@@ -691,6 +697,34 @@ class Issue(models.Model):
                 self.ordering = max_ordering
 
         super(Issue, self).save(*args, **kwargs)
+
+
+class IssueHistory(models.Model):
+    edited_field = models.CharField(verbose_name=_('Edited field'),
+                                    max_length=255)
+
+    before_value = models.CharField(verbose_name=_('Value before changing'),
+                                    max_length=255)
+
+    after_value = models.CharField(verbose_name=_('Value after changing'),
+                                   max_length=255)
+
+    changed_by = models.ForeignKey(Person,
+                                   verbose_name=_('Changed by'),
+                                   null=True,
+                                   on_delete=models.SET_NULL)
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+                                      auto_now=True)
+
+    class Meta:
+        db_table = 'core_issue_history'
+        ordering = ['-updated_at']
+        verbose_name = _('Issue History')
+        verbose_name_plural = _('Issue History')
 
 
 class IssueMessage(models.Model):
@@ -971,7 +1005,6 @@ class SprintEstimation(models.Model):
         )
         verbose_name = 'Sprint Estimation'
         verbose_name_plural = 'Sprint Estimations'
-
 
     def __str__(self):
         return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.total_value} - {self.point_at}'
