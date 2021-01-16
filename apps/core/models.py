@@ -705,6 +705,10 @@ class IssueHistory(models.Model):
                               on_delete=models.CASCADE,
                               related_name='history')
 
+    entry_type = models.CharField(verbose_name=_('Entry time'),
+                                  max_length=255,
+                                  help_text=_('We use this to set icon in timeline.'))
+
     edited_field = models.CharField(verbose_name=_('Edited field'),
                                     max_length=255)
 
@@ -727,7 +731,7 @@ class IssueHistory(models.Model):
 
     class Meta:
         db_table = 'core_issue_history'
-        ordering = ['-updated_at']
+        ordering = ['updated_at']
         verbose_name = _('Issue History')
         verbose_name_plural = _('Issue History')
 

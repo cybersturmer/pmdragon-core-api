@@ -737,6 +737,7 @@ class IssueHistorySerializer(serializers.ModelSerializer):
         model = IssueHistory
         fields = (
             'id',
+            'entry_type',
             'edited_field',
             'before_value',
             'after_value',
