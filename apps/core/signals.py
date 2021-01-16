@@ -393,6 +393,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         """
         Issue history instance """
         history_entry = IssueHistory(
+            issue=instance,
             edited_field=_edited_field,
             before_value=_before_value,
             after_value=_after_value,

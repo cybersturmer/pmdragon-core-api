@@ -355,6 +355,8 @@ class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (
         IsAuthenticated,
     )
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['issue']
 
     def get_serializer_context(self):
         """

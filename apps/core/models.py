@@ -700,6 +700,11 @@ class Issue(models.Model):
 
 
 class IssueHistory(models.Model):
+    issue = models.ForeignKey(Issue,
+                              verbose_name=_('Issue'),
+                              on_delete=models.CASCADE,
+                              related_name='history')
+
     edited_field = models.CharField(verbose_name=_('Edited field'),
                                     max_length=255)
 
