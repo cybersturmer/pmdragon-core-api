@@ -349,6 +349,25 @@ class IssueViewSet(WorkspacesModelViewSet):
     serializer_class = IssueSerializer
 
 
+class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = IssueHistory.objects.all()
+    serializer_class = IssueHistorySerializer
+    permission_classes = (
+        IsAuthenticated,
+    )
+
+    def get_serializer_context(self):
+        """
+        Put to serializer context information about current person
+        """
+        context = super().get_serializer_context()
+        context.update({
+            'person': self.request.user.person
+        })
+
+        return context
+
+
 class IssueMessagesViewSet(WorkspacesModelViewSet):
     queryset = IssueMessage.objects.all()
     serializer_class = IssueMessageSerializer

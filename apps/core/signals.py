@@ -363,6 +363,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
     do_not_watch_fields = [
         'workspace',
         'created_by',
+        'updated_by',
         'created_at',
         'updated_at'
     ]

@@ -732,6 +732,19 @@ class IssueSerializer(WorkspaceModelSerializer):
         instance.save()
 
 
+class IssueHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IssueHistory
+        fields = (
+            'edited_field',
+            'before_value',
+            'after_value',
+            'changed_by',
+            'created_at',
+            'updated_at'
+        )
+
+
 class IssueMessageSerializer(WorkspaceModelSerializer):
     class Meta:
         model = IssueMessage
