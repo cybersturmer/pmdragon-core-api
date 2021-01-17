@@ -389,14 +389,15 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         _after_value = _instance_value
 
         if field.name in foreign_data:
-            _before_value = getattr(_db_value, 'title')
-            _after_value = getattr(_instance_value, 'title')
+            if _before_value is None:
+                _before_value = 'None'
+            else:
+                _before_value = getattr(_db_value, 'title')
 
-        if _before_value is None:
-            _before_value = 'None'
-
-        if _after_value is None:
-            _after_value = 'None'
+            if _after_value is None:
+                _after_value = 'None'
+            else:
+                _after_value = getattr(_instance_value, 'title')
 
         """
         Issue history instance """
