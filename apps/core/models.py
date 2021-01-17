@@ -712,6 +712,13 @@ class Issue(models.Model):
 
 
 class IssueHistory(models.Model):
+    """
+    In reality we really need only:
+    1) Issue
+    2) Entry Type
+    Other field can to be null.
+    """
+
     issue = models.ForeignKey(Issue,
                               verbose_name=_('Issue'),
                               on_delete=models.CASCADE,
@@ -722,13 +729,16 @@ class IssueHistory(models.Model):
                                   help_text=_('We use this to set icon in timeline.'))
 
     edited_field = models.CharField(verbose_name=_('Edited field'),
-                                    max_length=255)
+                                    max_length=255,
+                                    null=True)
 
     before_value = models.CharField(verbose_name=_('Value before changing'),
-                                    max_length=255)
+                                    max_length=255,
+                                    null=True)
 
     after_value = models.CharField(verbose_name=_('Value after changing'),
-                                   max_length=255)
+                                   max_length=255,
+                                   null=True)
 
     changed_by = models.ForeignKey(Person,
                                    verbose_name=_('Changed by'),
