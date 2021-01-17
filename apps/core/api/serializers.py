@@ -731,6 +731,8 @@ class IssueSerializer(WorkspaceModelSerializer):
         instance.created_by = self.context['person']
         instance.save()
 
+        return instance
+
 
 class IssueHistorySerializer(serializers.ModelSerializer):
     class Meta:
