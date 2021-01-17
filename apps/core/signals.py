@@ -348,6 +348,14 @@ def signal_set_issue_state_category_by_default_if_no_exists(instance: IssueState
 
 @receiver(pre_save, sender=Issue)
 def signal_set_issue_history(instance: Issue, **kwargs):
+    """
+    Create History Entry on Issue Changing
+    Pre_save signal is crucial cuz we have to compare
+    instance data with database values.
+    """
+    if not instance.id:
+        return True
+
     all_fields = Issue._meta.concrete_fields
     db_version = Issue.objects.get(pk=instance.id)
 
@@ -376,11 +384,11 @@ def signal_set_issue_history(instance: Issue, **kwargs):
                 field.name in do_not_watch_fields:
             continue
 
-        _edited_field = field.name
+        _edited_field_verbose_name = field.verbose_name
         _before_value = _db_value
         _after_value = _instance_value
 
-        if _edited_field in foreign_data:
+        if field.name in foreign_data:
             _before_value = getattr(_db_value, 'title')
             _after_value = getattr(_instance_value, 'title')
 
@@ -395,10 +403,30 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         history_entry = IssueHistory(
             issue=instance,
             entry_type='edit',
-            edited_field=_edited_field,
+            edited_field=_edited_field_verbose_name,
             before_value=_before_value,
             after_value=_after_value,
             changed_by=instance.updated_by
         )
 
         history_entry.save()
+
+
+@receiver(post_save, sender=Issue)
+def signal_set_create_issue_history(instance: Issue, created: bool, **kwargs):
+    """
+    Create History Entry on Issue Creation """
+
+    if not created:
+        return True
+
+    history_entry = IssueHistory(
+        issue=instance,
+        entry_type='add_task',
+        edited_field=None,
+        before_value=None,
+        after_value=None,
+        changed_by=instance.updated_by
+    )
+
+    history_entry.save()
