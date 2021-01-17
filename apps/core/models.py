@@ -21,21 +21,33 @@ url_validator = RegexValidator(r'^[a-zA-Z0-9]{3,20}$',
 
 class UploadPersonsDirections(Enum):
     AVATAR = 'avatar'
+    ATTACHMENT = 'attachment'
 
 
 def image_upload_location(instance, filename) -> str:
     """
     Getting prefix by checking is it instance of ..."""
     direction = {
-        isinstance(instance, Person): UploadPersonsDirections.AVATAR.value
+        isinstance(instance, Person):
+            UploadPersonsDirections.AVATAR.value
     }[True]
 
     name, extension = os.path.splitext(filename)
     uniq_name = uuid.uuid4().hex
 
-    path = f'person_{instance.user.id}/images/{direction}_{uniq_name}{extension}'
+    return f'person_{instance.user.id}/images/{direction}_{uniq_name}{extension}'
 
-    return path
+
+def attachment_upload_location(instance, filename) -> str:
+    direction = {
+        isinstance(instance, IssueMessageAttachment):
+            UploadPersonsDirections.ATTACHMENT.value
+    }[True]
+
+    name, extension = os.path.splitext(filename)
+    uniq_name = uuid.uuid4().hex
+
+    return f'person_{instance.user.id}/uploads/{direction}_{uniq_name}{extension}'
 
 
 def clean_useless_newlines(data):
@@ -788,6 +800,44 @@ class IssueMessage(models.Model):
         self.description = clean_useless_newlines(clean_html(self.description))
 
         super().save(*args, **kwargs)
+
+
+class IssueMessageAttachment(models.Model):
+    workspace = models.ForeignKey(Workspace,
+                                  verbose_name=_('Workspace'),
+                                  db_index=True,
+                                  on_delete=models.CASCADE)
+
+    project = models.ForeignKey(Project,
+                                verbose_name=_('Project'),
+                                on_delete=models.CASCADE)
+
+    message = models.ForeignKey(IssueMessage,
+                                verbose_name=_('Issue Message'),
+                                on_delete=models.CASCADE,
+                                related_name='attachments')
+
+    title = models.CharField(verbose_name=_('Title'),
+                             max_length=255)
+
+    attachment = models.FileField(verbose_name=_('Attachment'),
+                                  upload_to=attachment_upload_location)
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+                                      auto_now=True)
+
+    class Meta:
+        db_table = 'core_issue_message_attachment'
+        verbose_name = _('Issue Message Attachment')
+        verbose_name_plural = _('Issue Message Attachments')
+
+    def __str__(self):
+        return f'#{self.message.id} message @{self.title}'
+
+    __repr__ = __str__
 
 
 class ProjectBacklog(models.Model):

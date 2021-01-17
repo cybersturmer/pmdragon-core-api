@@ -144,6 +144,7 @@ class SprintEstimationAdmin(admin.ModelAdmin):
         obj.workspace = obj.project.workspace
         super().save_model(request, obj, form, change)
 
+
 @admin.register(IssueTypeCategoryIcon)
 class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
     model = IssueTypeCategoryIcon
@@ -189,7 +190,7 @@ class IssueHistoryAdmin(admin.ModelAdmin):
 
 
 @admin.register(IssueMessage)
-class IssueMessage(admin.ModelAdmin):
+class IssueMessageAdmin(admin.ModelAdmin):
     model = IssueMessage
     readonly_fields = (
         'workspace',
@@ -201,7 +202,12 @@ class IssueMessage(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.workspace = obj.issue.workspace
         obj.project = obj.issue.project
-        super(IssueMessage, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(IssueMessageAttachment)
+class IssueMessageAttachmentAdmin(admin.ModelAdmin):
+    model = IssueMessageAttachment
 
 
 admin.site.register(ProjectBacklog)

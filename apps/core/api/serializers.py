@@ -770,6 +770,19 @@ class IssueMessageSerializer(WorkspaceModelSerializer):
         return data
 
 
+class IssueMessageAttachmentSerializer(WorkspaceModelSerializer):
+    class Meta:
+        model = IssueMessageAttachment
+        fields = (
+            'id',
+            'message',
+            'title',
+            'attachment',
+            'created_at',
+            'updated_at'
+        )
+
+
 class BacklogWritableSerializer(WorkspaceModelSerializer):
     class Meta:
         model = ProjectBacklog
