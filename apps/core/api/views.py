@@ -382,16 +382,14 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
     filterset_fields = ['issue']
 
 
-class IssueMessagesAttachmentViewSet(WorkspacesModelViewSet):
-    queryset = IssueMessageAttachment.objects.all()
-    serializer_class = IssueMessageAttachmentSerializer
+class IssueAttachmentViewSet(WorkspacesModelViewSet):
+    queryset = IssueAttachment.objects.all()
+    serializer_class = IssueAttachmentSerializer
     permission_classes = (
         IsAuthenticated,
         IsParticipateInWorkspace,
         IsCreatorOrReadOnly
     )
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['message']
 
 
 class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,

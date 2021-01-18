@@ -468,6 +468,7 @@ class PersonSerializer(serializers.ModelSerializer):
             'avatar',
             'first_name',
             'last_name',
+            'title',
             'is_active',
             'last_login',
             'created_at'
@@ -707,6 +708,7 @@ class IssueSerializer(WorkspaceModelSerializer):
             'state_category',
             'estimation_category',
             'assignee',
+            'attachments',
             'created_by',
             'created_at',
             'updated_at',
@@ -772,12 +774,11 @@ class IssueMessageSerializer(WorkspaceModelSerializer):
         return data
 
 
-class IssueMessageAttachmentSerializer(WorkspaceModelSerializer):
+class IssueAttachmentSerializer(WorkspaceModelSerializer):
     class Meta:
-        model = IssueMessageAttachment
+        model = IssueAttachment
         fields = (
             'id',
-            'message',
             'title',
             'attachment',
             'created_at',

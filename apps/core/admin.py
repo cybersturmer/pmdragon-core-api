@@ -158,9 +158,31 @@ class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
     )
 
 
+class IssueAttachmentsRelationStackedInlineAdmin(admin.StackedInline):
+    model = IssueAttachmentRelation
+    extra = 1
+
+
 @admin.register(Issue)
 class IssueAdmin(admin.ModelAdmin):
     model = Issue
+    inlines = (
+        IssueAttachmentsRelationStackedInlineAdmin,
+    )
+    fields = (
+        'project',
+        'title',
+        'description',
+        'type_category',
+        'state_category',
+        'estimation_category',
+        'assignee',
+        'created_by',
+        'updated_by',
+        'created_at',
+        'updated_at',
+        'ordering'
+    )
     list_display = (
         'id',
         'project',
@@ -205,9 +227,9 @@ class IssueMessageAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-@admin.register(IssueMessageAttachment)
-class IssueMessageAttachmentAdmin(admin.ModelAdmin):
-    model = IssueMessageAttachment
+@admin.register(IssueAttachment)
+class IssueAttachmentAdmin(admin.ModelAdmin):
+    model = IssueAttachment
 
 
 admin.site.register(ProjectBacklog)

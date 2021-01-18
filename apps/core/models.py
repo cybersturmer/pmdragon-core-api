@@ -40,14 +40,14 @@ def image_upload_location(instance, filename) -> str:
 
 def attachment_upload_location(instance, filename) -> str:
     direction = {
-        isinstance(instance, IssueMessageAttachment):
+        isinstance(instance, IssueAttachment):
             UploadPersonsDirections.ATTACHMENT.value
     }[True]
 
     name, extension = os.path.splitext(filename)
     uniq_name = uuid.uuid4().hex
 
-    return f'person_{instance.user.id}/uploads/{direction}_{uniq_name}{extension}'
+    return f'person_{instance.workspace.id}/uploads/{direction}_{uniq_name}{extension}'
 
 
 def clean_useless_newlines(data):
@@ -101,6 +101,10 @@ class Person(models.Model):
     @property
     def last_name(self):
         return self.user.last_name
+
+    @property
+    def title(self):
+        return f'{self.user.first_name} {self.user.last_name}'
 
     @property
     def email(self):
@@ -543,6 +547,45 @@ class IssueEstimationCategory(models.Model):
     __repr__ = __str__
 
 
+class IssueAttachment(models.Model):
+    """
+    Since we need for transparency we do not let user
+    assign file to separate message and have to assign it
+    to issue.
+    It's much better to see all files in the issue page.
+    """
+    workspace = models.ForeignKey(Workspace,
+                                  verbose_name=_('Workspace'),
+                                  db_index=True,
+                                  on_delete=models.CASCADE)
+
+    project = models.ForeignKey(Project,
+                                verbose_name=_('Project'),
+                                on_delete=models.CASCADE)
+
+    title = models.CharField(verbose_name=_('Title'),
+                             max_length=255)
+
+    attachment = models.FileField(verbose_name=_('Attachment'),
+                                  upload_to=attachment_upload_location)
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+                                      auto_now=True)
+
+    class Meta:
+        db_table = 'core_issue_attachment'
+        verbose_name = _('Issue Attachment')
+        verbose_name_plural = _('Issue Attachments')
+
+    def __str__(self):
+        return f'@{self.title}'
+
+    __repr__ = __str__
+
+
 class Issue(models.Model):
     cleaned_data: dict
 
@@ -587,8 +630,12 @@ class Issue(models.Model):
                                  verbose_name=_('Assignee'),
                                  db_index=True,
                                  null=True,
+                                 blank=True,
                                  on_delete=models.SET_NULL,
                                  related_name='assigned_issues')
+
+    attachments = models.ManyToManyField(IssueAttachment,
+                                         through='IssueAttachmentRelation')
 
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Created by'),
@@ -711,6 +758,25 @@ class Issue(models.Model):
         super(Issue, self).save(*args, **kwargs)
 
 
+class IssueAttachmentRelation(models.Model):
+    issue = models.ForeignKey(Issue,
+                              verbose_name=_('Issue'),
+                              on_delete=models.CASCADE)
+
+    attachment = models.ForeignKey(IssueAttachment,
+                                   verbose_name=_('Attachment'),
+                                   on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+                                      auto_now=True)
+
+    class Meta:
+        db_table = 'core_issue_attachment_relation'
+
+
 class IssueHistory(models.Model):
     """
     In reality we really need only:
@@ -783,6 +849,12 @@ class IssueMessage(models.Model):
     description = models.TextField(verbose_name=_('Description'),
                                    blank=True)
 
+    attachments = models.ForeignKey(IssueAttachment,
+                                    verbose_name=_('Attachments'),
+                                    on_delete=models.SET_NULL,
+                                    null=True,
+                                    default=None)
+
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
 
@@ -810,44 +882,6 @@ class IssueMessage(models.Model):
         self.description = clean_useless_newlines(clean_html(self.description))
 
         super().save(*args, **kwargs)
-
-
-class IssueMessageAttachment(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
-    message = models.ForeignKey(IssueMessage,
-                                verbose_name=_('Issue Message'),
-                                on_delete=models.CASCADE,
-                                related_name='attachments')
-
-    title = models.CharField(verbose_name=_('Title'),
-                             max_length=255)
-
-    attachment = models.FileField(verbose_name=_('Attachment'),
-                                  upload_to=attachment_upload_location)
-
-    created_at = models.DateTimeField(verbose_name=_('Created at'),
-                                      auto_now_add=True)
-
-    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
-                                      auto_now=True)
-
-    class Meta:
-        db_table = 'core_issue_message_attachment'
-        verbose_name = _('Issue Message Attachment')
-        verbose_name_plural = _('Issue Message Attachments')
-
-    def __str__(self):
-        return f'#{self.message.id} message @{self.title}'
-
-    __repr__ = __str__
 
 
 class ProjectBacklog(models.Model):
