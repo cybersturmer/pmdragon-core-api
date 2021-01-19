@@ -779,6 +779,8 @@ class IssueAttachmentSerializer(WorkspaceModelSerializer):
         model = IssueAttachment
         fields = (
             'id',
+            'workspace',
+            'project',
             'title',
             'attachment',
             'created_at',
