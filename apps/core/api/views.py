@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.admin import sensitive_post_parameters_m
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -382,7 +384,14 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
     filterset_fields = ['issue']
 
 
-class IssueAttachmentViewSet(WorkspacesModelViewSet):
+class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
+                             mixins.UpdateModelMixin,
+                             mixins.DestroyModelMixin):
+    """
+    This view handle anything except
+    create (POST), cuz it's handled
+    by another view IssueAttachmentUpload
+    """
     queryset = IssueAttachment.objects.all()
     serializer_class = IssueAttachmentSerializer
     permission_classes = (
@@ -390,6 +399,69 @@ class IssueAttachmentViewSet(WorkspacesModelViewSet):
         IsParticipateInWorkspace,
         IsCreatorOrReadOnly
     )
+
+
+class IssueAttachmentUpload(views.APIView):
+    """
+    Issue Attachment Upload ApiView
+    Only for uploading and providing small portion of information
+    """
+    permission_classes = (
+        IsAuthenticated,
+    )
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        """
+        <-- Example of data in raw_data
+        {
+          "workspace": 0,
+          "project": 0,
+          "title": "string",
+          "attachment": "string"
+        }
+
+        --> Example of output
+        {
+          "id": 0,
+          "workspace": 0,
+          "project": 0,
+          "title": "string",
+          "attachment": "string",
+          "created_at": "2021-01-20T15:34:41.989Z",
+          "updated_at": "2021-01-20T15:34:41.989Z"
+        }
+        """
+        file_obj = request.data['file']
+        raw_data = request.data['data']
+
+        data = json.loads(raw_data)
+
+        workspace = Workspace.objects.get(pk=data['workspace'])
+        project = Workspace.objects.get(pk=data['project'])
+        title = data['title']
+
+        attachment = IssueAttachment(
+            workspace=workspace,
+            project=project,
+            title=title,
+            attachment=file_obj
+        )
+
+        attachment.save()
+
+        response_data = {
+            'id': attachment.id,
+            'workspace': workspace.id,
+            'project': project.id,
+            'title': attachment.title,
+            'attachment': request.build_absolute_uri(attachment.attachment.url)
+        }
+
+        return Response(
+            data=response_data,
+            status=status.HTTP_201_CREATED
+        )
 
 
 class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,

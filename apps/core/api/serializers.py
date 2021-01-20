@@ -763,9 +763,15 @@ class IssueMessageSerializer(WorkspaceModelSerializer):
             'updated_at'
         )
         extra_kwargs = {
-            'created_at': {'read_only': True},
-            'updated_at': {'read_only': True},
-            'created_by': {'read_only': True}
+            'created_at': {
+                'read_only': True
+            },
+            'updated_at': {
+                'read_only': True
+            },
+            'created_by': {
+                'read_only': True
+            }
         }
 
     def validate(self, attrs):
@@ -786,6 +792,11 @@ class IssueAttachmentSerializer(WorkspaceModelSerializer):
             'created_at',
             'updated_at'
         )
+        extra_kwargs = {
+            'attachment': {
+                'read_only': True
+            }
+        }
 
 
 class BacklogWritableSerializer(WorkspaceModelSerializer):
