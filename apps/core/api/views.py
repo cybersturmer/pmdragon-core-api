@@ -385,6 +385,7 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
 
 
 class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
+                             mixins.CreateModelMixin,
                              mixins.UpdateModelMixin,
                              mixins.DestroyModelMixin):
     """
@@ -400,18 +401,8 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
         IsCreatorOrReadOnly
     )
 
-
-class IssueAttachmentUpload(views.APIView):
-    """
-    Issue Attachment Upload ApiView
-    Only for uploading and providing small portion of information
-    """
-    permission_classes = (
-        IsAuthenticated,
-    )
-    parser_classes = [MultiPartParser]
-
-    def post(self, request):
+    def create(self, request, *args, **kwargs):
+        self.parser_classes = [MultiPartParser]
         """
         <-- Example of data in raw_data
         {

@@ -14,7 +14,7 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonAvatarUpload, \
     PersonRegistrationRequestView, \
     PersonInvitationRequestListView, \
-    PersonInvitationRequestRetrieveUpdateView, IssueAttachmentUpload
+    PersonInvitationRequestRetrieveUpdateView
 from apps.core.api.views import TokenObtainPairExtendedView
 from apps.core.views import SwaggerView
 
@@ -80,10 +80,6 @@ urlpatterns = [
     path('api/auth/avatar/',
          PersonAvatarUpload.as_view(),
          name='avatar'),
-
-    path('api/core/issue-attachments/',
-         IssueAttachmentUpload.as_view(),
-         name='attachment'),
 
     path('api/core/', include('apps.core.api.urls', namespace='core_api'))
 ]
