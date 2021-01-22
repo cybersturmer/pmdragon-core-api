@@ -569,6 +569,15 @@ class IssueAttachment(models.Model):
     attachment = models.FileField(verbose_name=_('Attachment'),
                                   upload_to=attachment_upload_location)
 
+    show_preview = models.BooleanField(verbose_name=_('Show preview?'),
+                                       help_text=_('If yes - we can show small preview of file'),
+                                       default=False)
+
+    icon = models.CharField(verbose_name=_('File Type Icon'),
+                            choices=settings.ICON_CHOICES,
+                            max_length=255,
+                            default=settings.ICON_CHOICES[5][0])
+
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
 

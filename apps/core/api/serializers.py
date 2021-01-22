@@ -789,6 +789,8 @@ class IssueAttachmentSerializer(WorkspaceModelSerializer):
             'project',
             'title',
             'attachment',
+            'show_preview',
+            'icon',
             'created_at',
             'updated_at'
         )
