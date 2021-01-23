@@ -1,5 +1,6 @@
 from datetime import date, datetime, time
 
+from django.conf import settings
 from django.db.models import Q
 from django.db.models.signals import \
     pre_save, \
@@ -403,7 +404,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         Issue history instance """
         history_entry = IssueHistory(
             issue=instance,
-            entry_type='edit',
+            entry_type=settings.FRONTEND_ICON_SET + 'playlist-edit',
             edited_field=_edited_field_verbose_name,
             before_value=_before_value,
             after_value=_after_value,
@@ -423,7 +424,7 @@ def signal_set_create_issue_history(instance: Issue, created: bool, **kwargs):
 
     history_entry = IssueHistory(
         issue=instance,
-        entry_type='add_task',
+        entry_type=settings.FRONTEND_ICON_SET + 'playlist-plus',
         edited_field=None,
         before_value=None,
         after_value=None,

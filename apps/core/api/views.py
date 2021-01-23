@@ -429,7 +429,9 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
         data = json.loads(raw_data)
 
         workspace = Workspace.objects.get(pk=data['workspace'])
-        project = Workspace.objects.get(pk=data['project'])
+        project = Project.objects.get(pk=data['project'])
+        issue = Issue.objects.get(pk=data['issue'])
+
         title = data['title']
 
         attachment = IssueAttachment(
@@ -440,17 +442,12 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
         )
 
         attachment.save()
+        issue.attachments.add(attachment)
 
-        response_data = {
-            'id': attachment.id,
-            'workspace': workspace.id,
-            'project': project.id,
-            'title': attachment.title,
-            'attachment': request.build_absolute_uri(attachment.attachment.url)
-        }
+        serializer = self.get_serializer(instance=attachment)
 
         return Response(
-            data=response_data,
+            data=serializer.data,
             status=status.HTTP_201_CREATED
         )
 
