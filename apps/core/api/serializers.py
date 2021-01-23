@@ -792,6 +792,7 @@ class IssueAttachmentSerializer(WorkspaceModelSerializer):
             'attachment',
             'show_preview',
             'icon',
+            'created_by',
             'created_at',
             'updated_at'
         )
