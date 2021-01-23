@@ -158,16 +158,16 @@ class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
     )
 
 
-class IssueAttachmentsRelationStackedInlineAdmin(admin.StackedInline):
-    model = IssueAttachmentRelation
+class IssueAttachmentsStackedInlineAdmin(admin.StackedInline):
+    model = IssueAttachment
     extra = 1
 
 
 @admin.register(Issue)
 class IssueAdmin(admin.ModelAdmin):
     model = Issue
-    inlines = (
-        IssueAttachmentsRelationStackedInlineAdmin,
+    filter_horizontal = (
+        'attachments',
     )
     fields = (
         'project',
@@ -176,6 +176,7 @@ class IssueAdmin(admin.ModelAdmin):
         'type_category',
         'state_category',
         'estimation_category',
+        'attachments',
         'assignee',
         'created_by',
         'updated_by',

@@ -578,6 +578,11 @@ class IssueAttachment(models.Model):
                             max_length=255,
                             default=settings.ICON_CHOICES[5][0])
 
+    created_by = models.ForeignKey(Person,
+                                   verbose_name=_('Created by'),
+                                   null=True,
+                                   on_delete=models.SET_NULL)
+
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
 
@@ -590,7 +595,7 @@ class IssueAttachment(models.Model):
         verbose_name_plural = _('Issue Attachments')
 
     def __str__(self):
-        return f'@{self.title}'
+        return f'{self.id}@{self.title}'
 
     __repr__ = __str__
 
@@ -644,7 +649,9 @@ class Issue(models.Model):
                                  related_name='assigned_issues')
 
     attachments = models.ManyToManyField(IssueAttachment,
-                                         through='IssueAttachmentRelation')
+                                         verbose_name=_('Attachments'),
+                                         blank=True,
+                                         default=None)
 
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Created by'),
@@ -767,25 +774,6 @@ class Issue(models.Model):
         super(Issue, self).save(*args, **kwargs)
 
 
-class IssueAttachmentRelation(models.Model):
-    issue = models.ForeignKey(Issue,
-                              verbose_name=_('Issue'),
-                              on_delete=models.CASCADE)
-
-    attachment = models.ForeignKey(IssueAttachment,
-                                   verbose_name=_('Attachment'),
-                                   on_delete=models.CASCADE)
-
-    created_at = models.DateTimeField(verbose_name=_('Created at'),
-                                      auto_now_add=True)
-
-    updated_at = models.DateTimeField(verbose_name=_('Updated at'),
-                                      auto_now=True)
-
-    class Meta:
-        db_table = 'core_issue_attachment_relation'
-
-
 class IssueHistory(models.Model):
     """
     In reality we really need only:
@@ -857,12 +845,6 @@ class IssueMessage(models.Model):
 
     description = models.TextField(verbose_name=_('Description'),
                                    blank=True)
-
-    attachments = models.ForeignKey(IssueAttachment,
-                                    verbose_name=_('Attachments'),
-                                    on_delete=models.SET_NULL,
-                                    null=True,
-                                    default=None)
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)

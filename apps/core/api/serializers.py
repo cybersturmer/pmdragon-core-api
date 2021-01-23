@@ -719,8 +719,9 @@ class IssueSerializer(WorkspaceModelSerializer):
             'created_at': {'read_only': True},
             'type_category': {'required': False},
             'state_category': {'required': False},
+            'attachments': {'allow_null': True},
             'estimation_category': {'required': False},
-            'ordering': {'required': False}
+            'ordering': {'required': False},
         }
 
     def validate(self, attrs):
