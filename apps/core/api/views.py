@@ -438,7 +438,8 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
             workspace=workspace,
             project=project,
             title=title,
-            attachment=file_obj
+            attachment=file_obj,
+            created_by=self.request.user.person
         )
 
         attachment.save()
