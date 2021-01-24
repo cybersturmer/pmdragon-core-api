@@ -569,6 +569,9 @@ class IssueAttachment(models.Model):
     attachment = models.FileField(verbose_name=_('Attachment'),
                                   upload_to=attachment_upload_location)
 
+    attachment_size = models.PositiveBigIntegerField(verbose_name=_('Size of attachment'),
+                                                     help_text=_('How big attachment is'))
+
     show_preview = models.BooleanField(verbose_name=_('Show preview?'),
                                        help_text=_('If yes - we can show small preview of file'),
                                        default=False)
