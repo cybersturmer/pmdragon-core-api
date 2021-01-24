@@ -434,13 +434,30 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
 
         title = data['title']
 
+        icon = [entry[2]
+                for entry
+                in settings.FILE_EXTENSIONS_MAPPING
+                if file_obj.content_type in entry[0]]
+
+        is_preview = [entry[3]
+                      for entry
+                      in settings.FILE_EXTENSIONS_MAPPING
+                      if file_obj.content_type in entry[0]]
+
         attachment = IssueAttachment(
             workspace=workspace,
             project=project,
             title=title,
             attachment=file_obj,
+            attachment_size=file_obj.size,
+            icon=icon,
+            show_preview=is_preview,
             created_by=self.request.user.person
         )
+
+        # file_obj.content_type: str = 'application/pdf'
+        # file_obj.size: int = 1
+        # file_obj.name: str = ''
 
         attachment.save()
         issue.attachments.add(attachment)
