@@ -1,1 +1,1 @@
-web: uvicorn conf.wsgi
+web: uvicorn conf.wsgi --log-file -

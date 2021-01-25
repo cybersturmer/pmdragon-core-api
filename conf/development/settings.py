@@ -181,4 +181,5 @@ FILE_EXTENSIONS_MAPPING = (
      ['bmp', 'gif', 'jpg', 'jpeg', 'png', 'svg'], ICON_CHOICES[27], True)
 )
 
+# Activate Heroku settings for Django.
 django_heroku.settings(locals())
