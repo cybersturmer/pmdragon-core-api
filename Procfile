@@ -1,1 +1,1 @@
-web: uvicorn conf.wsgi:application --port process.env.PORT
+web: uvicorn conf.wsgi:application --port $PORT
