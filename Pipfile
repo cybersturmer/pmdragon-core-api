@@ -25,6 +25,7 @@ h11 = "==0.11.0"
 celery = "*"
 bleach = "*"
 django-filter = "*"
+django-heroku = "*"
 
 [requires]
 python_version = "3.8"
