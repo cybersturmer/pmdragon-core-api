@@ -1,1 +1,1 @@
-web: uvicorn conf.wsgi:application --port $PORT
+web: uvicorn conf.wsgi:application --host=0.0.0.0 --port=${PORT:-5000}
