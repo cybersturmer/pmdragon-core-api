@@ -2,6 +2,7 @@ import sys
 from datetime import timedelta
 
 from conf.common.settings import *
+import django_heroku
 
 DEBUG = True
 
@@ -179,3 +180,5 @@ FILE_EXTENSIONS_MAPPING = (
       'image/svg+xml'),
      ['bmp', 'gif', 'jpg', 'jpeg', 'png', 'svg'], ICON_CHOICES[27], True)
 )
+
+django_heroku.settings(locals())
