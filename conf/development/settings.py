@@ -62,14 +62,6 @@ DATABASES = {
     },
 }
 
-if 'test' in sys.argv or 'test_coverage' in sys.argv:
-    DATABASES.update({
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'database.sqlite3'
-        }
-    })
-
 """
 Custom EMAIL Settings 
 HOST_BY_DEFAULT just for email replacing """
