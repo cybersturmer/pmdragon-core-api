@@ -27,6 +27,8 @@ bleach = "*"
 django-filter = "*"
 django-heroku = "*"
 websockets = "*"
+djangochannelsrestframework = "*"
+channels-redis = "*"
 
 [requires]
 python_version = "3.8"
