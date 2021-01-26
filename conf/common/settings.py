@@ -1,6 +1,7 @@
 import os
 
 from django.utils.translation import ugettext_lazy as _
+from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -132,7 +133,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 
     'ALGORITHM': 'HS256',
-    "SIGNING_KEY": SECRET_KEY,
+    "SIGNING_KEY": os.getenv('DJANGO_SECRET_KEY'),
     'ISSUER': 'PMDragon API',
 }
 
