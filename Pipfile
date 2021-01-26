@@ -26,6 +26,7 @@ celery = "*"
 bleach = "*"
 django-filter = "*"
 django-heroku = "*"
+websockets = "*"
 
 [requires]
 python_version = "3.8"
