@@ -1,64 +1,61 @@
+from datetime import timedelta
+
 from conf.common.settings import *
 
-DEBUG = False
+DEBUG = bool(os.getenv('IS_DEBUG', False))
 
-ALLOWED_HOSTS = [os.getenv('DJANGO_ALLOWED_HOSTS')]
-
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-assert SECRET_KEY is not None, (
-    'Please provide DJANGO_SECRET_KEY env variable with a value'
-)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': '5432',
-    }
-}
-
-ROOT_URLCONF = 'conf.production.urls'
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'memcached:11211',
-        'TIMEOUT': os.getenv('DJANGO_CACHE_TIMEOUT')
-    }
-}
+ALLOWED_HOSTS = ['*']
+SECRET_KEY = 'w*ea%hd29u-&l&rol@5zo8sadsad5o=@wb+i*r(@_+fnuc!*^9o0w'
 
 """
-Django rest framework cors headers """
-# Allowing to render all requests to api from any domain
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
-
-
-"""
-REST FRAMEWORK THROTTLING """
+Throttle settings """
 REST_FRAMEWORK.update({
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
-        'user': '5000/day',
+        'user': '1000/day'
     }
 })
 
+ROOT_URLCONF = 'conf.production.urls'
+
 """
-Email settings use secure ssl connection """
+Custom EMAIL Settings 
+HOST_BY_DEFAULT just for email replacing """
+EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
+HOST_BY_DEFAULT = 'localhost'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
 EMAIL_USE_SSL = True
 EMAIL_PORT = 465
 
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
+
+if DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler'
+            }
+        },
+        'loggers': {
+            '': {'handlers': ['console'], 'level': 'INFO'},
+            'django': {'handlers': ['console'], 'level': 'INFO'}
+        }
+    }
+
+
+# Activate Heroku settings for Django.
+if bool(os.getenv('IS_HEROKU')):
+    import django_heroku
+    django_heroku.settings(locals(), logging=False)

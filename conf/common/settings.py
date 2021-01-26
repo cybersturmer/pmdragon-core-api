@@ -88,22 +88,68 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': '5432',
+    },
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        'BACKEND': "channels_redis.core.RedisChannelLayer",
+        'CONFIG': {
+            'hosts': [(os.getenv('REDIS_HOST', 'REDIS_PORT'))]
+        }
+    }
+}
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated'
-    ],
-    'DEFAULT_FILTER_BACKENDS': [
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend'
-    ]
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS256',
+    "SIGNING_KEY": SECRET_KEY,
+    'ISSUER': 'PMDragon API',
+}
+
+CELERY_BROKER_URL = 'amqp://rabbit'
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
+
+"""
+Django rest framework cors headers """
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = "/media/"
+
 
 """
 Bleach allowed """
