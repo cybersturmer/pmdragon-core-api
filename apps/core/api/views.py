@@ -443,10 +443,13 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
             created_by=self.request.user.person
         )
 
+        from conf.common import mime_settings
+
         try:
+
             icon = [entry[2]
                     for entry
-                    in settings.FILE_EXTENSIONS_MAPPING
+                    in mime_settings.FILE_EXTENSIONS_MAPPING
                     if file_obj.content_type in entry[0]][0][0]
             attachment.icon = icon
         except IndexError:

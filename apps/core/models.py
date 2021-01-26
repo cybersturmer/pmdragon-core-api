@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import re
 
+from conf.common import mime_settings
 from libs.cryptography import hashing
 from libs.helpers.datetimepresets import day_later
 
@@ -577,9 +578,9 @@ class IssueAttachment(models.Model):
                                        default=False)
 
     icon = models.CharField(verbose_name=_('File Type Icon'),
-                            choices=settings.ICON_CHOICES,
+                            choices=mime_settings.ICON_CHOICES,
                             max_length=255,
-                            default=settings.ICON_CHOICES[5][0])
+                            default=mime_settings.ICON_CHOICES[5][0])
 
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Created by'),
