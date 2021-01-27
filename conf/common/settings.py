@@ -104,7 +104,7 @@ CHANNEL_LAYERS = {
     "default": {
         'BACKEND': "channels_redis.core.RedisChannelLayer",
         'CONFIG': {
-            'hosts': [(os.getenv('REDIS_HOST', 'REDIS_PORT'))]
+            'hosts': [(os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))]
         }
     }
 }
@@ -115,10 +115,10 @@ STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated'
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend'
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -131,7 +131,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-
     'ALGORITHM': 'HS256',
     "SIGNING_KEY": os.getenv('DJANGO_SECRET_KEY'),
     'ISSUER': 'PMDragon API',
