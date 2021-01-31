@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.admin import sensitive_post_parameters_m
+from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, mixins, status, views
@@ -284,9 +285,11 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         Put to serializer context information about current person
         """
         context = super().get_serializer_context()
-        context.update({
-            'person': self.request.user.person
-        })
+        context['person'] = None
+        if not isinstance(self.request.user, AnonymousUser):
+            context.update({
+                'person': self.request.user.person
+            })
 
         return context
 
