@@ -3,6 +3,7 @@ import uuid
 from enum import Enum
 
 import bleach
+from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -139,6 +140,16 @@ class Person(models.Model):
         return result_name
 
     __repr__ = __str__
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        image = Image.open(self.avatar.path)
+
+        if image.height > 300 or image.width > 300:
+            output_size = (300, 300)
+            image.thumbnail(output_size)
+            image.save(self.avatar.path)
 
 
 class Workspace(models.Model):
