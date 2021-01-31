@@ -1,6 +1,3 @@
-from datetime import date, datetime, time
-
-from django.conf import settings
 from django.db.models import Q
 from django.db.models.signals import \
     pre_save, \
@@ -10,6 +7,7 @@ from django.db.models.signals import \
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
+from conf.common.mime_settings import FRONTEND_ICON_SET
 from libs.helpers.datetimepresets import today_earliest, today_latest
 from .api.tasks import send_mentioned_in_message_email, \
     send_mentioned_in_description_email
@@ -404,7 +402,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         Issue history instance """
         history_entry = IssueHistory(
             issue=instance,
-            entry_type=settings.FRONTEND_ICON_SET + 'playlist-edit',
+            entry_type=FRONTEND_ICON_SET + 'playlist-edit',
             edited_field=_edited_field_verbose_name,
             before_value=_before_value,
             after_value=_after_value,
@@ -424,7 +422,7 @@ def signal_set_create_issue_history(instance: Issue, created: bool, **kwargs):
 
     history_entry = IssueHistory(
         issue=instance,
-        entry_type=settings.FRONTEND_ICON_SET + 'playlist-plus',
+        entry_type=FRONTEND_ICON_SET + 'playlist-plus',
         edited_field=None,
         before_value=None,
         after_value=None,
