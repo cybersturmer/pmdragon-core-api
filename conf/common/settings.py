@@ -100,11 +100,15 @@ DATABASES = {
     },
 }
 
+REDIS_CONNECTION = os.getenv('REDIS_URL') \
+    if os.getenv('REDIS_URL') \
+    else (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
+
 CHANNEL_LAYERS = {
     "default": {
         'BACKEND': "channels_redis.core.RedisChannelLayer",
         'CONFIG': {
-            'hosts': [(os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))]
+            'hosts': [REDIS_CONNECTION]
         }
     }
 }
