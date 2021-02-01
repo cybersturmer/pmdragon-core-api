@@ -1,13 +1,20 @@
+from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
+from djangochannelsrestframework.permissions import AllowAny
 
 from .api.serializers import IssueSerializer, SprintWritableSerializer
 from .models import Issue, Sprint, IssueMessage
 
 
 class IssueMessagesObserver(AsyncAPIConsumer):
-    @model_observer(model=IssueMessage)
+    permission_classes = (
+        AllowAny,
+    )
+
+    @model_observer(IssueMessage)
     async def message_change_handler(self, message, observer=None, action=None, **kwargs):
         await self.send_json(dict(body=message, action=action))
 
@@ -25,7 +32,8 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
-        await self.message_change_handler.subscribe(issue=issue_pk)
+        issue = await database_sync_to_async(Issue.objects.get, thread_sensitive=True)(pk=issue_pk)
+        await self.message_change_handler.subscribe(issue=issue)
 
     @action()
     async def subscribe_to_message(self, message_pk, **kwargs):
