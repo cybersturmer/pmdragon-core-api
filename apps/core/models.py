@@ -49,7 +49,9 @@ def attachment_upload_location(instance, filename) -> str:
     name, extension = os.path.splitext(filename)
     uniq_name = uuid.uuid4().hex
 
-    return f'workspaces/{instance.workspace.prefix_url}/uploads/{direction}_{uniq_name}{extension}'
+    lower_prefix_url: str = instance.workspace.prefix_url.lower()
+
+    return f'workspaces/{lower_prefix_url}/uploads/{direction}_{uniq_name}{extension}'
 
 
 def clean_useless_newlines(data):
