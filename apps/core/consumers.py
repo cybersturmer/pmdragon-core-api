@@ -16,7 +16,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 
     @model_observer(IssueMessage)
     async def message_change_handler(self, message, observer=None, action=None, **kwargs):
-        await self.send_json(dict(body=message, action=action))
+        await self.send_json(dict(message=message, action=action))
 
     @message_change_handler.groups_for_signal
     def message_change_handler(self, instance: IssueMessage, **kwargs):
@@ -32,12 +32,9 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
+        # @todo Additional checking for permissions
         issue = await database_sync_to_async(Issue.objects.get, thread_sensitive=True)(pk=issue_pk)
         await self.message_change_handler.subscribe(issue=issue)
-
-    @action()
-    async def subscribe_to_message(self, message_pk, **kwargs):
-        await self.message_change_handler.subscribe(message=message_pk)
 
 
 class IssueConsumerObserver(AsyncAPIConsumer):
