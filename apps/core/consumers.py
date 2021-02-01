@@ -1,11 +1,35 @@
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
-from channels.generic.websocket import WebsocketConsumer
-import json
-from .api.serializers import IssueSerializer, SprintWritableSerializer
-from .models import Issue, Sprint
-
 from djangochannelsrestframework.observer import model_observer
+
+from .api.serializers import IssueSerializer, SprintWritableSerializer
+from .models import Issue, Sprint, IssueMessage
+
+
+class IssueMessagesObserver(AsyncAPIConsumer):
+    @model_observer(model=IssueMessage)
+    async def message_change_handler(self, message, observer=None, action=None, **kwargs):
+        await self.send_json(dict(body=message, action=action))
+
+    @message_change_handler.groups_for_signal
+    def message_change_handler(self, instance: IssueMessage, **kwargs):
+        yield f'-issue__{instance.issue_id}'
+        yield f'-pk__{instance.pk}'
+
+    @message_change_handler.groups_for_consumer
+    def message_change_handler(self, issue=None, message=None, **kwargs):
+        if issue is not None:
+            yield f'-issue__{issue.pk}'
+        if message is not None:
+            yield f'-pk__{message.pk}'
+
+    @action()
+    async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
+        await self.message_change_handler.subscribe(issue=issue_pk)
+
+    @action()
+    async def subscribe_to_message(self, message_pk, **kwargs):
+        await self.message_change_handler.subscribe(message=message_pk)
 
 
 class IssueConsumerObserver(AsyncAPIConsumer):
