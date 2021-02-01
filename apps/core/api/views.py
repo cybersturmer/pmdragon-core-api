@@ -461,7 +461,7 @@ class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
         try:
             is_preview = [entry[3]
                           for entry
-                          in settings.FILE_EXTENSIONS_MAPPING
+                          in mime_settings.FILE_EXTENSIONS_MAPPING
                           if file_obj.content_type in entry[0]][0]
             attachment.show_preview = is_preview
         except IndexError:

@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Django rest framework share requests
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -100,9 +100,8 @@ DATABASES = {
     },
 }
 
-REDIS_CONNECTION = os.getenv('REDIS_URL') \
-    if os.getenv('REDIS_URL') \
-    else (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
+REDIS_URL = os.getenv('REDIS_URL', None)
+REDIS_CONNECTION = REDIS_URL if REDIS_URL else (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
 
 CHANNEL_LAYERS = {
     "default": {
@@ -174,6 +173,11 @@ BLEACH_ALLOWED_TAGS = [
     'ul'
 ]
 
+""" 
+We really need:
+ 1) data-mentioned-user-id (Mentioned snippet for issue messages)
+ 2) @todo Block preview attachment in issue message
+"""
 BLEACH_ALLOWED_ATTRIBUTES = {
     'a': ['href', 'rel'],
     'span': ['title', 'data-mentioned-user-id', 'class', 'contenteditable'],
