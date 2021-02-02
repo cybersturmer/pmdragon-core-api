@@ -2,7 +2,7 @@ from channels.db import database_sync_to_async
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
-from djangochannelsrestframework.permissions import IsAuthenticated
+from djangochannelsrestframework.permissions import IsAuthenticated, AllowAny
 
 from .api.serializers import IssueSerializer, SprintWritableSerializer
 from .models import Issue, Sprint, IssueMessage
@@ -10,7 +10,7 @@ from .models import Issue, Sprint, IssueMessage
 
 class IssueMessagesObserver(AsyncAPIConsumer):
     permission_classes = (
-        IsAuthenticated,
+        AllowAny,
     )
 
     @model_observer(IssueMessage)
@@ -29,8 +29,11 @@ class IssueMessagesObserver(AsyncAPIConsumer):
         if message is not None:
             yield f'-pk__{message.pk}'
 
+    """
+    Actually we have to check permissions here but we are not able to do that
+    Cuz now we don't have user's data., but we will, i promise.
+    """
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
-        # @todo Additional checking for permissions
         issue = await database_sync_to_async(Issue.objects.get, thread_sensitive=True)(pk=issue_pk)
         await self.message_change_handler.subscribe(issue=issue)
