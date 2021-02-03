@@ -1,9 +1,11 @@
 import os
 
 import django
+
+from apps.core.middleware import JWTAuthMiddleware
+
 django.setup()
 
-from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 import apps.core.routing as api_routing
@@ -16,7 +18,7 @@ We recognize protocol and use suited routing for that
 For socket we use accumulate all routes for sockets. """
 application = ProtocolTypeRouter({
     'http': http_asgi_application,
-    'websocket': AuthMiddlewareStack(
+    'websocket': JWTAuthMiddleware(
         URLRouter(api_routing.websocket_urlpatterns)
     ),
 })
