@@ -3,7 +3,6 @@ from conf.common.settings import *
 DEBUG = bool(os.getenv('IS_DEBUG', False))
 
 ALLOWED_HOSTS = ['*']
-SECRET_KEY = 'w*ea%hd29u-&l&rol@5zo8sadsad5o=@wb+i*r(@_+fnuc!*^9o0w'
 
 """
 Throttle settings """

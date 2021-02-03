@@ -4,7 +4,6 @@ from conf.common.settings import *
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-SECRET_KEY = 'w*ea%hd29u-&l&rol@5zo8a+@5o=@wb+i*r(@_+fnuc!*^9o0w'
 
 ROOT_URLCONF = 'conf.development.urls'
 
