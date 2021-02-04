@@ -1,7 +1,8 @@
 import traceback
 from urllib.parse import parse_qs
 
-import jwt
+from jwt import decode as jwt_decode
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
@@ -38,21 +39,21 @@ class JWTAuthMiddleware:
         try:
             token = self.get_token_from_scope(scope)
 
-            token_data = jwt.decode(token,
+            token_data = jwt_decode(token,
                                     settings.SECRET_KEY,
                                     algorithms=settings.SIMPLE_JWT.get('ALGORITHM'))
 
-        except (jwt.InvalidSignatureError,
-                jwt.ExpiredSignatureError,
-                jwt.DecodeError,
+            user_id = token_data.get('user_id')
+            scope['user'] = await self.get_user_by_id(user_id=user_id)
+
+        except (InvalidSignatureError,
+                ExpiredSignatureError,
+                DecodeError,
                 KeyError):
 
-            traceback.print_exc()
+            print('Error in JWTAuthMiddleware')
 
         except:
             scope['user'] = AnonymousUser()
-        else:
-            user_id = token_data.get('user_id')
-            scope['user'] = self.get_user_by_id(user_id=user_id)
 
         return await self.application(scope, receive, send)
