@@ -2,7 +2,7 @@ from conf.common.settings import *
 
 DEBUG = bool(os.getenv('IS_DEBUG', False))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [os.getenv('HOSTNAME')]
 
 """
 Throttle settings """

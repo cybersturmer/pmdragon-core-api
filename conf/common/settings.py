@@ -113,6 +113,10 @@ CHANNEL_LAYERS = {
     }
 }
 
+DJANGO_CHANNELS_REST_API = {
+    "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.IsAuthenticated",)
+}
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
