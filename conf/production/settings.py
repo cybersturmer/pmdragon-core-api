@@ -23,7 +23,6 @@ ROOT_URLCONF = 'conf.production.urls'
 Custom EMAIL Settings 
 HOST_BY_DEFAULT just for email replacing """
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
-HOST_BY_DEFAULT = 'localhost'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
