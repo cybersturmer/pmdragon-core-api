@@ -14,7 +14,10 @@ REST_FRAMEWORK.update({
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
         'user': '1000/day'
-    }
+    },
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 })
 
 ROOT_URLCONF = 'conf.production.urls'
