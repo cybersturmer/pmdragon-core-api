@@ -2,15 +2,22 @@ from channels.db import database_sync_to_async
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
-from djangochannelsrestframework.permissions import IsAuthenticated, AllowAny
+from djangochannelsrestframework.permissions import IsAuthenticated
 
-from .api.serializers import IssueSerializer, SprintWritableSerializer
-from .models import Issue, Sprint, IssueMessage
+from .models import Issue, IssueMessage
 
 
 class IssueMessagesObserver(AsyncAPIConsumer):
+    """
+    Payload example
+    {
+      "action": "subscribe_to_messages_in_issue",
+      "request_id": 4,
+      "issue_pk": 48
+    }
+    """
     permission_classes = (
-        AllowAny,
+        IsAuthenticated,
     )
 
     @model_observer(IssueMessage)
