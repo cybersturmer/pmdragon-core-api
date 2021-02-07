@@ -50,4 +50,10 @@ if not DEBUG:
 # Activate Heroku settings for Django.
 if bool(os.getenv('IS_HEROKU')):
     import django_heroku
+
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    MIDDLEWARE.insert(
+        0,
+        'whitenoise.middleware.WhiteNoiseMiddleware'
+    )
     django_heroku.settings(locals(), logging=False)
