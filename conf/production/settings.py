@@ -35,20 +35,16 @@ EMAIL_PORT = 465
 
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
 
-if DEBUG:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler'
-            }
-        },
-        'loggers': {
-            '': {'handlers': ['console'], 'level': 'INFO'},
-            'django': {'handlers': ['console'], 'level': 'INFO'}
-        }
-    }
+if not DEBUG:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn="https://01423d4007f24bc1bade0cc4ccbb7aa3@o514097.ingest.sentry.io/5616873",
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True
+    )
 
 
 # Activate Heroku settings for Django.
