@@ -30,6 +30,7 @@ websockets = "*"
 djangochannelsrestframework = "*"
 channels-redis = "*"
 sentry-sdk = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.8"
