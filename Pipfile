@@ -29,6 +29,7 @@ django-heroku = "*"
 websockets = "*"
 djangochannelsrestframework = "*"
 channels-redis = "*"
+sentry-sdk = "*"
 
 [requires]
 python_version = "3.8"
