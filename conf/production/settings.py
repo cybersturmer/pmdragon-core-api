@@ -53,7 +53,7 @@ if bool(os.getenv('IS_HEROKU')):
 
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     MIDDLEWARE.insert(
-        0,
+        1,
         'whitenoise.middleware.WhiteNoiseMiddleware'
     )
     django_heroku.settings(locals(), logging=False)
