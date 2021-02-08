@@ -31,6 +31,8 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 """
 Custom EMAIL Settings 
 HOST_BY_DEFAULT just for email replacing """
+
+HOST_BY_DEFAULT = os.getenv('HOSTNAME')
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
