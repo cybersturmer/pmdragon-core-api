@@ -58,6 +58,10 @@
       "as": "CELERY BROKER"
     },
     {
+      "plan": "logentries",
+      "as": "LOGENTRIES"
+    },
+    {
       "plan": "sentry",
       "as": "SENTRY"
     }
