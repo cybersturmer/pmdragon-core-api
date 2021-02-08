@@ -14,5 +14,5 @@ app = Celery('pmdragon')
 CELERY_TIMEZONE = 'UTC'
 
 
-app.config_from_object('conf.development:settings', namespace='CELERY')
+app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

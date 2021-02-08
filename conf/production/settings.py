@@ -22,7 +22,11 @@ REST_FRAMEWORK.update({
 
 ROOT_URLCONF = 'conf.production.urls'
 
+"""
+Celery settings """
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 """
 Custom EMAIL Settings 
