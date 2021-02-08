@@ -32,6 +32,7 @@ channels-redis = "*"
 sentry-sdk = "*"
 whitenoise = "*"
 cryptography = "==3.3.1"
+dj-database-url = "*"
 
 [requires]
 python_version = "3.8"
