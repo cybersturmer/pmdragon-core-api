@@ -22,6 +22,8 @@ REST_FRAMEWORK.update({
 
 ROOT_URLCONF = 'conf.production.urls'
 
+CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
+
 """
 Custom EMAIL Settings 
 HOST_BY_DEFAULT just for email replacing """

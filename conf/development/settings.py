@@ -7,6 +7,8 @@ ALLOWED_HOSTS = ['*']
 
 ROOT_URLCONF = 'conf.development.urls'
 
+CELERY_BROKER_URL = 'amqp://rabbit'
+
 """
 Custom EMAIL Settings 
 HOST_BY_DEFAULT just for email replacing """
