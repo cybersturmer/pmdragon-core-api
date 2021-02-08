@@ -1,5 +1,8 @@
-# API for PmDragon CE
-Deployment tool, documentation, licensing you can find in
+# PmDragon CE API
+Django Rest Framework based API as a server side of PmDragon CE  software.
+
+## Links
+You can find deployment tool, documentation, licensing in
 [Main repository](https://github.com/cybersturmer/pmdragon)
 
 ## Swagger documentation
