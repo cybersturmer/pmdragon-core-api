@@ -1,6 +1,9 @@
 # API for PmDragon CE
 [Main repository](https://github.com/cybersturmer/pmdragon)
 
+## Deploy your own API in one click
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 
 ## License
 
