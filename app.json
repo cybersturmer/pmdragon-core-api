@@ -25,16 +25,16 @@
       "value": "True"
     },
     "EMAIL_HOST": {
-      "description": "Some SMTP host, for example smtp.yandex.ru",
-      "value": "smtp.host.com"
+      "description": "Some SMTP host, for example smtp.yandex.ru, we use it to send emails",
+      "value": ""
     },
     "EMAIL_PASSWORD": {
-      "description": "Just password for email host",
-      "value": "password"
+      "description": "Just password for email host, we use it to send emails",
+      "value": ""
     },
     "EMAIL_USER": {
-      "description": "Just user for email host",
-      "value": "user"
+      "description": "Just user for email host, we use it to send emails",
+      "value": ""
     }
   },
   "formation": {
