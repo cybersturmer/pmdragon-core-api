@@ -29,11 +29,11 @@
       "value": ""
     },
     "EMAIL_PASSWORD": {
-      "description": "Just password for email host, we use it to send emails",
+      "description": "Just password for email account, we use it to send emails",
       "value": ""
     },
     "EMAIL_USER": {
-      "description": "Just user for email host, we use it to send emails",
+      "description": "Just user for email account, we use it to send emails",
       "value": ""
     }
   },
