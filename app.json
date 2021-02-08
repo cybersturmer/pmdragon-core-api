@@ -1,0 +1,70 @@
+{
+  "name": "PmDragon CE API",
+  "description": "API for PmDragon API",
+  "keywords": [
+    "scrum",
+    "scrum-board",
+    "scrum-agile",
+    "scrum-team"
+  ],
+  "website": "https://pmdragon.org",
+  "repository": "https://github.com/cybersturmer/pmdragon-core-api",
+  "logo": "https://github.com/cybersturmer/pmdragon/blob/master/docs/images/geometry.svg",
+  "success_url": "/swagger/",
+  "env": {
+    "DJANGO_SECRET_KEY": {
+      "description": "Just normal Django Secret Key",
+      "generator": "secret"
+    },
+    "DJANGO_SETTINGS_MODULE": {
+      "description": "Which one environment we use",
+      "value": "conf.production.settings"
+    },
+    "IS_HEROKU": {
+      "description": "We use special flow for heroku, just let it stay True",
+      "value": "True"
+    },
+    "EMAIL_HOST": {
+      "description": "Some SMTP host, for example smtp.yandex.ru",
+      "value": "smtp.host.com"
+    },
+    "EMAIL_PASSWORD": {
+      "description": "Just password for email host",
+      "value": "password"
+    },
+    "EMAIL_USER": {
+      "description": "Just user for email host",
+      "value": "user"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "as": "DATABASE"
+    },
+    {
+      "plan": "heroku-redis",
+      "as": "WEBSOCKET LAYER"
+    },
+    {
+      "plan": "cloudamqp",
+      "as": "CELERY BROKER"
+    },
+    {
+      "plan": "sentry",
+      "as": "SENTRY"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-pgbouncer"
+    }
+  ]
+}
