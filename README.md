@@ -5,6 +5,9 @@ Django Rest Framework based API as a server side of PmDragon CE  software.
 You can find deployment tool, documentation, licensing in
 [Main repository](https://github.com/cybersturmer/pmdragon)
 
+Crossplatform client can be found in
+[Client repository](https://github.com/cybersturmer/pmdragon-client)
+
 ## Swagger documentation
 https://pmdragon.org/swagger/
 
