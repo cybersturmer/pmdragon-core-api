@@ -1,4 +1,5 @@
 # PmDragon CE API
+project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
 Django Rest Framework based API as a server side of PmDragon CE  software.
 
 ## Links
@@ -7,6 +8,9 @@ You can find deployment tool, documentation, licensing in
 
 Crossplatform client can be found in
 [Client repository](https://github.com/cybersturmer/pmdragon-client)
+
+## Video
+[YouTube](https://www.youtube.com/watch?v=ZlPRVjLoKqA&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0&index=1)
 
 ## Swagger documentation
 https://pmdragon.org/swagger/
