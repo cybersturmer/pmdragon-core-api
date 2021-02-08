@@ -24,6 +24,10 @@
       "description": "We use special flow for heroku, just let it stay True",
       "value": "True"
     },
+    "HOSTNAME": {
+      "description": "We use it to send emails with hostname + related link",
+      "value": ""
+    },
     "EMAIL_HOST": {
       "description": "Some SMTP host, for example smtp.yandex.ru, we use it to send emails",
       "value": ""
