@@ -1,4 +1,5 @@
 # API for PmDragon CE
+Deployment tool, documentation, licensing you can find in
 [Main repository](https://github.com/cybersturmer/pmdragon)
 
 ## Swagger documentation
