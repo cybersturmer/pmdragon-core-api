@@ -1,5 +1,5 @@
 # PmDragon CE API
-project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
+Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
 Django Rest Framework based API as a server side of PmDragon CE  software.
 
 ## Links
