@@ -1,6 +1,9 @@
 # API for PmDragon CE
 [Main repository](https://github.com/cybersturmer/pmdragon)
 
+## Swagger documentation
+https://pmdragon.org/swagger/
+
 ## Deploy your own API in one click
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/cybersturmer/pmdragon-core-api)
 
