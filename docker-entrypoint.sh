@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Please DON'T use it for you project
+# This entrypoint is just for debug
+# It drops all changes after restarting in Docker
+
 echo -e "\e[94m Collecting static...\e[0m"
 python manage.py collectstatic --clear --noinput
 
