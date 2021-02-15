@@ -33,6 +33,6 @@ LOGGING = {
 }
 
 # Activate Heroku settings for Django.
-if bool(os.getenv('IS_HEROKU')):
+if bool(os.getenv('HEROKU')):
     import django_heroku
     django_heroku.settings(locals(), logging=False)

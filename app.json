@@ -20,7 +20,7 @@
       "description": "Which one environment we use",
       "value": "conf.production.settings"
     },
-    "IS_HEROKU": {
+    "HEROKU": {
       "description": "We use special flow for heroku, just let it stay True",
       "value": "True"
     },

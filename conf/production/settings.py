@@ -59,7 +59,7 @@ if not DEBUG:
 
 
 # Activate Heroku settings for Django.
-if bool(os.getenv('IS_HEROKU')):
+if bool(os.getenv('HEROKU')):
     import django_heroku
 
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
