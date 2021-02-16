@@ -57,9 +57,9 @@ if not DEBUG:
         send_default_pii=True
     )
 
-
+HEROKU = bool(os.getenv('HEROKU'))
 # Activate Heroku settings for Django.
-if bool(os.getenv('HEROKU')):
+if HEROKU:
     import django_heroku
 
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

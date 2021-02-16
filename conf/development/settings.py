@@ -2,6 +2,7 @@ import sys
 from conf.common.settings import *
 
 DEBUG = True
+HEROKU = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -31,8 +32,3 @@ LOGGING = {
         'django': {'handlers': ['console'], 'level': 'INFO'}
     }
 }
-
-# Activate Heroku settings for Django.
-if bool(os.getenv('HEROKU')):
-    import django_heroku
-    django_heroku.settings(locals(), logging=False)
