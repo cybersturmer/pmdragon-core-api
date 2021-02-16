@@ -14,15 +14,32 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.owned_by == request.user.person
+        if not hasattr(obj, 'owned_by'):
+            return False
+
+        try:
+            return obj.owned_by == request.user.person
+        except Person.DoesNotExist:
+            return False
 
 
 class IsCreatorOrReadOnly(permissions.BasePermission):
+    """
+    For this to work we need to be auth.
+    Model should contain created by field.
+    Just because maybe we dont have user data in
+    """
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.created_by == request.user.person
+        if not hasattr(obj, 'created_by'):
+            return False
+
+        try:
+            return obj.created_by == request.user.person
+        except Person.DoesNotExist:
+            return False
 
 
 class IsParticipateInWorkspace(permissions.BasePermission):
@@ -31,7 +48,14 @@ class IsParticipateInWorkspace(permissions.BasePermission):
     Or current user participate in workspace
     """
     def has_object_permission(self, request, view, obj):
-        return not hasattr(obj, 'workspace') or request.user.person in obj.workspace.participants.all()
+        if not hasattr(obj, 'workspace'):
+            return False
+
+        try:
+            if request.user.person in obj.workspace.participants.all():
+                return True
+        except Person.DoesNotExist:
+            return False
 
 
 class IsMeOrReadOnly(permissions.BasePermission):
@@ -41,4 +65,10 @@ class IsMeOrReadOnly(permissions.BasePermission):
     We will use it in all Person related views.
     """
     def has_object_permission(self, request, view, obj: Person):
-        return request.user.person == obj
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        try:
+            return request.user.person == obj
+        except Person.DoesNotExist:
+            return False

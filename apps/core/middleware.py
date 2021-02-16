@@ -1,13 +1,15 @@
 import traceback
 from urllib.parse import parse_qs
 
-from jwt import decode as jwt_decode
+from jwt import decode as jwt_decode, InvalidTokenError
 from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import close_old_connections
 from django.conf import settings
+
+from libs.exception.websocket import NoTokenError
 
 User = get_user_model()
 
@@ -29,7 +31,7 @@ class JWTAuthMiddleware:
         token_list = query_string.get('token', None)
 
         if token_list is None or len(token_list) < 1:
-            return None
+            raise NoTokenError
 
         return token_list.pop()
 
@@ -49,11 +51,11 @@ class JWTAuthMiddleware:
         except (InvalidSignatureError,
                 ExpiredSignatureError,
                 DecodeError,
-                KeyError):
+                KeyError) as e:
 
-            print('Error in JWTAuthMiddleware')
+            print(f'Error in JWTAuthMiddleware: {e.__class__.__name__}')
 
-        except:
+        except NoTokenError:
             scope['user'] = AnonymousUser()
 
         return await self.application(scope, receive, send)
