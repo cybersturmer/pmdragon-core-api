@@ -3,6 +3,8 @@
 # Please DON'T use it for you project
 # This entrypoint is just for debug
 # It drops all changes after restarting in Docker
+# It also requires data.json in root of project
+# Django (python manage.py dumpdata --all > data.json)
 
 echo -e "\e[94m Collecting static...\e[0m"
 python manage.py collectstatic --clear --noinput
