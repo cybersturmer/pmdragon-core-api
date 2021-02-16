@@ -22,7 +22,8 @@ UserModel = get_user_model()
 def order_issues(validated_data):
     """
     validated_data should contain issues key.
-    We use it in Backlog and Sprint serializers.
+    We use it in Backlog and Sprint serializers to order it
+    by dragging between sprint and Backlog and inside of SCRUM board.
     """
     if 'issues' not in validated_data:
         return validated_data
@@ -95,7 +96,8 @@ class PersonRegistrationRequestSerializer(serializers.ModelSerializer):
             'prefix_url'
         )
 
-    def validate_prefix_url(self, attrs):
+    @classmethod
+    def validate_prefix_url(cls, attrs):
         """
         We want to be sure that user not expect to get
         workspace with already exists prefix
@@ -109,7 +111,8 @@ class PersonRegistrationRequestSerializer(serializers.ModelSerializer):
 
         return prefix_url
 
-    def validate_email(self, attrs):
+    @classmethod
+    def validate_email(cls, attrs):
         """
         We want to be sure that user,
         that already exists will register one more time with the same email
@@ -601,10 +604,12 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
         return attrs
 
-    def validate_title(self, attrs: str):
+    @classmethod
+    def validate_title(cls, attrs: str):
         return attrs.upper()
 
-    def validate_key(self, attrs: str):
+    @classmethod
+    def validate_key(cls, attrs: str):
         return attrs.upper()
 
 
