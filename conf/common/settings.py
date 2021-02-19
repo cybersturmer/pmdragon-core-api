@@ -152,7 +152,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     "SIGNING_KEY": SECRET_KEY,
-    'ISSUER': 'PMDragon API',
+    'ISSUER': 'PmDragon CE API',
 }
 
 LOGIN_REDIRECT_URL = 'dashboard'
