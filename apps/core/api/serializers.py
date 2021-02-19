@@ -54,9 +54,10 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
         pass
 
     @classmethod
-    def get_token(cls, user):
+    def get_token(cls, user: UserModel):
         token = super().get_token(user)
 
+        token['person_id'] = user.person.id
         token['username'] = user.username
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
