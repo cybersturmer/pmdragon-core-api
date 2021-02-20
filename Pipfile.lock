@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "53bea85db36aebe9957cf7c51ea9a310f152001cab22db5e202777c1385d0f3c"
+            "sha256": "aa3c47331d6503f9a6479dba02da53eddfb2656da485fc09ae69c882f9f1598e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -158,6 +158,13 @@
             ],
             "index": "pypi",
             "version": "==3.2.0"
+        },
+        "channelsmultiplexer": {
+            "hashes": [
+                "sha256:98e674110f07b1d41940a32d0a921156d17bf9176a65f19f71f703e3bb38f50e"
+            ],
+            "index": "pypi",
+            "version": "==0.0.3"
         },
         "chardet": {
             "hashes": [
