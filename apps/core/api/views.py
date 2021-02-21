@@ -46,7 +46,9 @@ class PersonRegistrationRequestView(viewsets.GenericViewSet,
         instance: PersonRegistrationRequest = serializer.save()
 
         # Send verification email to user on request
-        send_registration_email.delay(instance.pk)
+        if not settings.DEBUG:
+            send_registration_email.delay(instance.pk)
+
         instance.save()
 
         return True
@@ -134,7 +136,9 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
 
             _invitation_request.save()
 
-            send_invitation_email.delay(_invitation_request.pk)
+            if not settings.DEBUG:
+                send_invitation_email.delay(_invitation_request.pk)
+
             serializer = PersonInvitationRequestSerializer(_invitation_request)
             invitations_response.append(serializer.data)
 

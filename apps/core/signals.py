@@ -4,6 +4,8 @@ from django.db.models.signals import \
     post_save,\
     m2m_changed,\
     post_delete
+
+from django.conf import settings
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -257,7 +259,7 @@ def signal_mentioned_in_message_emails(instance: IssueMessage, created: bool, **
     2) Send an email if someone was mentioned
     """
 
-    if not created:
+    if not created or settings.DEBUG:
         return False
 
     send_mentioned_in_message_email.delay(instance.pk)
@@ -268,7 +270,7 @@ def signal_mentioned_in_description_emails(instance: Issue, created: bool, **kwa
     """
     Send an email if someone was mentioned in issue description
     """
-    if not created:
+    if not created or settings.DEBUG:
         return False
 
     send_mentioned_in_description_email.delay(instance.pk)
