@@ -1,10 +1,42 @@
+import asyncio
+import json
+
+from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
+from channels.generic.websocket import WebsocketConsumer
+from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.permissions import IsAuthenticated
 
-from .models import Issue, IssueMessage
+from .models import Issue, IssueMessage, Person
+from .api.serializers import PersonSerializer
+
+
+class PingConsumer(AsyncConsumer):
+    async def websocket_connect(self, message):
+        await self.send({
+            "type": "websocket.accept"
+        })
+
+    async def websocket_receive(self, message):
+        text_message = message.get('text')
+        json_message = json.loads(text_message)
+
+        persons = await database_sync_to_async(self.get_persons)()
+        json_persons = PersonSerializer(persons)
+
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps(json_persons.data)
+        })
+
+    def get_persons(self):
+        return Person.objects.all()
+
+    async def websocket_disconnect(self, message):
+        pass
 
 
 class IssueMessagesObserver(AsyncAPIConsumer):
