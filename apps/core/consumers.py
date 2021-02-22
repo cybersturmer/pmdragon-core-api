@@ -1,10 +1,5 @@
-import asyncio
-import json
-
 from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
-from channels.generic.websocket import WebsocketConsumer
-from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
@@ -12,6 +7,7 @@ from djangochannelsrestframework.permissions import IsAuthenticated
 
 from .models import Issue, IssueMessage, Person
 from .api.serializers import PersonSerializer
+from rest_framework.renderers import JSONRenderer
 
 
 class PingConsumer(AsyncConsumer):
@@ -21,19 +17,18 @@ class PingConsumer(AsyncConsumer):
         })
 
     async def websocket_receive(self, message):
-        text_message = message.get('text')
-        json_message = json.loads(text_message)
-
-        persons = await database_sync_to_async(self.get_persons)()
-        json_persons = PersonSerializer(persons)
+        person: Person = await self.get_person()
 
         await self.send({
             "type": "websocket.send",
-            "text": json.dumps(json_persons.data)
+            "text": JSONRenderer().render(person)
         })
 
-    def get_persons(self):
-        return Person.objects.all()
+    @database_sync_to_async
+    def get_person(self):
+        person = Person.objects.all()[0]
+        serialized = PersonSerializer(person)
+        return serialized.data
 
     async def websocket_disconnect(self, message):
         pass
@@ -74,5 +69,20 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     """
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
-        issue = await database_sync_to_async(Issue.objects.get, thread_sensitive=True)(pk=issue_pk)
+        user = self.scope.get('user')
+        person = await database_sync_to_async(
+            Person.objects.get,
+            thread_sensitive=True
+        )(
+            user=user
+        )
+
+        issue = await database_sync_to_async(
+            Issue.objects.get,
+            thread_sensitive=True
+        )(
+            id=issue_pk,
+            workspace__participants__in=[person]
+        )
+
         await self.message_change_handler.subscribe(issue=issue)
