@@ -68,6 +68,10 @@
     {
       "plan": "sentry",
       "as": "SENTRY"
+    },
+    {
+      "plan": "librato",
+      "as": "LIBRATO"
     }
   ],
   "buildpacks": [
