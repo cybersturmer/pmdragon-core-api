@@ -4194,7 +4194,7 @@
             "type": "integer",
             "maximum": 32767,
             "nullable": true,
-            "minimum": 0
+            "minimum": 1
           }
         },
         "required": [
