@@ -6,7 +6,7 @@ from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.permissions import IsAuthenticated
 
 from .models import Issue, IssueMessage, Person
-from .api.serializers import PersonSerializer
+from .api.serializers import PersonSerializer, IssueMessageSerializer
 from rest_framework.renderers import JSONRenderer
 
 
@@ -50,6 +50,10 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     @model_observer(IssueMessage)
     async def message_change_handler(self, message, observer=None, action=None, **kwargs):
         await self.send_json(dict(message=message, action=action))
+
+    @message_change_handler.serializer
+    def model_serializer(self, instance: IssueMessage, action, **kwargs):
+        return IssueMessageSerializer(instance).data
 
     @message_change_handler.groups_for_signal
     def message_change_handler(self, instance: IssueMessage, **kwargs):
