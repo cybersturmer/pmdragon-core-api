@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.admin import sensitive_post_parameters_m
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext_lazy as _
@@ -48,7 +49,6 @@ class PersonRegistrationRequestView(viewsets.GenericViewSet,
         # Send verification email to user on request
         if not settings.DEBUG:
             send_registration_email.delay(instance.pk)
-            print('DEBUG: Sent registration email...')
 
         instance.save()
 
