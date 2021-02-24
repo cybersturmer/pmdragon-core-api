@@ -23,7 +23,7 @@ def send_registration_email(request_pk=None):
 
     try:
         context = {
-            'action_link': f'{settings.HOST_BY_DEFAULT}/verify/registration/{request.key}',
+            'action_link': f'{settings.FRONTEND_HOSTNAME}/verify/registration/{request.key}',
             'workspace': request.prefix_url,
             'expired_at': request.expired_at
         }
@@ -58,7 +58,7 @@ def send_invitation_email(request_pk=None):
             person = user_with_email.get().person
             if person not in request.workspace.participants.all():
                 context = {
-                    'action_link': f'{settings.HOST_BY_DEFAULT}/verify/collaboration/{request.key}',
+                    'action_link': f'{settings.FRONTEND_HOSTNAME}/verify/collaboration/{request.key}',
                     'workspace': request.workspace.prefix_url,
                     'person': person,
                     'expired_at': request.expired_at
@@ -72,7 +72,7 @@ def send_invitation_email(request_pk=None):
                 )
         else:
             context = {
-                'action_link': f'{settings.HOST_BY_DEFAULT}/verify/invitation/{request.key}',
+                'action_link': f'{settings.FRONTEND_HOSTNAME}/verify/invitation/{request.key}',
                 'workspace': request.workspace.prefix_url,
                 'expired_at': request.expired_at
             }

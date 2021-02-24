@@ -2,7 +2,7 @@ from conf.common.settings import *
 
 DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
-ALLOWED_HOSTS = [os.getenv('HOSTNAME')]
+ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 
 """
 Throttle settings """
@@ -32,9 +32,8 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 """
 Custom EMAIL Settings 
-HOST_BY_DEFAULT just for email replacing """
-
-HOST_BY_DEFAULT = os.getenv('HOSTNAME')
+FRONTEND_HOSTNAME just for email replacing """
+FRONTEND_HOSTNAME = os.getenv('FRONTEND_HOSTNAME')
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

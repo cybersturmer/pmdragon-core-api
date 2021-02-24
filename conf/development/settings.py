@@ -12,9 +12,9 @@ CELERY_BROKER_URL = 'amqp://rabbit'
 
 """
 Custom EMAIL Settings 
-HOST_BY_DEFAULT just for email replacing """
+FRONTEND_HOSTNAME just for email replacing """
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
-HOST_BY_DEFAULT = 'localhost'
+FRONTEND_HOSTNAME = 'localhost'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
