@@ -9,7 +9,8 @@ from django.conf import settings
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'conf.production.settings')
 
-app = Celery('pmdragon')
+app = Celery('pmdragon',
+             include=['apps.core.api.tasks'])
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

@@ -1,6 +1,6 @@
 from conf.common.settings import *
 
-DEBUG = bool(os.getenv('IS_DEBUG', False))
+DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
 ALLOWED_HOSTS = [os.getenv('HOSTNAME')]
 
@@ -24,6 +24,8 @@ ROOT_URLCONF = 'conf.production.urls'
 
 """
 Celery settings """
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
 CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TIME_LIMIT = 30 * 60

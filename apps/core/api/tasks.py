@@ -12,7 +12,7 @@ from ..models import PersonRegistrationRequest, \
     IssueMessage, \
     Issue, \
     get_mentioned_user_ids, \
-    Person, Workspace
+    Person
 
 User = get_user_model()
 
@@ -34,9 +34,10 @@ def send_registration_email(request_pk=None):
             template='email/verification/registration.html',
             context=context
         )
-    except SMTPException:
+    except SMTPException as e:
         request.is_email_sent = False
         request.save()
+        raise e
 
     else:
         request.is_email_sent = True
@@ -83,9 +84,10 @@ def send_invitation_email(request_pk=None):
                 context=context
             )
 
-    except SMTPException:
+    except SMTPException as e:
         request.is_email_sent = False
         request.save()
+        raise e
 
     else:
         request.is_email_sent = True
@@ -115,8 +117,8 @@ def send_mentioned_in_message_email(message_pk=None):
                 context=context
             )
 
-    except SMTPException:
-        pass
+    except SMTPException as e:
+        raise e
 
     return True
 
@@ -140,7 +142,7 @@ def send_mentioned_in_description_email(issue_pk=None):
                 template='email/issue/mentioning.html',
                 context=context
             )
-    except SMTPException:
-        pass
+    except SMTPException as e:
+        raise e
 
     return True
