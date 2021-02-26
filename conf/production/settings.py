@@ -4,9 +4,9 @@ DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 
-if os.getenv('API_HOSTNAME') == 'localhost':
+if api_ip := os.getenv('API_IP'):
     ALLOWED_HOSTS.append(
-        '192.168.0.161'
+        api_ip
     )
 
 """
