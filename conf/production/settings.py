@@ -4,6 +4,11 @@ DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 
+if os.getenv('API_HOSTNAME') == 'localhost':
+    ALLOWED_HOSTS.append(
+        '192.168.0.161'
+    )
+
 """
 Throttle settings """
 REST_FRAMEWORK.update({
