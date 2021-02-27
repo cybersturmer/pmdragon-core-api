@@ -1,6 +1,6 @@
 from conf.production.settings import *
 
-DEPLOYMENT = 'LOCALHOST'
+DEPLOYMENT = 'DOCKER_COMPOSE'
 DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
 ALLOWED_HOSTS.append(
@@ -10,13 +10,15 @@ ALLOWED_HOSTS.append(
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
+        'NAME': 'pmdragon',
+        'USER': 'pmdragon',
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
+        'HOST': 'postgres',
         'PORT': '5432',
     },
 }
+
+CELERY_BROKER_URL = 'amqp://rabbit'
 
 REST_FRAMEWORK.update({
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -26,3 +28,16 @@ REST_FRAMEWORK.update({
 })
 
 FRONTEND_HOSTNAME = 'https://localhost'
+
+"""
+REDIS FOR WEBSOCKETS """
+REDIS_CONNECTION = (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
+
+CHANNEL_LAYERS = {
+    "default": {
+        'BACKEND': "channels_redis.core.RedisChannelLayer",
+        'CONFIG': {
+            'hosts': [REDIS_CONNECTION]
+        }
+    }
+}

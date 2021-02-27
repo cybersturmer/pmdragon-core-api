@@ -12,6 +12,8 @@ if DATABASE_URL := os.getenv('DATABASE_URL', None):
         'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
     }
 
+CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
+
 """
 Throttle settings """
 REST_FRAMEWORK.update({
@@ -32,6 +34,23 @@ MIDDLEWARE.insert(
 )
 
 FRONTEND_HOSTNAME = os.getenv('FRONTEND_HOSTNAME')
+
+"""
+REDIS FOR WEBSOCKETS """
+REDIS_CONNECTION = os.getenv('REDIS_URL', None)
+
+CHANNEL_LAYERS = {
+    "default": {
+        'BACKEND': "channels_redis.core.RedisChannelLayer",
+        'CONFIG': {
+            'hosts': [REDIS_CONNECTION]
+        }
+    }
+}
+
+DJANGO_CHANNELS_REST_API = {
+    "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.IsAuthenticated",)
+}
 
 sentry_sdk.init(
     dsn="https://01423d4007f24bc1bade0cc4ccbb7aa3@o514097.ingest.sentry.io/5616873",

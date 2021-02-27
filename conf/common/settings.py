@@ -90,23 +90,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-REDIS_URL = os.getenv('REDIS_URL', None)
-REDIS_CONNECTION = REDIS_URL if REDIS_URL else (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
-
-CHANNEL_LAYERS = {
-    "default": {
-        'BACKEND': "channels_redis.core.RedisChannelLayer",
-        'CONFIG': {
-            'hosts': [REDIS_CONNECTION]
-        }
-    }
-}
-
-DJANGO_CHANNELS_REST_API = {
-    "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.IsAuthenticated",)
-}
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIR = [
