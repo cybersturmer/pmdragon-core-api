@@ -10,6 +10,6 @@ class SwaggerView(TemplateView):
         If we use swagger in Docker compose - we can use special url from Django url.
         """
         context = super().get_context_data(**kwargs)
-        context['heroku'] = settings.HEROKU
+        context['heroku'] = (settings.DEPLOYMENT == 'HEROKU')
         return context
 
