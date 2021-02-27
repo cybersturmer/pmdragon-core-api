@@ -4,7 +4,6 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 DEPLOYMENT = 'HEROKU'
-DEBUG = True
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 
 if DATABASE_URL := os.getenv('DATABASE_URL', None):
