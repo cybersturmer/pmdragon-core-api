@@ -90,25 +90,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-"""
-We let you to set DATABASE_URL OR BY PARTS.
-"""
-if DATABASE_URL := os.getenv('DATABASE_URL', None):
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB'),
-            'USER': os.getenv('POSTGRES_USER'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('POSTGRES_HOST'),
-            'PORT': '5432',
-        },
-    }
 
 REDIS_URL = os.getenv('REDIS_URL', None)
 REDIS_CONNECTION = REDIS_URL if REDIS_URL else (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
@@ -140,8 +121,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     )
 }
 
