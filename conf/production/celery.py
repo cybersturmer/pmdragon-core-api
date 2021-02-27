@@ -7,7 +7,13 @@ from celery import Celery
 
 from django.conf import settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'conf.production.settings')
+# @todo Refactor
+DEPLOYMENT_TREE = {
+    settings.DEPLOYMENT == 'HEROKU': 'conf.production.deployment.heroku',
+    settings.DEPLOYMENT == 'DOCKER_COMPOSE': 'conf.production.deployment.docker_compose',
+}
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", DEPLOYMENT_TREE[True])
 
 app = Celery('pmdragon',
              include=['apps.core.api.tasks'])
