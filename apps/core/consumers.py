@@ -90,3 +90,23 @@ class IssueMessagesObserver(AsyncAPIConsumer):
         )
 
         await self.message_change_handler.subscribe(issue=issue)
+
+    @action()
+    async def unsubscribe_from_messages_in_issue(self, issue_pk, **kwargs):
+        user = self.scope.get('user')
+        person = await database_sync_to_async(
+            Person.objects.get,
+            thread_sensitive=True
+        )(
+            user=user
+        )
+
+        issue = await database_sync_to_async(
+            Issue.objects.get,
+            thread_sensitive=True
+        )(
+            id=issue_pk,
+            workspace__participants__in=[person]
+        )
+
+        await self.message_change_handler.unsubscribe(issue=issue)
