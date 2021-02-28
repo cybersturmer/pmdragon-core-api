@@ -1,4 +1,6 @@
+import os
 import sys
+
 from conf.common.settings import *
 
 DEBUG = True
@@ -8,7 +10,22 @@ ALLOWED_HOSTS = ['*']
 
 ROOT_URLCONF = 'conf.development.urls'
 
-CELERY_BROKER_URL = 'amqp://rabbit'
+CELERY_BROKER_URL = 'amqp://localhost'
+
+REDIS_CONNECTION = (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
+
+CHANNEL_LAYERS = {
+    "default": {
+        'BACKEND': "channels_redis.core.RedisChannelLayer",
+        'CONFIG': {
+            'hosts': [REDIS_CONNECTION]
+        }
+    }
+}
+
+DJANGO_CHANNELS_REST_API = {
+    "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.IsAuthenticated",)
+}
 
 """
 Custom EMAIL Settings 
