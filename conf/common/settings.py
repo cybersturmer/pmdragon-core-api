@@ -147,6 +147,8 @@ BLEACH_ALLOWED_TAGS = [
     'p',
     'span',
     'strong',
+    'strike',
+    'u',
     'ul'
 ]
 
