@@ -71,6 +71,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     Actually we have to check permissions here but we are not able to do that
     Cuz now we don't have user's data., but we will, i promise.
     """
+    # @todo Refactor selection from subscribe and unsubscribe
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
         user = self.scope.get('user')
@@ -91,6 +92,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 
         await self.message_change_handler.subscribe(issue=issue)
 
+    # @todo Refactor selection from subscribe and unsubscribe
     @action()
     async def unsubscribe_from_messages_in_issue(self, issue_pk, **kwargs):
         user = self.scope.get('user')
