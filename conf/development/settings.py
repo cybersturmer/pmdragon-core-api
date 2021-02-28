@@ -19,6 +19,17 @@ FRONTEND_HOSTNAME = 'localhost'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pmdragon',
+        'USER': 'pmdragon',
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
