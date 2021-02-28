@@ -3,9 +3,7 @@ from conf.production.settings import *
 DEPLOYMENT = 'DOCKER_COMPOSE'
 DEBUG = bool(os.getenv('FORCE_DEBUG', False))
 
-ALLOWED_HOSTS.append(
-    os.getenv('API_IP')
-)
+ALLOWED_HOSTS = ['localhost', os.getenv('API_IP')]
 
 DATABASES = {
     'default': {
