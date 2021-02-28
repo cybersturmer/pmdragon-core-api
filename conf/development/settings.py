@@ -12,7 +12,7 @@ ROOT_URLCONF = 'conf.development.urls'
 
 CELERY_BROKER_URL = 'amqp://localhost'
 
-REDIS_CONNECTION = (os.getenv('REDIS_HOST'), int(os.getenv('REDIS_PORT')))
+REDIS_CONNECTION = ('localhost', 6379)
 
 CHANNEL_LAYERS = {
     "default": {
