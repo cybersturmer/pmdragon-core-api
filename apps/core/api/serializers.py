@@ -526,6 +526,13 @@ class WorkspaceWritableSerializer(serializers.ModelSerializer):
 
         return workspace
 
+    def update(self, instance: Workspace, validated_data: dict):
+        participants = validated_data.get('participants', None)
+        if instance.owned_by_id not in participants:
+            raise ValidationError(_('Workspace owner cannot be removed from the workspace'))
+
+        return super().update(instance, validated_data)
+
 
 class WorkspaceDetailedSerializer(serializers.ModelSerializer):
     """
@@ -629,6 +636,7 @@ class IssueTypeSerializer(WorkspaceModelSerializer):
     Common issue category serializer
     For getting all types of issues
     """
+
     class Meta:
         model = IssueTypeCategory
         fields = (
@@ -888,6 +896,7 @@ class IssueListSerializer(serializers.ListSerializer):
     Look at IssueChildOrderingSerializer,
     This serializer exist only for this purpose.
     """
+
     def update(self, instance, validated_data):
         issue_mapping = {issue.id: issue
                          for issue
@@ -914,6 +923,7 @@ class IssueChildOrderingSerializer(WorkspaceModelSerializer):
     We use this serializer for update ordering for any amount of issues.
     Order is the same for any presence (backlog, sprint).
     """
+
     def update(self, instance, validated_data):
         instance.ordering = [validated_datum['ordering']
                              for validated_datum
