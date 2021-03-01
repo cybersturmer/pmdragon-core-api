@@ -67,48 +67,25 @@ class IssueMessagesObserver(AsyncAPIConsumer):
         if message is not None:
             yield f'-pk__{message.pk}'
 
+    @database_sync_to_async
+    def get_issue_filter_data(self, issue_pk, **kwargs):
+        user = self.scope.get('user')
+        person = Person.objects.get(user=user)
+        issue = Issue.objects.get(
+            id=issue_pk,
+            workspace__participants__in=[person])
+
+        return issue
+
     """
     Actually we have to check permissions here but we are not able to do that
-    Cuz now we don't have user's data., but we will, i promise.
-    """
-    # @todo Refactor selection from subscribe and unsubscribe
+    Cuz now we don't have user's data., but we will, i promise. """
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
-        user = self.scope.get('user')
-        person = await database_sync_to_async(
-            Person.objects.get,
-            thread_sensitive=True
-        )(
-            user=user
-        )
-
-        issue = await database_sync_to_async(
-            Issue.objects.get,
-            thread_sensitive=True
-        )(
-            id=issue_pk,
-            workspace__participants__in=[person]
-        )
-
+        issue = await self.get_issue_filter_data(issue_pk=issue_pk)
         await self.message_change_handler.subscribe(issue=issue)
 
-    # @todo Refactor selection from subscribe and unsubscribe
     @action()
     async def unsubscribe_from_messages_in_issue(self, issue_pk, **kwargs):
-        user = self.scope.get('user')
-        person = await database_sync_to_async(
-            Person.objects.get,
-            thread_sensitive=True
-        )(
-            user=user
-        )
-
-        issue = await database_sync_to_async(
-            Issue.objects.get,
-            thread_sensitive=True
-        )(
-            id=issue_pk,
-            workspace__participants__in=[person]
-        )
-
+        issue = await self.get_issue_filter_data(issue_pk=issue_pk)
         await self.message_change_handler.unsubscribe(issue=issue)
