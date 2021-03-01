@@ -146,12 +146,15 @@ class Person(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        image = Image.open(self.avatar.path)
+        """
+        Avatar can be null, so actions with image can not to work. """
+        if self.avatar:
+            image = Image.open(self.avatar.path)
 
-        if image.height > 300 or image.width > 300:
-            output_size = (300, 300)
-            image.thumbnail(output_size)
-            image.save(self.avatar.path)
+            if image.height > 300 or image.width > 300:
+                output_size = (300, 300)
+                image.thumbnail(output_size)
+                image.save(self.avatar.path)
 
 
 class Workspace(models.Model):
