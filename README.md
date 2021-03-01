@@ -1,6 +1,6 @@
-# PmDragon CE API
+# PmDragon Community API
 Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
-Django Rest Framework based API as a server side of PmDragon CE  software.
+Django Rest Framework based API as a server side of PmDragon Community  software.
 
 ## Links
 You can find deployment tool, documentation, licensing in
