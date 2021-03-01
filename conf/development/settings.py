@@ -4,6 +4,7 @@ import sys
 from conf.common.settings import *
 
 DEBUG = True
+DEPLOYMENT = 'IDE_DEBUG'
 
 ALLOWED_HOSTS = ['*']
 
@@ -21,6 +22,16 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+"""
+JWT Tokens settings
+We need Session Authentication to have swagger spec. """
+REST_FRAMEWORK.update({
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+})
 
 DJANGO_CHANNELS_REST_API = {
     "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.IsAuthenticated",)
