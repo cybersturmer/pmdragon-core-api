@@ -526,12 +526,11 @@ class WorkspaceWritableSerializer(serializers.ModelSerializer):
 
         return workspace
 
-    def update(self, instance: Workspace, validated_data: dict):
-        participants = validated_data.get('participants', None)
-        if instance.owned_by_id not in participants:
+    def validate_participants(self, participants: list):
+        if self.instance.owned_by not in participants:
             raise ValidationError(_('Workspace owner cannot be removed from the workspace'))
 
-        return super().update(instance, validated_data)
+        return participants
 
 
 class WorkspaceDetailedSerializer(serializers.ModelSerializer):
@@ -563,7 +562,7 @@ class WorkspaceModelSerializer(serializers.ModelSerializer):
                 .get(prefix_url__exact=value)
 
         except (KeyError, Workspace.DoesNotExist):
-            raise ValidationError('Incorrect workspace given for current user')
+            raise ValidationError(_('Incorrect workspace given for current user'))
 
         return value
 
