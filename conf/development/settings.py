@@ -4,7 +4,6 @@ import sys
 from conf.common.settings import *
 
 DEBUG = True
-HEROKU = False
 
 ALLOWED_HOSTS = ['*']
 
