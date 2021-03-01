@@ -18,14 +18,14 @@
     },
     "DJANGO_SETTINGS_MODULE": {
       "description": "Which one environment we use",
-      "value": "conf.production.settings"
+      "value": "conf.production.deployment.heroku"
     },
-    "HEROKU": {
-      "description": "We use special flow for heroku, just let it stay True",
-      "value": "True"
-    },
-    "HOSTNAME": {
+    "FRONTEND_HOSTNAME": {
       "description": "We use it to send emails with hostname + related link",
+      "value": ""
+    },
+    "API_HOSTNAME": {
+      "description": "We use it to allow calling with this hostname in django settings ALLOWED HOSTS example (pmdragon.org)",
       "value": ""
     },
     "EMAIL_HOST": {
