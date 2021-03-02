@@ -3,7 +3,7 @@ import django_heroku
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-DEBUG = True
+DEBUG = False
 
 DEPLOYMENT = 'HEROKU'
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
@@ -28,7 +28,7 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 # Your Amazon Web Services storage bucket name, as a string.
-AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKET_NAME')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {
@@ -39,8 +39,6 @@ AWS_S3_OBJECT_PARAMETERS = {
 AWS_STATIC_LOCATION = 'static'
 STATICFILES_STORAGE = 'apps.core.storages.StaticStorage'
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
-
-del STATIC_ROOT
 
 # To upload media files to S3 set
 AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
