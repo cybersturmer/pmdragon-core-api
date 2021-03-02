@@ -3,17 +3,10 @@ import django_heroku
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-DEBUG = False
+DEBUG = True
 
 DEPLOYMENT = 'HEROKU'
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
-
-if DATABASE_URL := os.getenv('DATABASE_URL', None):
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-    }
-
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
 
 """
@@ -37,8 +30,8 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 # To allow django-admin collectstatic to automatically put your static files in your bucket
 AWS_STATIC_LOCATION = 'static'
-STATICFILES_STORAGE = 'apps.core.storages.StaticStorage'
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
+STATICFILES_STORAGE = 'apps.core.storages.StaticStorage'
 
 # To upload media files to S3 set
 AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
@@ -88,5 +81,10 @@ sentry_sdk.init(
     send_default_pii=True
 )
 
-django_heroku.settings(locals(), logging=False)
+django_heroku.settings(locals(),
+                       staticfiles=False,
+                       secret_key=False,
+                       databases=True,
+                       allowed_hosts=True,
+                       logging=False)
 

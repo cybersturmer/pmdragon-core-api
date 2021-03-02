@@ -21,8 +21,7 @@ INSTALLED_APPS = [
     'apps.core.apps.CoreConfig',
     'django_filters',
     'rest_framework',
-    'corsheaders',
-    'storages'
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
