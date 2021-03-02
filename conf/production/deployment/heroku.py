@@ -42,6 +42,8 @@ AWS_STATIC_LOCATION = 'static'
 STATICFILES_STORAGE = 'apps.core.storages.StaticStorage'
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
 
+del STATIC_ROOT
+
 # To upload media files to S3 set
 AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
 DEFAULT_FILE_STORAGE = 'apps.core.storages.PublicMediaStorage'
