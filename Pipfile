@@ -31,9 +31,11 @@ djangochannelsrestframework = "*"
 channels-redis = "*"
 sentry-sdk = "*"
 whitenoise = "*"
-cryptography = "==3.3.1"
+cryptography = "==3.4.6"
 dj-database-url = "*"
 channelsmultiplexer = "*"
+boto3 = "*"
+django-storages = "*"
 
 [requires]
 python_version = "3.8"

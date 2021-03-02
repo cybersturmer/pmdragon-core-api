@@ -15,6 +15,38 @@ if DATABASE_URL := os.getenv('DATABASE_URL', None):
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
 
 """
+S3 settings """
+INSTALLED_APPS.append('storages')
+
+# I use BUCKETEER Addon in HEROKU, please change it to your s3.
+# Your Amazon Web Services access key, as a string.
+AWS_ACCESS_KEY_ID = os.getenv('BUCKETEER_AWS_ACCESS_KEY_ID')
+
+# Your Amazon Web Services secret access key, as a string.
+AWS_SECRET_ACCESS_KEY = os.getenv('BUCKETEER_AWS_SECRET_ACCESS_KEY')
+
+# Your Amazon Web Services storage bucket name, as a string.
+AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKETEER_BUCKET_NAME')
+
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400'
+}
+
+# To allow django-admin collectstatic to automatically put your static files in your bucket
+AWS_STATIC_LOCATION = 'static'
+STATICFILES_STORAGE = 'apps.core.storages.StaticStorage'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
+
+# To upload media files to S3 set
+AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
+DEFAULT_FILE_STORAGE = 'apps.core.storages.PublicMediaStorage'
+
+AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+PRIVATE_FILE_STORAGE = 'apps.core.storages.PrivateMediaStorage'
+
+
+"""
 Throttle settings """
 REST_FRAMEWORK.update({
     'DEFAULT_THROTTLE_CLASSES': (
@@ -26,12 +58,6 @@ REST_FRAMEWORK.update({
         'user': '1000/day'
     }
 })
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-MIDDLEWARE.insert(
-    1,
-    'whitenoise.middleware.WhiteNoiseMiddleware'
-)
 
 FRONTEND_HOSTNAME = os.getenv('FRONTEND_HOSTNAME')
 
