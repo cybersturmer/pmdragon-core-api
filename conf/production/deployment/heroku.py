@@ -22,15 +22,15 @@ INSTALLED_APPS.append('storages')
 
 # I use BUCKETEER Addon in HEROKU, please change it to your s3.
 # Your Amazon Web Services access key, as a string.
-AWS_ACCESS_KEY_ID = os.getenv('BUCKETEER_AWS_ACCESS_KEY_ID')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 
 # Your Amazon Web Services secret access key, as a string.
-AWS_SECRET_ACCESS_KEY = os.getenv('BUCKETEER_AWS_SECRET_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
-AWS_DEFAULT_ACL = 'public-read'
+AWS_DEFAULT_ACL = None
 
 # Your Amazon Web Services storage bucket name, as a string.
-AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKETEER_BUCKET_NAME')
+AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {
