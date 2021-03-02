@@ -11,7 +11,7 @@
     <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
     <script>
     const ui = SwaggerUIBundle({
-        url: {% if heroku %}"https://pmdragon.org/static/api/schema.json"{% else %}{% url 'openapi-schema' %}{% endif %},
+        url: {% if heroku %}"https://pmdragon.s3.eu-central-1.amazonaws.com/static/api/schema.json"{% else %}{% url 'openapi-schema' %}{% endif %},
         dom_id: '#swagger-ui',
         presets: [
           SwaggerUIBundle.presets.apis,
