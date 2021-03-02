@@ -148,7 +148,7 @@ class Person(models.Model):
 
         """
         Avatar can be null, so actions with image can not to work. """
-        if self.avatar:
+        if settings.DEPLOYMENT != 'HEROKU' and self.avatar:
             image = Image.open(self.avatar.path)
 
             if image.height > 300 or image.width > 300:

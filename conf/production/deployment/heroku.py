@@ -25,6 +25,8 @@ AWS_ACCESS_KEY_ID = os.getenv('BUCKETEER_AWS_ACCESS_KEY_ID')
 # Your Amazon Web Services secret access key, as a string.
 AWS_SECRET_ACCESS_KEY = os.getenv('BUCKETEER_AWS_SECRET_ACCESS_KEY')
 
+AWS_DEFAULT_ACL = 'public-read'
+
 # Your Amazon Web Services storage bucket name, as a string.
 AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKETEER_BUCKET_NAME')
 
