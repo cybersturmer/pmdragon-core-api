@@ -27,8 +27,6 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 # Your Amazon Web Services secret access key, as a string.
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
-AWS_DEFAULT_ACL = None
-
 # Your Amazon Web Services storage bucket name, as a string.
 AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKET_NAME')
 
@@ -51,6 +49,7 @@ DEFAULT_FILE_STORAGE = 'apps.core.storages.PublicMediaStorage'
 AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
 PRIVATE_FILE_STORAGE = 'apps.core.storages.PrivateMediaStorage'
 
+AWS_DEFAULT_ACL = 'public-read'
 
 """
 Throttle settings """
