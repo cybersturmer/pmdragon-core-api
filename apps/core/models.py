@@ -181,9 +181,10 @@ class Workspace(models.Model):
                                           related_name='workspaces',
                                           blank=True)
 
+    """ Restrict Person from deletion till he own at least one Workspace. """
     owned_by = models.ForeignKey(Person,
                                  verbose_name=_('Owner'),
-                                 on_delete=models.SET_NULL)
+                                 on_delete=models.RESTRICT)
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
                                       auto_now_add=True)
