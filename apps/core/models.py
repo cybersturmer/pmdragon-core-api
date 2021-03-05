@@ -1,10 +1,13 @@
 import os
 import uuid
+from datetime import datetime
 from enum import Enum
+from typing import Union
 
 import bleach
 from PIL import Image
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -26,7 +29,7 @@ class UploadPersonsDirections(Enum):
     ATTACHMENT = 'attachment'
 
 
-def image_upload_location(instance, filename) -> str:
+def image_upload_location(instance: Union['Person'], filename: str) -> str:
     """
     Getting prefix by checking is it instance of ..."""
     direction = {
@@ -40,7 +43,7 @@ def image_upload_location(instance, filename) -> str:
     return f'person_{instance.user.id}/images/{direction}_{uniq_name}{extension}'
 
 
-def attachment_upload_location(instance, filename) -> str:
+def attachment_upload_location(instance: Union['IssueAttachment'], filename: str) -> str:
     direction = {
         isinstance(instance, IssueAttachment):
             UploadPersonsDirections.ATTACHMENT.value
@@ -54,11 +57,11 @@ def attachment_upload_location(instance, filename) -> str:
     return f'workspaces/{lower_prefix_url}/uploads/{direction}_{uniq_name}{extension}'
 
 
-def clean_useless_newlines(data):
+def clean_useless_newlines(data: str) -> str:
     return data.replace('<p></p>', '')
 
 
-def clean_html(data):
+def clean_html(data: str) -> str:
     return bleach \
         .clean(data,
                tags=settings.BLEACH_ALLOWED_TAGS,
@@ -67,7 +70,7 @@ def clean_html(data):
                strip=settings.BLEACH_STRIPPING)
 
 
-def get_mentioned_user_ids(data):
+def get_mentioned_user_ids(data: str) -> list:
     return re.findall(r'data-mentioned-user-id="(\d{1,10})"', data)
 
 
@@ -76,10 +79,10 @@ class Person(models.Model):
     Person should be connected to user.
     Person can be invited, but have to fill of this information by himself
     """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,
-                                verbose_name=_('User of system'),
-                                on_delete=models.CASCADE,
-                                related_name='person')
+    user: User = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                      verbose_name=_('User of system'),
+                                      on_delete=models.CASCADE,
+                                      related_name='person')
 
     phone = models.CharField(max_length=128,
                              verbose_name=_('Phone number'),
@@ -95,27 +98,27 @@ class Person(models.Model):
     )
 
     @property
-    def username(self):
+    def username(self) -> str:
         return self.user.username
 
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         return self.user.first_name
 
     @property
-    def last_name(self):
+    def last_name(self) -> str:
         return self.user.last_name
 
     @property
-    def title(self):
+    def title(self) -> str:
         return f'{self.user.first_name} {self.user.last_name}'
 
     @property
-    def email(self):
+    def email(self) -> str:
         return self.user.email
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         return self.user.is_active
 
     @property
@@ -123,7 +126,7 @@ class Person(models.Model):
         return self.user.date_joined
 
     @property
-    def last_login(self):
+    def last_login(self) -> datetime:
         return self.user.last_login
 
     class Meta:
@@ -147,7 +150,9 @@ class Person(models.Model):
         super().save(*args, **kwargs)
 
         """
-        Avatar can be null, so actions with image can not to work. """
+        Avatar can be null, so actions with image can not to work. 
+        We also use s3 for Heroku so this work should be done 
+        through AWS lambda """
         if settings.DEPLOYMENT != 'HEROKU' and self.avatar:
             image = Image.open(self.avatar.path)
 
@@ -194,6 +199,67 @@ class Workspace(models.Model):
         return self.prefix_url
 
     __repr__ = __str__
+
+
+class Project(models.Model):
+    """
+    Project is a easiest way to isolate Tasks
+    """
+    workspace = models.ForeignKey(Workspace,
+                                  verbose_name=_('Workspace'),
+                                  db_index=True,
+                                  on_delete=models.CASCADE,
+                                  related_name='projects')
+
+    title = models.CharField(verbose_name=_('Title'),
+                             max_length=255)
+
+    key = models.SlugField(verbose_name=_('Project key'),
+                           help_text=_('Short word (must not exceed 10 characters) to mark project'),
+                           max_length=10)
+
+    owned_by = models.ForeignKey(Person,
+                                 verbose_name=_('Owner'),
+                                 null=True,
+                                 on_delete=models.SET_NULL)
+
+    created_at = models.DateTimeField(verbose_name=_('Created at'),
+                                      auto_now_add=True)
+
+    class Meta:
+        db_table = 'core_project'
+        ordering = ['-created_at']
+        unique_together = [
+            ['workspace', 'title'],
+            ['workspace', 'key']
+        ]
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
+
+    def __str__(self):
+        return f'[ {self.workspace.prefix_url} - {self.title} ]'
+
+    __repr__ = __str__
+
+
+class ProjectWorkspaceAbstractModel(models.Model):
+    @staticmethod
+    def get_workspace_related_name():
+        return '%(app_label)s_%(class)s'
+
+    workspace = models.ForeignKey(Workspace,
+                                  verbose_name=_('Workspace'),
+                                  db_index=True,
+                                  on_delete=models.CASCADE,
+                                  related_name=get_workspace_related_name.__func__())
+
+    project = models.ForeignKey(Project,
+                                db_index=True,
+                                verbose_name=_('Project'),
+                                on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
 
 
 class PersonParticipationRequestAbstractValidManager(models.Manager):
@@ -308,48 +374,7 @@ class PersonInvitationRequest(PersonParticipationRequestAbstract):
         super().save(*args, **kwargs)
 
 
-class Project(models.Model):
-    """
-    Project is a easiest way to isolate Tasks
-    """
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE,
-                                  related_name='projects')
-
-    title = models.CharField(verbose_name=_('Title'),
-                             max_length=255)
-
-    key = models.SlugField(verbose_name=_('Project key'),
-                           help_text=_('Short word (must not exceed 10 characters) to mark project'),
-                           max_length=10)
-
-    owned_by = models.ForeignKey(Person,
-                                 verbose_name=_('Owner'),
-                                 null=True,
-                                 on_delete=models.SET_NULL)
-
-    created_at = models.DateTimeField(verbose_name=_('Created at'),
-                                      auto_now_add=True)
-
-    class Meta:
-        db_table = 'core_project'
-        ordering = ['-created_at']
-        unique_together = [
-            ['workspace', 'title'],
-            ['workspace', 'key']
-        ]
-        verbose_name = _('Project')
-        verbose_name_plural = _('Projects')
-
-    def __str__(self):
-        return f'[ {self.workspace.prefix_url} - {self.title} ]'
-
-    __repr__ = __str__
-
-
-class IssueTypeCategoryIcon(models.Model):
+class IssueTypeCategoryIcon(ProjectWorkspaceAbstractModel):
     prefix = models.CharField(verbose_name=_('Icon prefix'),
                               max_length=50,
                               unique=True,
@@ -377,17 +402,10 @@ class IssueTypeCategoryIcon(models.Model):
     __repr__ = __str__
 
 
-class IssueTypeCategory(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE,
-                                  related_name='issue_categories')
-
-    project = models.ForeignKey(Project,
-                                db_index=True,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
+class IssueTypeCategory(ProjectWorkspaceAbstractModel):
+    @staticmethod
+    def get_workspace_related_name():
+        return 'issue_categories'
 
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
@@ -452,17 +470,7 @@ class IssueTypeCategory(models.Model):
         super(IssueTypeCategory, self).save(*args, **kwargs)
 
 
-class IssueStateCategory(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                db_index=True,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
+class IssueStateCategory(ProjectWorkspaceAbstractModel):
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -524,17 +532,7 @@ class IssueStateCategory(models.Model):
         super(IssueStateCategory, self).save(*args, **kwargs)
 
 
-class IssueEstimationCategory(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                db_index=True,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
+class IssueEstimationCategory(ProjectWorkspaceAbstractModel):
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255,
                              help_text=_('You can call it by T-shirt size or like banana'))
@@ -564,22 +562,13 @@ class IssueEstimationCategory(models.Model):
     __repr__ = __str__
 
 
-class IssueAttachment(models.Model):
+class IssueAttachment(ProjectWorkspaceAbstractModel):
     """
     Since we need for transparency we do not let user
     assign file to separate message and have to assign it
     to issue.
     It's much better to see all files in the issue page.
     """
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -620,19 +609,8 @@ class IssueAttachment(models.Model):
     __repr__ = __str__
 
 
-class Issue(models.Model):
+class Issue(ProjectWorkspaceAbstractModel):
     cleaned_data: dict
-
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                db_index=True,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -841,18 +819,8 @@ class IssueHistory(models.Model):
         verbose_name_plural = _('Issue History')
 
 
-class IssueMessage(models.Model):
+class IssueMessage(ProjectWorkspaceAbstractModel):
     cleaned_data: dict
-
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                verbose_name=_('Project'),
-                                on_delete=models.CASCADE)
-
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Sent by'),
                                    on_delete=models.CASCADE,
@@ -895,16 +863,7 @@ class IssueMessage(models.Model):
         super().save(*args, **kwargs)
 
 
-class ProjectBacklog(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.OneToOneField(Project,
-                                   verbose_name=_('Project'),
-                                   on_delete=models.CASCADE)
-
+class ProjectBacklog(ProjectWorkspaceAbstractModel):
     issues = models.ManyToManyField(Issue,
                                     verbose_name=_('Issues'),
                                     blank=True)
@@ -936,12 +895,7 @@ class ProjectBacklog(models.Model):
         super(ProjectBacklog, self).clean()
 
 
-class SprintDuration(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
+class SprintDuration(ProjectWorkspaceAbstractModel):
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -961,17 +915,7 @@ class SprintDuration(models.Model):
     __repr__ = __str__
 
 
-class Sprint(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                verbose_name=_('Project'),
-                                db_index=True,
-                                on_delete=models.CASCADE)
-
+class Sprint(ProjectWorkspaceAbstractModel):
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255,
                              blank=True,
@@ -1039,12 +983,11 @@ class Sprint(models.Model):
                 Checking if we have another one started sprint
                 """
                 started_sprints_amount = \
-                    Sprint.objects \
-                        .filter(workspace=self.workspace,
-                                project=self.project,
-                                is_started=True) \
-                        .exclude(pk=self.pk) \
-                        .count()
+                    Sprint.objects.filter(workspace=self.workspace,
+                                          project=self.project,
+                                          is_started=True) \
+                                  .exclude(pk=self.pk) \
+                                  .count()
 
                 if started_sprints_amount > 0:
                     raise ValidationError(_('Another sprint was already started. '
@@ -1075,17 +1018,7 @@ class Sprint(models.Model):
         super(Sprint, self).delete(using, keep_parents)
 
 
-class SprintEstimation(models.Model):
-    workspace = models.ForeignKey(Workspace,
-                                  verbose_name=_('Workspace'),
-                                  db_index=True,
-                                  on_delete=models.CASCADE)
-
-    project = models.ForeignKey(Project,
-                                verbose_name=_('Project'),
-                                db_index=True,
-                                on_delete=models.CASCADE)
-
+class SprintEstimation(ProjectWorkspaceAbstractModel):
     sprint = models.ForeignKey(Sprint,
                                verbose_name=_('Sprint'),
                                db_index=True,
