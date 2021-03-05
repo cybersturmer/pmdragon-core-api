@@ -57,6 +57,25 @@ class IsParticipateInWorkspace(permissions.BasePermission):
         except Person.DoesNotExist:
             return False
 
+        return False
+
+
+class WorkspaceOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if not hasattr(obj, 'workspace'):
+            return False
+
+        try:
+            if request.user.person is obj.workspace.owned_by:
+                return True
+        except Person.DoesNotExist:
+            return False
+
+        return False
+
 
 class IsMeOrReadOnly(permissions.BasePermission):
     """
