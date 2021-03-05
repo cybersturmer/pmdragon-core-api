@@ -150,6 +150,7 @@ class IssueTypeCategoryIconsAdmin(admin.ModelAdmin):
     model = IssueTypeCategoryIcon
     list_display = (
         'id',
+        'project',
         'prefix',
         'color'
     )
