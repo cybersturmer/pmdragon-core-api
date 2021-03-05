@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorOrReadOnly
+from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorOrReadOnly, WorkspaceOwnerOrReadOnly
 from .schemas import IssueListUpdateSchema
 from .serializers import *
 from .tasks import send_registration_email, send_invitation_email
@@ -39,8 +39,8 @@ class PersonRegistrationRequestView(viewsets.GenericViewSet,
     """
     queryset = PersonRegistrationRequest.valid.all()
     serializer_class = PersonRegistrationRequestSerializer
-    permission_classes = [AllowAny]
-    throttle_classes = [AnonRateThrottle]
+    permission_classes = (AllowAny,)
+    throttle_classes = (AnonRateThrottle,)
     lookup_field = 'key'
 
     def perform_create(self, serializer):
@@ -62,8 +62,8 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     """
     queryset = PersonInvitationRequest.valid.all()
     serializer_class = PersonInvitationRequestRetrieveUpdateSerializer
-    permission_classes = [AllowAny]
-    throttle_classes = [AnonRateThrottle]
+    permission_classes = (AllowAny,)
+    throttle_classes = (AnonRateThrottle,)
     lookup_field = 'key'
     http_method_names = (
         'head',
@@ -90,6 +90,9 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
     """
     queryset = PersonInvitationRequest.valid.all()
     serializer_class = PersonInvitationRequestList
+    permission_classes = (
+        AllowAny,
+    )
     http_method_names = (
         'post',
         'head',
@@ -152,6 +155,9 @@ class PersonInvitationRequestViewSet(viewsets.GenericViewSet,
                                      mixins.RetrieveModelMixin,
                                      mixins.CreateModelMixin):
     queryset = PersonInvitationRequest.valid.all()
+    permission_classes = (
+        AllowAny,
+    )
     serializer_class = PersonInvitationRequestSerializer
     lookup_field = 'key'
 
@@ -163,8 +169,12 @@ class PersonInvitationRequestAcceptView(viewsets.GenericViewSet,
     """
     queryset = PersonInvitationRequest.valid.all()
     serializer_class = PersonInvitationRequestSerializer
-    permission_classes = [AllowAny]
-    throttle_classes = [AnonRateThrottle]
+    permission_classes = (
+        AllowAny,
+    )
+    throttle_classes = (
+        AnonRateThrottle,
+    )
     lookup_field = 'key'
 
 
@@ -175,7 +185,9 @@ class PersonRegistrationRequestVerifyView(generics.CreateAPIView,
     """
     queryset = Person.objects.all()
     serializer_class = PersonRegistrationOrInvitationRequestSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (
+        AllowAny,
+    )
 
 
 class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -184,6 +196,9 @@ class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    permission_classes = (
+        IsAuthenticated,
+    )
 
     def get_queryset(self):
         workspaces = Workspace.objects \
@@ -208,7 +223,11 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     Of course we need to add information about current person
     to created_by and participant
     """
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (
+        IsAuthenticated,
+        IsOwnerOrReadOnly
+    )
+
     serializer_class = WorkspaceWritableSerializer
     queryset = Workspace.objects.all()
 
@@ -257,7 +276,10 @@ class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     Get all workspaces current Person participate in
     We need it on frontend to understand list of workspaces to switch between
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (
+        IsAuthenticated,
+    )
+
     serializer_class = WorkspaceDetailedSerializer
     queryset = Workspace.objects.all()
 
@@ -273,8 +295,9 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
     Extendable class to have read only ViewSet of any instance, that have
     workspace isolation.
     """
-    WORKSPACE_PERMISSIONS_NOTIFICATION = _('You do not have permissions for this workspace')
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (
+        IsAuthenticated,
+    )
 
     def get_queryset(self):
         """
@@ -305,6 +328,14 @@ class WorkspacesModelViewSet(WorkspacesReadOnlyModelViewSet,
                              mixins.UpdateModelMixin,
                              mixins.DestroyModelMixin):
     """
+    @todo Added IsOwnerOrReadOnly permission
+    not allow to remove participants from workspace
+    """
+    permission_classes = (
+        IsAuthenticated,
+        IsOwnerOrReadOnly,
+    )
+    """
     Extendable class to have writable ViewSet,
     that have isolation by workspaces.
     """
@@ -318,6 +349,8 @@ class ProjectViewSet(WorkspacesModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
         IsOwnerOrReadOnly,
     )
 
@@ -328,11 +361,20 @@ class IssueTypeCategoryViewSet(WorkspacesModelViewSet):
     """
     queryset = IssueTypeCategory.objects.all()
     serializer_class = IssueTypeSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace
+    )
 
 
 class IssueTypeIconViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IssueTypeCategoryIcon.objects.all()
     serializer_class = IssueTypeIconSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+        WorkspaceOwnerOrReadOnly,
+    )
 
 
 class IssueStateCategoryViewSet(WorkspacesModelViewSet):
@@ -341,6 +383,11 @@ class IssueStateCategoryViewSet(WorkspacesModelViewSet):
     """
     queryset = IssueStateCategory.objects.all()
     serializer_class = IssueStateSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+        WorkspaceOwnerOrReadOnly,
+    )
 
 
 class IssueEstimationCategoryViewSet(WorkspacesModelViewSet):
@@ -348,7 +395,8 @@ class IssueEstimationCategoryViewSet(WorkspacesModelViewSet):
     serializer_class = IssueEstimationSerializer
     permission_classes = (
         IsAuthenticated,
-        IsParticipateInWorkspace
+        IsParticipateInWorkspace,
+        WorkspaceOwnerOrReadOnly
     )
 
 
@@ -358,11 +406,16 @@ class IssueViewSet(WorkspacesModelViewSet):
     """
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+    )
 
 
 class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IssueHistory.objects.all()
     serializer_class = IssueHistorySerializer
+    # @todo add IsParticipateInWorkspace ?
     permission_classes = (
         IsAuthenticated,
     )
@@ -491,6 +544,10 @@ class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,
     """
     queryset = ProjectBacklog.objects.all()
     serializer_class = BacklogWritableSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+    )
 
 
 class SprintDurationViewSet(WorkspacesModelViewSet):
@@ -499,6 +556,10 @@ class SprintDurationViewSet(WorkspacesModelViewSet):
     """
     queryset = SprintDuration.objects.all()
     serializer_class = SprintDurationSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+    )
 
 
 class SprintViewSet(WorkspacesModelViewSet):
@@ -507,6 +568,10 @@ class SprintViewSet(WorkspacesModelViewSet):
     """
     queryset = Sprint.objects.all()
     serializer_class = SprintWritableSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+    )
 
 
 class SprintEstimationViewSet(WorkspacesReadOnlyModelViewSet):
@@ -515,6 +580,10 @@ class SprintEstimationViewSet(WorkspacesReadOnlyModelViewSet):
     """
     queryset = SprintEstimation.objects.all()
     serializer_class = SprintEstimationSerializer
+    permission_classes = (
+        IsAuthenticated,
+        IsParticipateInWorkspace,
+    )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sprint']
 
@@ -525,7 +594,9 @@ class PersonSetPasswordView(GenericAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserSetPasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (
+        IsAuthenticated,
+    )
 
     def post(self, request):
         """
