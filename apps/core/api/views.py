@@ -231,6 +231,12 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     serializer_class = WorkspaceWritableSerializer
     queryset = Workspace.objects.all()
 
+    def get_queryset(self):
+        queryset = super(WorkspaceViewSet, self).get_queryset()
+        return queryset.filter(
+            participants__in=[self.request.user.person]
+        ).all()
+
     def get_serializer_class(self):
         if self.action == 'list':
             return WorkspaceDetailedSerializer
@@ -332,8 +338,7 @@ class WorkspacesModelViewSet(WorkspacesReadOnlyModelViewSet,
     not allow to remove participants from workspace
     """
     permission_classes = (
-        IsAuthenticated,
-        IsOwnerOrReadOnly,
+        IsAuthenticated
     )
     """
     Extendable class to have writable ViewSet,
