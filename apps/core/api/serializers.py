@@ -900,6 +900,7 @@ class IssueListSerializer(serializers.ListSerializer):
     """
 
     def update(self, instance, validated_data):
+        # @todo Refactor to bulk update. But check signals first !!!
         issue_mapping = {issue.id: issue
                          for issue
                          in instance}
@@ -927,7 +928,7 @@ class IssueChildOrderingSerializer(WorkspaceModelSerializer):
     """
 
     def update(self, instance, validated_data):
-        # @todo Refactor to bulk update.
+        # @todo Refactor to bulk update. But check signals first !!!
         instance.ordering = [validated_datum['ordering']
                              for validated_datum
                              in validated_data
