@@ -86,6 +86,8 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                                                    project=instance)
 
     if created and not issue_types.exists():
+        # Colors from https://quasar.dev/style/color-palette
+        # Icons from https://materialdesignicons.com/ with 'mdi-' prefix
         icons = \
             IssueTypeCategoryIcon.objects.bulk_create(
                 #  Epic
@@ -101,7 +103,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     workspace=instance.workspace,
                     project=instance,
                     prefix='mdi-bookmark',
-                    color='grey-12',
+                    color='light-green-8',
                     ordering=1
                 ),
                 # Task
