@@ -423,11 +423,12 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
             If user is self registered with prefix_url for workspace then 
             we have to create workspace for him. """
             request: PersonRegistrationRequest
-            workspace = Workspace(prefix_url=request.prefix_url)
+            workspace = Workspace(prefix_url=request.prefix_url,
+                                  owned_by=person)
 
             try:
                 workspace.save()
-            except IntegrityError:
+            except IntegrityError as e:
                 # @todo Had problems with interpreting result of registration
                 # Workspace with given prefix url was already registered. was returned on different integrityError
                 raise serializers.ValidationError({

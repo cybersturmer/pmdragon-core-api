@@ -350,6 +350,9 @@ class PersonRegistrationRequest(PersonParticipationRequestAbstract):
     def save(self, *args, **kwargs):
         if self.pk is None:
             self.key = hashing.get_hash(self.expired_at, self.email, self.prefix_url)
+            # We do not allow users have different workspaces upper/lower cases.
+            # So let's do it uppercase.
+            self.prefix_url = self.prefix_url.upper()
 
         super().save(*args, **kwargs)
 
