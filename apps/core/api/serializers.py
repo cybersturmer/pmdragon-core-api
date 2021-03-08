@@ -428,6 +428,8 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
             try:
                 workspace.save()
             except IntegrityError:
+                # @todo Had problems with interpreting result of registration
+                # Workspace with given prefix url was already registered. was returned on different integrityError
                 raise serializers.ValidationError({
                     'detail': _('Workspace with given prefix url was already registered.')
                 })
