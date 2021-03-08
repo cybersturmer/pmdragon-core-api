@@ -3,7 +3,7 @@ import django_heroku
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-DEBUG = True
+DEBUG = False
 
 DEPLOYMENT = 'HEROKU'
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
@@ -85,6 +85,6 @@ django_heroku.settings(locals(),
                        staticfiles=False,
                        secret_key=False,
                        databases=True,
-                       allowed_hosts=True,
+                       allowed_hosts=False,
                        logging=False)
 
