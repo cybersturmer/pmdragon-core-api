@@ -1,8 +1,8 @@
 from django.db.models import Q
 from django.db.models.signals import \
     pre_save, \
-    post_save,\
-    m2m_changed,\
+    post_save, \
+    m2m_changed, \
     post_delete
 
 from django.conf import settings
@@ -22,7 +22,7 @@ from .models import Project, \
     IssueStateCategory, \
     Sprint, \
     Issue, \
-    IssueMessage, IssueEstimationCategory, SprintEstimation, IssueHistory
+    IssueMessage, IssueEstimationCategory, SprintEstimation, IssueHistory, IssueTypeCategoryIcon
 
 
 class ActionM2M(Enum):
@@ -67,6 +67,15 @@ def create_backlog_for_project(instance: Project, created: bool, **kwargs):
 
 
 @receiver(post_save, sender=Project)
+def create_icons_for_project(instance: Project, created: bool, **kwargs):
+    """
+    Every project should contain default icons.
+    """
+    if not created:
+        return False
+
+
+@receiver(post_save, sender=Project)
 def create_default_issue_type_category_for_project(instance: Project, created: bool, **kwargs):
     """
     Every project should contain defaults Issue Types
@@ -77,41 +86,72 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                                                    project=instance)
 
     if created and not issue_types.exists():
-        epic = IssueTypeCategory(workspace=instance.workspace,
-                                 project=instance,
-                                 title=_('Epic'),
-                                 is_subtask=False,
-                                 is_default=False,
-                                 ordering=0)
+        icons = \
+            IssueTypeCategoryIcon.objects.bulk_create(
+                #  Epic
+                IssueTypeCategoryIcon(
+                    workspace=instance.workspace,
+                    project=instance,
+                    prefix='mdi-bag-personal',
+                    color='deep-purple',
+                    ordering=3
+                ),
+                # User Story
+                IssueTypeCategoryIcon(
+                    workspace=instance.workspace,
+                    project=instance,
+                    prefix='mdi-bookmark',
+                    color='grey-12',
+                    ordering=1
+                ),
+                # Task
+                IssueTypeCategoryIcon(
+                    workspace=instance.workspace,
+                    project=instance,
+                    prefix='mdi-file-tree',
+                    color='grey-12',
+                    ordering=2
+                ),
+                # Bug
+                IssueTypeCategoryIcon(
+                    workspace=instance.workspace,
+                    project=instance,
+                    prefix='mdi-bug',
+                    color='red-10',
+                    ordering=0
+                ),
+            )
 
-        epic.save()
-
-        user_story = IssueTypeCategory(workspace=instance.workspace,
-                                       project=instance,
-                                       title=_('User Story'),
-                                       is_subtask=True,
-                                       is_default=True,
-                                       ordering=1)
-
-        user_story.save()
-
-        task = IssueTypeCategory(workspace=instance.workspace,
-                                 project=instance,
-                                 title=_('Task'),
-                                 is_subtask=True,
-                                 is_default=False,
-                                 ordering=2)
-
-        task.save()
-
-        bug = IssueTypeCategory(workspace=instance.workspace,
-                                project=instance,
-                                title=_('Bug'),
-                                is_subtask=False,
-                                is_default=False,
-                                ordering=3)
-
-        bug.save()
+        IssueTypeCategory.objects.bulk_create(
+            IssueTypeCategory(workspace=instance.workspace,
+                              project=instance,
+                              title=_('Epic'),
+                              icon=icons[0],
+                              is_subtask=False,
+                              is_default=False,
+                              ordering=0),
+            IssueTypeCategory(workspace=instance.workspace,
+                              project=instance,
+                              title=_('User Story'),
+                              icon=icons[1],
+                              is_subtask=True,
+                              is_default=True,
+                              ordering=1),
+            IssueTypeCategory(workspace=instance.workspace,
+                              project=instance,
+                              title=_('Task'),
+                              icon=icons[2],
+                              is_subtask=True,
+                              is_default=False,
+                              ordering=2),
+            IssueTypeCategory(workspace=instance.workspace,
+                              project=instance,
+                              title=_('Bug'),
+                              icon=icons[3],
+                              is_subtask=False,
+                              is_default=False,
+                              ordering=3)
+        )
 
 
 @receiver(post_save, sender=Project)
@@ -381,7 +421,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         _db_value = getattr(db_version, field.name)
         _instance_value = getattr(instance, field.name)
 
-        if _db_value == _instance_value or\
+        if _db_value == _instance_value or \
                 field.name in do_not_watch_fields:
             continue
 
