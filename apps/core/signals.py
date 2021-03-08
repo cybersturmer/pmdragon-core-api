@@ -89,7 +89,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
         # Colors from https://quasar.dev/style/color-palette
         # Icons from https://materialdesignicons.com/ with 'mdi-' prefix
         icons = \
-            IssueTypeCategoryIcon.objects.bulk_create(
+            IssueTypeCategoryIcon.objects.bulk_create([
                 #  Epic
                 IssueTypeCategoryIcon(
                     workspace=instance.workspace,
@@ -121,10 +121,10 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     prefix='mdi-bug',
                     color='red-10',
                     ordering=0
-                ),
+                )]
             )
 
-        IssueTypeCategory.objects.bulk_create(
+        IssueTypeCategory.objects.bulk_create([
             IssueTypeCategory(workspace=instance.workspace,
                               project=instance,
                               title=_('Epic'),
@@ -153,7 +153,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                               is_subtask=False,
                               is_default=False,
                               ordering=3)
-        )
+        ])
 
 
 @receiver(post_save, sender=Project)
