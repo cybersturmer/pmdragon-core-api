@@ -927,6 +927,7 @@ class IssueChildOrderingSerializer(WorkspaceModelSerializer):
     """
 
     def update(self, instance, validated_data):
+        # @todo Refactor to bulk update.
         instance.ordering = [validated_datum['ordering']
                              for validated_datum
                              in validated_data
