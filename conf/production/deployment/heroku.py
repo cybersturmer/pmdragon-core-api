@@ -10,6 +10,16 @@ ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
 
 """
+Recommended settings from https://www.cloudamqp.com/docs/celery.html """
+CELERY_POOL_LIMIT = 1
+CELERY_HEARTBEAT = None
+CELERY_BROKER_CONNECTION_TIMEOUT = 30
+CELERY_RESULT_BACKEND = None
+CELERY_EVENT_QUEUE_EXPIRES = 60
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_CONCURRENCY = 50
+
+"""
 S3 settings """
 INSTALLED_APPS.append('storages')
 
