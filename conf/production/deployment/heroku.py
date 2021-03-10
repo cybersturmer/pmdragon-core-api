@@ -23,7 +23,6 @@ CELERY_CONCURRENCY = 50
 S3 settings """
 INSTALLED_APPS.append('storages')
 
-# I use BUCKETEER Addon in HEROKU, please change it to your s3.
 # Your Amazon Web Services access key, as a string.
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 
