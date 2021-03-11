@@ -57,7 +57,11 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
     def get_token(cls, user: UserModel):
         token = super().get_token(user)
 
-        token['person_id'] = user.person.id
+        try:
+            token['person_id'] = user.person.id
+        except User.person.RelatedObjectDoesNotExist:
+            raise ValidationError(_('Given user not registered as person in any workspace'))
+
         token['username'] = user.username
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
@@ -69,7 +73,7 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
         return token
 
     def validate(self, attrs):
-        parent_data = super(TokenObtainPairExtendedSerializer, self).validate(attrs)
+        parent_data = super().validate(attrs)
 
         refresh_token = parent_data.pop('refresh')
         access_token = parent_data.pop('access')
