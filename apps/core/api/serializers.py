@@ -605,7 +605,7 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
         try:
             project.save()
-        except IntegrityError:
+        except IntegrityError as ie:
             raise serializers.ValidationError({
                 'detail': _('Project name and key should be unique.')
             })

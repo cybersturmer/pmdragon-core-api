@@ -388,7 +388,6 @@ class PersonInvitationRequest(PersonParticipationRequestAbstract):
 class IssueTypeCategoryIcon(ProjectWorkspaceAbstractModel):
     prefix = models.CharField(verbose_name=_('Icon prefix'),
                               max_length=50,
-                              unique=True,
                               db_index=True)
 
     color = models.CharField(verbose_name=_('Icon color'),
