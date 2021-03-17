@@ -69,7 +69,7 @@ class WorkspaceOwnerOrReadOnly(permissions.BasePermission):
             return False
 
         try:
-            if request.user.person is obj.workspace.owned_by:
+            if request.user.person == obj.workspace.owned_by:
                 return True
         except Person.DoesNotExist:
             return False
