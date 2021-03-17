@@ -632,9 +632,15 @@ class IssueTypeIconSerializer(serializers.ModelSerializer):
         model = IssueTypeCategoryIcon
         fields = (
             'id',
+            'workspace',
+            'project',
             'prefix',
             'color'
         )
+        extra_kwargs = {
+            'workspace': {'read_only': True},
+            'project': {'read_only': True}
+        }
 
 
 class IssueTypeSerializer(WorkspaceModelSerializer):

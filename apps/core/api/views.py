@@ -372,7 +372,7 @@ class IssueTypeCategoryViewSet(WorkspacesModelViewSet):
     )
 
 
-class IssueTypeIconViewSet(WorkspacesReadOnlyModelViewSet):
+class IssueTypeIconViewSet(WorkspacesModelViewSet):
     queryset = IssueTypeCategoryIcon.objects.all()
     serializer_class = IssueTypeIconSerializer
     permission_classes = (
