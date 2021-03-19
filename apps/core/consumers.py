@@ -71,6 +71,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     def get_issue_filter_data(self, issue_pk, **kwargs):
         user = self.scope.get('user')
         person = Person.objects.get(user=user)
+
         issue = Issue.objects.get(
             id=issue_pk,
             workspace__participants__in=[person])
@@ -82,10 +83,17 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     Cuz now we don't have user's data., but we will, i promise. """
     @action()
     async def subscribe_to_messages_in_issue(self, issue_pk, **kwargs):
-        issue = await self.get_issue_filter_data(issue_pk=issue_pk)
-        await self.message_change_handler.subscribe(issue=issue)
+        try:
+            issue = await self.get_issue_filter_data(issue_pk=issue_pk)
+            await self.message_change_handler.subscribe(issue=issue)
+        except Issue.DoesNotExist:
+            print('Unable to subscribe messages cuz issue was not found')
+
 
     @action()
     async def unsubscribe_from_messages_in_issue(self, issue_pk, **kwargs):
-        issue = await self.get_issue_filter_data(issue_pk=issue_pk)
-        await self.message_change_handler.unsubscribe(issue=issue)
+        try:
+            issue = await self.get_issue_filter_data(issue_pk=issue_pk)
+            await self.message_change_handler.unsubscribe(issue=issue)
+        except Issue.DoesNotExist:
+            print('Unable to unsubscribe messages cuz issue was not found')
