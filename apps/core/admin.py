@@ -187,6 +187,7 @@ class IssueAdmin(admin.ModelAdmin):
     )
     list_display = (
         'id',
+        'number',
         'project',
         'title',
         'type_category',
@@ -195,6 +196,7 @@ class IssueAdmin(admin.ModelAdmin):
         'created_by'
     )
     readonly_fields = (
+        'number',
         'workspace',
         'created_at',
         'updated_at'
