@@ -722,6 +722,7 @@ class IssueSerializer(WorkspaceModelSerializer):
         model = Issue
         fields = (
             'id',
+            'project_number',
             'workspace',
             'project',
             'title',
@@ -737,6 +738,7 @@ class IssueSerializer(WorkspaceModelSerializer):
             'ordering',
         )
         extra_kwargs = {
+            'project_number': {'read_only': True},
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
             'type_category': {'required': False},

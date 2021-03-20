@@ -622,9 +622,8 @@ class IssueAttachment(ProjectWorkspaceAbstractModel):
 class Issue(ProjectWorkspaceAbstractModel):
     cleaned_data: dict
 
-    number = models.CharField(verbose_name=_('Number'),
-                              max_length=20,
-                              editable=False)
+    number = models.IntegerField(verbose_name=_('Number'),
+                                 editable=False)
 
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
@@ -699,6 +698,10 @@ class Issue(ProjectWorkspaceAbstractModel):
         verbose_name = _('Issue')
         verbose_name_plural = _('Issues')
 
+    @property
+    def project_number(self):
+        return f'{self.project.key}-{self.number}'
+
     def __str__(self):
         return f'#{self.id} {self.workspace.prefix_url} - {self.project.title} - {self.title}'
 
@@ -742,14 +745,27 @@ class Issue(ProjectWorkspaceAbstractModel):
             raise ValidationError(_('Issue type category, '
                                     'state category should belong to the same project'))
 
+    def get_next_number(self):
+        max_number = Issue \
+            .objects \
+            .filter(workspace=self.workspace,
+                    project=self.project) \
+            .aggregate(Max('number')) \
+            .get('number__max')
+
+        if int(max_number) < 1:
+            max_number = 0
+
+        self.number = str(int(max_number) + 1)
+
     def save(self, *args, **kwargs):
         if self.number is None:
             """ Number, let's set it to max number + 1 """
-            max_number = Issue\
-                .objects\
+            max_number = Issue \
+                .objects \
                 .filter(workspace=self.workspace,
-                        project=self.project)\
-                .aggregate(Max('number'))\
+                        project=self.project) \
+                .aggregate(Max('number')) \
                 .get('number__max')
 
             self.number = str(int(max_number) + 1)
@@ -757,8 +773,8 @@ class Issue(ProjectWorkspaceAbstractModel):
         if self.type_category is None or self.type_category == 0:
             """ If default issue type was set for Workspace, we set it as a default """
             try:
-                self.type_category = IssueTypeCategory\
-                    .objects\
+                self.type_category = IssueTypeCategory \
+                    .objects \
                     .get(workspace=self.workspace,
                          project=self.project,
                          is_default=True)
@@ -769,8 +785,8 @@ class Issue(ProjectWorkspaceAbstractModel):
         if self.state_category is None or self.state_category == 0:
             """ If default issue state was set for Workspace, we set it as a default """
             try:
-                self.state_category = IssueStateCategory\
-                    .objects\
+                self.state_category = IssueStateCategory \
+                    .objects \
                     .get(workspace=self.workspace,
                          project=self.project,
                          is_default=True)
@@ -1008,8 +1024,8 @@ class Sprint(ProjectWorkspaceAbstractModel):
                     Sprint.objects.filter(workspace=self.workspace,
                                           project=self.project,
                                           is_started=True) \
-                                  .exclude(pk=self.pk) \
-                                  .count()
+                        .exclude(pk=self.pk) \
+                        .count()
 
                 if started_sprints_amount > 0:
                     raise ValidationError(_('Another sprint was already started. '

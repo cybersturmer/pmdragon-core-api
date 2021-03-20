@@ -171,6 +171,7 @@ class IssueAdmin(admin.ModelAdmin):
         'attachments',
     )
     fields = (
+        'project_number',
         'project',
         'title',
         'description',
@@ -187,8 +188,7 @@ class IssueAdmin(admin.ModelAdmin):
     )
     list_display = (
         'id',
-        'number',
-        'project',
+        'project_number',
         'title',
         'type_category',
         'state_category',
@@ -196,7 +196,7 @@ class IssueAdmin(admin.ModelAdmin):
         'created_by'
     )
     readonly_fields = (
-        'number',
+        'project_number',
         'workspace',
         'created_at',
         'updated_at'
