@@ -113,7 +113,8 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
         invitations_response = []
 
         for invitation in invitations:
-            _workspace_with_pk = Workspace.objects \
+            _workspace_with_pk = Workspace\
+                .objects \
                 .filter(pk=invitation['workspace'],
                         participants__in=[requested_person])
 
@@ -128,24 +129,27 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
             If person already in given workspace - we don't need to send him invitation """
             _user_with_email = User.objects.filter(email=_email)
             if _user_with_email.exists():
-                _user = _user_with_email.get()
-                _person = _user.person
-                if _person in _workspace.participants.all():
-                    break
+                try:
+                    _user = _user_with_email.get()
+                    _person = _user.person
+                    if _person in _workspace.participants.all():
+                        break
 
-            _invitation_request = PersonInvitationRequest(
-                email=_email,
-                workspace=_workspace
-            )
+                    _invitation_request = PersonInvitationRequest(
+                        email=_email,
+                        workspace=_workspace
+                    )
 
-            _invitation_request.save()
+                    _invitation_request.save()
 
-            if not settings.DEBUG:
-                send_invitation_email.delay(_invitation_request.pk)
-                print('DEBUG: Sent invitation email...')
+                    if not settings.DEBUG:
+                        send_invitation_email.delay(_invitation_request.pk)
+                        print('DEBUG: Sent invitation email...')
 
-            serializer = PersonInvitationRequestSerializer(_invitation_request)
-            invitations_response.append(serializer.data)
+                    serializer = PersonInvitationRequestSerializer(_invitation_request)
+                    invitations_response.append(serializer.data)
+                except (User.DoesNotExist, User.MultipleObjectsReturned):
+                    continue
 
         return Response(data=invitations_response,
                         status=status.HTTP_201_CREATED)
