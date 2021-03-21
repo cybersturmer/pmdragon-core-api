@@ -753,10 +753,10 @@ class Issue(ProjectWorkspaceAbstractModel):
             .aggregate(Max('number')) \
             .get('number__max')
 
-        if int(max_number) < 1:
+        if max_number is None:
             max_number = 0
 
-        self.number = str(int(max_number) + 1)
+        self.number = str(max_number + 1)
 
     def save(self, *args, **kwargs):
         if self.number is None:
