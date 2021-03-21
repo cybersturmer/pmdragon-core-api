@@ -745,7 +745,7 @@ class Issue(ProjectWorkspaceAbstractModel):
             raise ValidationError(_('Issue type category, '
                                     'state category should belong to the same project'))
 
-    def get_next_number(self):
+    def set_next_number(self):
         max_number = Issue \
             .objects \
             .filter(workspace=self.workspace,
@@ -756,19 +756,11 @@ class Issue(ProjectWorkspaceAbstractModel):
         if max_number is None:
             max_number = 0
 
-        self.number = str(max_number + 1)
+        self.number = max_number + 1
 
     def save(self, *args, **kwargs):
         if self.number is None:
-            """ Number, let's set it to max number + 1 """
-            max_number = Issue \
-                .objects \
-                .filter(workspace=self.workspace,
-                        project=self.project) \
-                .aggregate(Max('number')) \
-                .get('number__max')
-
-            self.number = str(int(max_number) + 1)
+            self.set_next_number()
 
         if self.type_category is None or self.type_category == 0:
             """ If default issue type was set for Workspace, we set it as a default """
