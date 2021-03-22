@@ -100,6 +100,8 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
     )
 
     def create(self, request, *args, **kwargs):
+        """ On creation it doesn't matter if person with given email already exists in Pmdragon or not
+        So we don't care and just create request. We will see if he exists later on creation stage """
         invited_by = request.user.person
 
         try:
