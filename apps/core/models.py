@@ -992,22 +992,34 @@ class Sprint(ProjectWorkspaceAbstractModel):
     __repr__ = __str__
 
     def clean(self):
+        all_issues_count = self.issues.count()
+        other_project_issues_count = self.issues.exclude(
+            workspace=self.workspace,
+            project=self.project
+        )
 
-        for _issue in self.issues.all():
-            if _issue.workspace != self.workspace or _issue.project != self.project:
-                raise ValidationError(_('Issues must be assigned to the same Project and Workspace as Sprint'))
+        """
+        If all issues amount is not 0 we have to check if other projects issues is equal to 0 """
+        if not (all_issues_count != 0 and other_project_issues_count == 0):
+            raise ValidationError(_('Issues must be assigned to the same Project and Workspace as Sprint'))
 
         try:
             self.workspace = self.project.workspace
         except Project.DoesNotExist:
             pass
 
-        super(Sprint, self).clean()
+        super().clean()
 
         if None not in [self.started_at, self.finished_at] and self.started_at >= self.finished_at:
             raise ValidationError(_('Date of start should be earlier than date of end'))
 
-        if self.is_started:
+        if self.is_started is not None:
+            if None in [self.started_at, self.finished_at]:
+                """
+                Started sprint should contain information about start and finish dates
+                Its not necessary for draft of sprint (Not started yet) """
+                raise ValidationError(_('Start date and End date are required for started sprint'))
+
             try:
                 """
                 Checking if we have another one started sprint
@@ -1025,12 +1037,6 @@ class Sprint(ProjectWorkspaceAbstractModel):
 
             except Sprint.DoesNotExist:
                 pass
-
-            if None in [self.started_at, self.finished_at]:
-                """
-                Started sprint should contain information about start and finish dates
-                Its not necessary for draft of sprint (Not started yet) """
-                raise ValidationError(_('Start date and End date are required for started sprint'))
 
     def delete(self, using=None, keep_parents=False):
         """

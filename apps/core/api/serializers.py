@@ -840,8 +840,7 @@ class BacklogWritableSerializer(WorkspaceModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data = order_issues(validated_data)
-        return super(BacklogWritableSerializer, self) \
-            .update(instance, validated_data)
+        return super().update(instance, validated_data)
 
 
 class SprintDurationSerializer(WorkspaceModelSerializer):
@@ -881,8 +880,7 @@ class SprintWritableSerializer(WorkspaceModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data = order_issues(validated_data)
-        return super(SprintWritableSerializer, self) \
-            .update(instance, validated_data)
+        return super().update(instance, validated_data)
 
 
 class SprintEstimationSerializer(serializers.ModelSerializer):
