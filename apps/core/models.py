@@ -456,7 +456,7 @@ class IssueTypeCategory(ProjectWorkspaceAbstractModel):
         except Project.DoesNotExist:
             pass
 
-        super(IssueTypeCategory, self).clean()
+        super().clean()
 
     def save(self, *args, **kwargs):
         if self.is_default:
@@ -477,7 +477,7 @@ class IssueTypeCategory(ProjectWorkspaceAbstractModel):
             except IssueTypeCategory.DoesNotExist:
                 pass
 
-        super(IssueTypeCategory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class IssueStateCategory(ProjectWorkspaceAbstractModel):
@@ -516,7 +516,7 @@ class IssueStateCategory(ProjectWorkspaceAbstractModel):
         except Project.DoesNotExist:
             pass
 
-        super(IssueStateCategory, self).clean()
+        super().clean()
 
     def save(self, *args, **kwargs):
         """
@@ -539,7 +539,7 @@ class IssueStateCategory(ProjectWorkspaceAbstractModel):
                 item.is_default = False
                 item.save()
 
-        super(IssueStateCategory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class IssueEstimationCategory(ProjectWorkspaceAbstractModel):
@@ -713,7 +713,7 @@ class Issue(ProjectWorkspaceAbstractModel):
         except Project.DoesNotExist:
             pass
 
-        super(Issue, self).clean()
+        super().clean()
 
         self.description = clean_useless_newlines(clean_html(self.description))
 
@@ -799,7 +799,7 @@ class Issue(ProjectWorkspaceAbstractModel):
             else:
                 self.ordering = max_ordering
 
-        super(Issue, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class IssueHistory(models.Model):
@@ -922,7 +922,7 @@ class ProjectBacklog(ProjectWorkspaceAbstractModel):
         except Project.DoesNotExist:
             pass
 
-        super(ProjectBacklog, self).clean()
+        super().clean()
 
 
 class SprintDuration(ProjectWorkspaceAbstractModel):
@@ -1051,7 +1051,7 @@ class Sprint(ProjectWorkspaceAbstractModel):
         for _issue in self.issues.all():
             backlog.issues.add(_issue)
 
-        super(Sprint, self).delete(using, keep_parents)
+        super().delete(using, keep_parents)
 
 
 class SprintEstimation(ProjectWorkspaceAbstractModel):

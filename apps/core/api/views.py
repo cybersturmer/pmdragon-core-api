@@ -216,7 +216,7 @@ class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
 
         collaborators_set = set(collaborators)
 
-        queryset: Person.objects = super(CollaboratorsViewSet, self).get_queryset()
+        queryset: Person.objects = super().get_queryset()
 
         return queryset.filter(id__in=collaborators_set).all()
 
@@ -236,7 +236,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     queryset = Workspace.objects.all()
 
     def get_queryset(self):
-        queryset = super(WorkspaceViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         return queryset.filter(
             participants__in=[self.request.user.person]
         ).all()
@@ -294,7 +294,7 @@ class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Workspace.objects.all()
 
     def get_queryset(self):
-        queryset = super(WorkspaceReadOnlyViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         return queryset.filter(
             participants__in=[self.request.user.person]
         ).all()
@@ -313,7 +313,7 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Getting all instances, that belong to this workspace.
         """
-        queryset = super(WorkspacesReadOnlyModelViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         queryset = queryset. \
             filter(workspace__participants__in=[self.request.user.person])
 
@@ -694,7 +694,7 @@ class UserUpdateView(generics.UpdateAPIView,
 
         self.perform_update(serializer)
 
-        return super(UserUpdateView, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
 
 class IssueListUpdateApiView(UpdateAPIView):
@@ -750,7 +750,7 @@ class PasswordResetView(generics.GenericAPIView):
 
     @sensitive_post_parameters_m
     def dispatch(self, request, *args, **kwargs):
-        return super(PasswordResetView, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -773,7 +773,7 @@ class PasswordResetConfirmView(generics.GenericAPIView):
 
     @sensitive_post_parameters_m
     def dispatch(self, request, *args, **kwargs):
-        return super(PasswordResetConfirmView, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

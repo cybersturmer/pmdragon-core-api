@@ -84,7 +84,7 @@ class IssueEstimationCategoryAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.workspace = obj.project.workspace
-        super(IssueEstimationCategoryAdmin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(SprintDuration)
@@ -116,7 +116,7 @@ class SprintAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.workspace = obj.project.workspace
-        super(SprintAdmin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(SprintEstimation)
@@ -207,7 +207,7 @@ class IssueAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.workspace = obj.project.workspace
-        super(IssueAdmin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(IssueHistory)

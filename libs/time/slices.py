@@ -297,7 +297,7 @@ class BaseSlices:
 
 class DatetimeSlices(BaseSlices):
     def __init__(self, list_: Union[List[DatetimeRange], Tuple[DatetimeRange, ...]] = ()):
-        super(DatetimeSlices, self).__init__(list_)
+        super().__init__(list_)
 
         assert isinstance(list_, tuple) or isinstance(list_, list), \
             f'Argument should be tuple or list, got {type(list_)} instead'

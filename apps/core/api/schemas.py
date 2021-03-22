@@ -6,7 +6,7 @@ class IssueListUpdateSchema(AutoSchema):
     Customization of schema
     """
     def get_operation(self, path, method):
-        operation = super(IssueListUpdateSchema, self).get_operation(path, method)
+        operation = super().get_operation(path, method)
         request_body = {
             'schema': {
                 'type': 'array',

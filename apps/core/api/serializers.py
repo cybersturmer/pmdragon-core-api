@@ -209,7 +209,7 @@ class UserSetPasswordSerializer(serializers.Serializer):
     set_password_form_class = SetPasswordForm
 
     def __init__(self, *args, **kwargs):
-        super(UserSetPasswordSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.request = self.context.get('request')
         self.user = getattr(self.request, 'user', None)
@@ -749,7 +749,7 @@ class IssueSerializer(WorkspaceModelSerializer):
         }
 
     def validate(self, attrs):
-        data = super(IssueSerializer, self).validate(attrs)
+        data = super().validate(attrs)
         data['updated_by'] = self.context['person']
         return data
 
