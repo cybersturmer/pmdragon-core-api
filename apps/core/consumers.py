@@ -1,17 +1,25 @@
-from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.permissions import IsAuthenticated
 
-from .models import Issue, IssueMessage, Person
-from .api.serializers import PersonSerializer, IssueMessageSerializer
-from rest_framework.renderers import JSONRenderer
+from .api.serializers import \
+    IssueMessageSerializer, \
+    IssueSerializer
+
+from .models import \
+    Issue,\
+    IssueMessage,\
+    Person,\
+    Workspace
 
 
 class IssueMessagesObserver(AsyncAPIConsumer):
     """
+    This consumer allow us to subscribe to all messages in give issue.
+    By checking permission we have to check that issue belong to one of
+    workspace that person participated in.
     Payload example
     {
       "action": "subscribe_to_messages_in_issue",
@@ -20,7 +28,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
     }
     """
     permission_classes = (
-        IsAuthenticated,
+        IsAuthenticated,  # Special async permission
     )
 
     @model_observer(IssueMessage)
@@ -69,3 +77,63 @@ class IssueMessagesObserver(AsyncAPIConsumer):
             await self.message_change_handler.unsubscribe(issue=issue)
         except Issue.DoesNotExist:
             print('Unable to unsubscribe messages cause issue was not found')
+
+
+class WorkspaceIssuesObserver(AsyncAPIConsumer):
+    """
+    This consumer allow us to subscribe to all issues in give workspace.
+    By checking permission we have to check that person participate in given workspace.
+    Payload example
+    {
+        "action": "subscribe_to_issues_in_workspace",
+        "request_id": 4,
+        "workspace_pk": 34
+    }
+    """
+    permission_classes = (
+        IsAuthenticated,  # Special async permission
+    )
+
+    @model_observer(Issue)
+    async def issue_change_handler(self, message, observer=None, action=None, **kwargs):
+        await self.send_json(dict(message=message, action=action))
+
+    @issue_change_handler.serializer
+    def model_serializer(self, instance: Issue, **kwargs):
+        return IssueSerializer(instance).data
+
+    @issue_change_handler.groups_for_signal
+    def issue_change_handler(self, instance: Issue, **kwargs):
+        yield f'-workspace__{instance.workspace_id}'
+        yield f'-pk__{instance.pk}'
+
+    @issue_change_handler.groups_for_consumer
+    def issue_change_handler(self, workspace=None, issue=None, **kwargs):
+        if workspace is not None:
+            yield f'-workspace__{workspace.pk}'
+        if issue is not None:
+            yield f'-pk__{issue.pk}'
+
+    @database_sync_to_async
+    def get_workspace_filter_data(self, workspace_pk, **kwargs):
+        user = self.scope.get('user')
+        person = Person.objects.get(user=user)
+
+        workspace = Workspace.objects.get(id=workspace_pk,
+                                          participants__in=[person])
+
+        return workspace
+
+    async def subscribe_to_issues_in_workspace(self, workspace_pk, **kwargs):
+        try:
+            workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
+            await self.issue_change_handler.subscribe(workspace=workspace)
+        except Workspace.DoesNotExist:
+            print('Unable to subscribe issues cause workspace was not found')
+
+    async def unsubscribe_from_issues_in_workspace(self, workspace_pk, **kwargs):
+        try:
+            workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
+            await self.issue_change_handler.unsubscribe(workspace=workspace)
+        except Workspace.DoesNotExist:
+            print('Unable to unsubscribe issues cause workspace was not found')
