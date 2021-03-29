@@ -36,7 +36,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
         await self.send_json(dict(message=message, action=action))
 
     @message_change_handler.serializer
-    def model_serializer(self, instance: IssueMessage, action, **kwargs):
+    def model_serializer(self, instance: IssueMessage, action=None, **kwargs):
         return IssueMessageSerializer(instance).data
 
     @message_change_handler.groups_for_signal
@@ -99,7 +99,7 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
         await self.send_json(dict(message=message, action=action))
 
     @issue_change_handler.serializer
-    def model_serializer(self, instance: Issue, **kwargs):
+    def model_serializer(self, instance: Issue, action=None, **kwargs):
         return IssueSerializer(instance).data
 
     @issue_change_handler.groups_for_signal
