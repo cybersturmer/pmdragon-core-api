@@ -77,7 +77,9 @@ def get_mentioned_user_ids(data: str) -> list:
 class Person(models.Model):
     """
     Person should be connected to user.
-    Person can be invited, but have to fill of this information by himself
+    Person is a main user element on frontend.
+    Frontend don't know exactly such instance as user.
+    Person inherit some fields from user and even have some computed properties.
     """
     user: User = models.OneToOneField(settings.AUTH_USER_MODEL,
                                       verbose_name=_('User of system'),
@@ -165,8 +167,7 @@ class Person(models.Model):
 class Workspace(models.Model):
     """
     Workspaces allow system to isolate teams between each other.
-    Managers or analytics can work separately from main team,
-    but also need a self scrum board.
+    Anyone who can access to Workspace has access to everything inside.
     """
     prefix_url = models.CharField(verbose_name=_('Prefix URL'),
                                   db_index=True,
@@ -211,7 +212,8 @@ class Workspace(models.Model):
 
 class Project(models.Model):
     """
-    Project is a easiest way to isolate Tasks
+    Project do not isolate person between each other
+    However Project allow to have different setting in the same Workspace
     """
     workspace = models.ForeignKey(Workspace,
                                   verbose_name=_('Workspace'),
@@ -251,6 +253,9 @@ class Project(models.Model):
 
 
 class ProjectWorkspaceAbstractModel(models.Model):
+    """
+    We use this abstract model to inherit workspace and project fields
+    """
     @staticmethod
     def get_workspace_related_name():
         return '%(app_label)s_%(class)s'
@@ -325,8 +330,8 @@ class PersonParticipationRequestAbstract(models.Model):
 
 class PersonRegistrationRequest(PersonParticipationRequestAbstract):
     """
-    Normal registration when user try to get workspace url and input
-    email.
+    Person can register by himself
+    Normal registration when user try to get workspace url and input email.
     These persons are not registered yet in PmDragon.
     """
 
@@ -386,6 +391,11 @@ class PersonInvitationRequest(PersonParticipationRequestAbstract):
 
 
 class IssueTypeCategoryIcon(ProjectWorkspaceAbstractModel):
+    """
+    That is just icon, we use them for Issue Types
+    For example User Story can have bookmark green icon
+    Or even pink elephant, whatever...
+    """
     prefix = models.CharField(verbose_name=_('Icon prefix'),
                               max_length=50,
                               db_index=True)
@@ -413,6 +423,11 @@ class IssueTypeCategoryIcon(ProjectWorkspaceAbstractModel):
 
 
 class IssueTypeCategory(ProjectWorkspaceAbstractModel):
+    """
+    IssueTypeCategory is Issue Type that help Users to group Issues by Type
+    For example Issue Type can be:
+    User Story, Bug, Task
+    """
     @staticmethod
     def get_workspace_related_name():
         return 'issue_categories'
@@ -481,6 +496,11 @@ class IssueTypeCategory(ProjectWorkspaceAbstractModel):
 
 
 class IssueStateCategory(ProjectWorkspaceAbstractModel):
+    """
+    Issue state is way to group issues on the board.
+    For example issue state can be:
+    To_do InProgress To Verify Done
+    """
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -543,6 +563,14 @@ class IssueStateCategory(ProjectWorkspaceAbstractModel):
 
 
 class IssueEstimationCategory(ProjectWorkspaceAbstractModel):
+    """
+    Estimation is a way to have personal name for any estimation
+    And have numeric data also.
+    Bigger value mean bigger estimation
+    For example: estimation with title XS can have value 1
+    And XXXL estimation can have value 21, or even banana
+    Title - Value pattern allow us to call estimation as we want it.
+    """
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255,
                              help_text=_('You can call it by T-shirt size or like banana'))
@@ -578,6 +606,8 @@ class IssueAttachment(ProjectWorkspaceAbstractModel):
     assign file to separate message and have to assign it
     to issue.
     It's much better to see all files in the issue page.
+    However its a good idea to allow user give a link on
+    attached file.
     """
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
@@ -620,6 +650,11 @@ class IssueAttachment(ProjectWorkspaceAbstractModel):
 
 
 class Issue(ProjectWorkspaceAbstractModel):
+    """
+    Issue is a crucial element of pmdragon
+    It can be user Story or Task
+    It can be even Sub-Task (but i think i have to do that on next steps)
+    """
     cleaned_data: dict
 
     number = models.IntegerField(verbose_name=_('Number'),
@@ -804,10 +839,9 @@ class Issue(ProjectWorkspaceAbstractModel):
 
 class IssueHistory(models.Model):
     """
-    In reality we really need only:
-    1) Issue
-    2) Entry Type
-    Other field can to be null.
+    Issue History allow us to show history for all changes in a Issue
+    So that we can understand who did changes and when.
+    We also use this information for show timeline on issue page / or modal window.
     """
 
     issue = models.ForeignKey(Issue,
@@ -850,6 +884,11 @@ class IssueHistory(models.Model):
 
 
 class IssueMessage(ProjectWorkspaceAbstractModel):
+    """
+    Issue Message is a way to communicate in chosen issue.
+    Issue Message allow us to put additional information to issue
+    such as small discussion.
+    """
     cleaned_data: dict
     created_by = models.ForeignKey(Person,
                                    verbose_name=_('Sent by'),
@@ -894,6 +933,12 @@ class IssueMessage(ProjectWorkspaceAbstractModel):
 
 
 class ProjectBacklog(ProjectWorkspaceAbstractModel):
+    """
+    Project Backlog allow us to group issue that wasn't
+    placed in some Sprint.
+    Of course all issues in ProjectBacklog should belong to the
+    same Workspace and Project.
+    """
     issues = models.ManyToManyField(Issue,
                                     verbose_name=_('Issues'),
                                     blank=True)
@@ -926,6 +971,11 @@ class ProjectBacklog(ProjectWorkspaceAbstractModel):
 
 
 class SprintDuration(ProjectWorkspaceAbstractModel):
+    """
+    Honestly we do not use it now, nut i hope
+    it will allow us to prefill next Sprint duration by default duration
+    for Sprint.
+    """
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255)
 
@@ -946,6 +996,11 @@ class SprintDuration(ProjectWorkspaceAbstractModel):
 
 
 class Sprint(ProjectWorkspaceAbstractModel):
+    """
+    Sprint is a way to group Issues in Project.
+    Of course all issues inside Backlog should belong
+    to the same Workspace and Project.
+    """
     title = models.CharField(verbose_name=_('Title'),
                              max_length=255,
                              blank=True,
@@ -1055,6 +1110,12 @@ class Sprint(ProjectWorkspaceAbstractModel):
 
 
 class SprintEstimation(ProjectWorkspaceAbstractModel):
+    """
+    Sprint Estimation is small history of estimation for Sprint.
+    The last action in a Sprint such as completion of issue
+    will create done_value and adding some issue to Sprint will change total_value
+    We calculate it on any change by replacing the last instance for current day.
+    """
     sprint = models.ForeignKey(Sprint,
                                verbose_name=_('Sprint'),
                                db_index=True,
