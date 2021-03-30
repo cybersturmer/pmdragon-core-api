@@ -89,6 +89,8 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
         "request_id": 4,
         "workspace_pk": 34
     }
+    With stream notation
+    {"stream":"workspace_issues","payload":{"action":"subscribe_to_issues_in_workspace","request_id":442,"issue_pk":61}}
     """
     permission_classes = (
         IsAuthenticated,  # Special async permission
