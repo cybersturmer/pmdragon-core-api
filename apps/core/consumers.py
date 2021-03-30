@@ -126,6 +126,7 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
 
         return workspace
 
+    @action()
     async def subscribe_to_issues_in_workspace(self, workspace_pk, **kwargs):
         try:
             workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
@@ -133,6 +134,7 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
         except Workspace.DoesNotExist:
             print('Unable to subscribe issues cause workspace was not found')
 
+    @action()
     async def unsubscribe_from_issues_in_workspace(self, workspace_pk, **kwargs):
         try:
             workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
