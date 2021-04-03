@@ -328,6 +328,30 @@ class PersonParticipationRequestAbstract(models.Model):
     __repr__ = __str__
 
 
+class PersonForgotRequest(PersonParticipationRequestAbstract):
+    """
+    Person can forget his/her password and make a request
+    We just want to save this information
+    """
+
+    email = models.EmailField(verbose_name=_('Email'),
+                              max_length=128)
+
+    class Meta:
+        db_table = 'core_person_password_forgot_request'
+        verbose_name = _('Person Password Forgot Request')
+        verbose_name_plural = _('Person Password Forgot Requests')
+
+    def __str__(self):
+        try:
+            person = Person.objects.get(user__email=self.email)
+        except Person.DoesNotExist:
+            return f'Undefined person request with email:{self.email}'
+        return f'{str(person)} - {self.created_at}'
+
+    __repr__ = __str__
+
+
 class PersonRegistrationRequest(PersonParticipationRequestAbstract):
     """
     Person can register by himself
