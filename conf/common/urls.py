@@ -51,11 +51,11 @@ urlpatterns = [
 
     path('api/auth/password/reset/',
          PasswordResetView.as_view(),
-         name='person_reset_password'),
+         name='password_reset'),
 
     path('api/auth/password/reset/confirm/',
          PasswordResetConfirmView.as_view(),
-         name='person_reset_password_confirm'),
+         name='password_reset_confirm'),
 
     path('api/auth/persons/',
          PersonRegistrationRequestVerifyView.as_view(),
