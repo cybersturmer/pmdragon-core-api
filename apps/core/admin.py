@@ -24,6 +24,12 @@ class PersonRegistrationRequestAdmin(admin.ModelAdmin):
     readonly_fields = ('key',)
 
 
+@admin.register(PersonForgotRequest)
+class PersonForgotRequestAdmin(admin.ModelAdmin):
+    model = PersonForgotRequest
+    readonly_fields = ('key',)
+
+
 @admin.register(PersonInvitationRequest)
 class PersonInvitationRequestAdmin(admin.ModelAdmin):
     model = PersonInvitationRequest
