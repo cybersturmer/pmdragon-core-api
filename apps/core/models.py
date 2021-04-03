@@ -303,7 +303,7 @@ class PersonParticipationRequestAbstract(models.Model):
     is_email_sent = models.BooleanField(verbose_name=_('Registration mail was successfully sent'),
                                         default=False)
 
-    is_accepted = models.BooleanField(verbose_name=_('Was collaboration request approved?'),
+    is_accepted = models.BooleanField(verbose_name=_('Request was accepted?'),
                                       default=False)
 
     created_at = models.DateTimeField(verbose_name=_('Created at'),
