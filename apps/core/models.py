@@ -351,6 +351,12 @@ class PersonForgotRequest(PersonParticipationRequestAbstract):
 
     __repr__ = __str__
 
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            self.key = hashing.get_hash(self.expired_at, self.email)
+
+        super().save(*args, **kwargs)
+
 
 class PersonRegistrationRequest(PersonParticipationRequestAbstract):
     """
