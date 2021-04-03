@@ -14,7 +14,7 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonAvatarUpload, \
     PersonRegistrationRequestView, \
     PersonInvitationRequestListView, \
-    PersonInvitationRequestRetrieveUpdateView
+    PersonInvitationRequestRetrieveUpdateView, PasswordResetView, PasswordResetConfirmView
 from apps.core.api.views import TokenObtainPairExtendedView
 from apps.core.views import SwaggerView
 
@@ -45,9 +45,17 @@ urlpatterns = [
          TokenRefreshView.as_view(),
          name='token_refresh'),
 
-    path('api/auth/password/',
+    path('api/auth/password/change/',
          PersonSetPasswordView.as_view(),
-         name='person_update_password'),
+         name='person_set_password'),
+
+    path('api/auth/password/reset/',
+         PasswordResetView.as_view(),
+         name='person_reset_password'),
+
+    path('api/auth/password/reset/confirm/',
+         PasswordResetConfirmView.as_view(),
+         name='person_reset_password_confirm'),
 
     path('api/auth/persons/',
          PersonRegistrationRequestVerifyView.as_view(),
@@ -72,10 +80,6 @@ urlpatterns = [
     path('api/auth/me/',
          UserUpdateView.as_view(),
          name='me'),
-
-    path('api/auth/password/',
-         PersonSetPasswordView.as_view(),
-         name='password'),
 
     path('api/auth/avatar/',
          PersonAvatarUpload.as_view(),

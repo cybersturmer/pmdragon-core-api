@@ -733,6 +733,29 @@ def validate_ids(data, field='id', unique=True):
 
 class PasswordResetView(generics.GenericAPIView):
     """
+    Accept just email field and nothing more.
+    By this view we can request password reset for user by given email.
+    For example
+    Action: I press "Forget password on frontend" -> input my email cybersturmer@ya.ru
+    Result: Get an email with token and user_id
+    """
+    serializer_class = UserPasswordResetSerializer
+    permission_classes = (
+        AllowAny,
+    )
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # @todo send it via celery task
+        return Response({'detail': _('Password reset email has been sent.')},
+                        status=status.HTTP_200_OK)
+
+
+class PasswordResetConfirmView(generics.GenericAPIView):
+    """
     Password reset e-mail link is confirmed, therefore
     this resets the user's password.
     Accepts the following POST parameters: token, uid,
@@ -740,7 +763,9 @@ class PasswordResetView(generics.GenericAPIView):
     Returns the success/fail message.
     """
     serializer_class = UserPasswordConfirmSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (
+        AllowAny,
+    )
 
     @sensitive_post_parameters_m
     def dispatch(self, request, *args, **kwargs):
@@ -751,29 +776,5 @@ class PasswordResetView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({
-            'detail': _('Password has been reset with the new password.')
-        })
-
-
-class PasswordResetConfirmView(generics.GenericAPIView):
-    """
-    Calls Django Auth SetPasswordForm save method.
-    Accepts the following POST parameters: new_password1, new_password2
-    Returns the success/fail message.
-    """
-    serializer_class = UserPasswordConfirmSerializer
-    permission_classes = (AllowAny,)
-
-    @sensitive_post_parameters_m
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({
-            'detail': _('New password has been saved.')
-        })
+        return Response({'detail': _('Password has been reset with the new password.')},
+                        status=status.HTTP_200_OK)
