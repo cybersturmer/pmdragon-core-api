@@ -293,6 +293,7 @@ class PersonPasswordResetConfirmSerializer(serializers.Serializer):
         new_password2 = validated_data.get('new_password2')
         user = User.objects.get(email=instance.email)
         user.set_password(new_password2)
+        user.save()
 
         # Let's mark request as accepted
         instance.is_accepted = True
