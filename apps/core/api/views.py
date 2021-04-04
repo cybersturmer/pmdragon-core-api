@@ -95,7 +95,7 @@ class PersonForgotPasswordRequestConfirmView(generics.RetrieveUpdateAPIView):
         'head',
         'options',
         'get',
-        'put'
+        'patch'
     )
 
 
