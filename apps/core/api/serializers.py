@@ -4,6 +4,7 @@ from typing import Dict, Any
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.forms import Form
@@ -266,6 +267,41 @@ class UserSetPasswordSerializer(serializers.Serializer):
         self.set_password_form.save()
         from django.contrib.auth import update_session_auth_hash
         update_session_auth_hash(self.request, self.user)
+
+
+class PersonPasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    After confirmation email by following link
+    We can set new password for user.
+    """
+    new_password1 = serializers.CharField(max_length=128, write_only=True)
+    new_password2 = serializers.CharField(max_length=128, write_only=True)
+
+    def validate(self, attrs: dict) -> dict:
+        """ Let's check that two passwords are match """
+        new_password1 = attrs.get('new_password1')
+        new_password2 = attrs.get('new_password2')
+
+        if new_password1 != new_password2:
+            raise ValidationError(_(
+                'Given passwords do not match.'
+            ))
+
+        return attrs
+
+    def update(self, instance: PersonForgotRequest, validated_data):
+        new_password2 = validated_data.get('new_password2')
+        user = User.objects.get(email=instance.email)
+        user.set_password(new_password2)
+
+        # Let's mark request as accepted
+        instance.is_accepted = True
+        instance.save()
+
+        return instance
+
+    def create(self, validated_data):
+        pass
 
 
 class UserPasswordResetSerializer(serializers.Serializer):

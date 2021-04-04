@@ -73,6 +73,31 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     )
 
 
+class PersonForgotPasswordRequestConfirmView(generics.UpdateAPIView):
+    """
+    By this view we can confirm password resetting to get value.
+    Example:
+    {
+    "new_password1": "thestrongestpasswordever",
+    "new_password2": "thestrongestpasswordever"
+    }
+    """
+    queryset = PersonForgotRequest.valid.all()
+    lookup_field = 'key'
+    serializer_class = PersonPasswordResetConfirmSerializer
+    permission_classes = (
+        AllowAny,
+    )
+    throttle_classes = (
+        AnonRateThrottle,
+    )
+    http_method_names = (
+        'head',
+        'options',
+        'put'
+    )
+
+
 class PersonForgotRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     """
     Can be user for check if password forgot request exists by key
@@ -86,7 +111,6 @@ class PersonForgotRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     http_method_names = (
         'head',
         'options',
-        'get',
         'put'
     )
 
