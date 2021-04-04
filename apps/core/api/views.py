@@ -73,6 +73,24 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     )
 
 
+class PersonForgotRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    """
+    Can be user for check if password forgot request exists by key
+    It also can be user to update state of requests, mark it as accepted.
+    """
+    queryset = PersonForgotRequest.valid.all()
+    serializer_class = PersonForgotRequestSerializer
+    permission_classes = (AllowAny,)
+    throttle_classes = (AnonRateThrottle,)
+    lookup_field = 'key'
+    http_method_names = (
+        'head',
+        'options',
+        'get',
+        'put'
+    )
+
+
 class PersonInvitationRequestListView(generics.ListAPIView):
     queryset = PersonInvitationRequest.valid.all()
     serializer_class = PersonInvitationRequestSerializer

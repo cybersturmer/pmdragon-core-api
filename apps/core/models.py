@@ -333,14 +333,16 @@ class PersonForgotRequest(PersonParticipationRequestAbstract):
     Person can forget his/her password and make a request
     We just want to save this information
     """
+    objects = models.Manager()
+    valid = PersonParticipationRequestAbstractValidManager()
 
     email = models.EmailField(verbose_name=_('Email'),
                               max_length=128)
 
     class Meta:
         db_table = 'core_person_password_forgot_request'
-        verbose_name = _('Person Password Forgot Request')
-        verbose_name_plural = _('Person Password Forgot Requests')
+        verbose_name = _('Password Forgot Request')
+        verbose_name_plural = _('Password Forgot Requests')
 
     def __str__(self):
         try:
@@ -352,7 +354,7 @@ class PersonForgotRequest(PersonParticipationRequestAbstract):
     __repr__ = __str__
 
     def save(self, *args, **kwargs):
-        if self.pk is not None:
+        if self.pk is None:
             self.key = hashing.get_hash(self.expired_at, self.email)
 
         super().save(*args, **kwargs)

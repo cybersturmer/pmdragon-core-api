@@ -12,7 +12,7 @@ from ..models import PersonRegistrationRequest, \
     IssueMessage, \
     Issue, \
     get_mentioned_user_ids, \
-    Person
+    Person, PersonForgotRequest
 
 User = get_user_model()
 
@@ -39,6 +39,35 @@ def send_registration_email(request_pk=None):
         request.save()
         raise e
 
+    else:
+        request.is_email_sent = True
+        request.save()
+
+    return True
+
+
+@shared_task
+def send_forgot_password_email(request_pk=None):
+    request = PersonForgotRequest.objects.get(pk=request_pk)
+    person = Person.objects.get(user__email=request.email)
+
+    try:
+        context = {
+            'person': person,
+            'action_link': f'{settings.FRONTEND_HOSTNAME}/verify/password/restore/{request.key}',
+            'expired_at': request.expired_at
+        }
+
+        EmailComposer().process(
+            subject='PmDragon password restore email',
+            email=request.email,
+            template='email/verification/forgot_password.html',
+            context=context
+        )
+    except SMTPException as e:
+        request.is_email_sent = False
+        request.save()
+        raise e
     else:
         request.is_email_sent = True
         request.save()

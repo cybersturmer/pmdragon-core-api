@@ -182,6 +182,16 @@ class PersonInvitationRequestSerializer(serializers.ModelSerializer):
         )
 
 
+class PersonForgotRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonForgotRequest
+        fields = (
+            'email',
+            'created_at',
+            'expired_at'
+        )
+
+
 class PersonInvitationRequestList(serializers.Serializer):
     def create(self, validated_data):
         pass
