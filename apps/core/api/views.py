@@ -73,7 +73,7 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     )
 
 
-class PersonForgotPasswordRequestConfirmView(generics.UpdateAPIView):
+class PersonForgotPasswordRequestConfirmView(generics.RetrieveUpdateAPIView):
     """
     By this view we can confirm password resetting to get value.
     Example:
@@ -94,6 +94,7 @@ class PersonForgotPasswordRequestConfirmView(generics.UpdateAPIView):
     http_method_names = (
         'head',
         'options',
+        'get',
         'put'
     )
 
@@ -111,6 +112,7 @@ class PersonForgotRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     http_method_names = (
         'head',
         'options',
+        'get',
         'put'
     )
 
