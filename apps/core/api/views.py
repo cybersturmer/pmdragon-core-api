@@ -73,7 +73,10 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     )
 
 
-class PersonForgotPasswordRequestConfirmView(generics.RetrieveUpdateAPIView):
+class PersonForgotPasswordRequestConfirmView(mixins.RetrieveModelMixin,
+                                             mixins.UpdateModelMixin,
+                                             mixins.CreateModelMixin,
+                                             viewsets.GenericViewSet):
     """
     By this view we can confirm password resetting to get value.
     Example:
@@ -84,7 +87,6 @@ class PersonForgotPasswordRequestConfirmView(generics.RetrieveUpdateAPIView):
     """
     queryset = PersonForgotRequest.valid.all()
     lookup_field = 'key'
-    serializer_class = PersonPasswordResetConfirmSerializer
     permission_classes = (
         AllowAny,
     )
@@ -95,26 +97,27 @@ class PersonForgotPasswordRequestConfirmView(generics.RetrieveUpdateAPIView):
         'head',
         'options',
         'get',
-        'patch'
+        'patch',
+        'post'
     )
 
+    def get_serializer_class(self):
+        method = self.request.method
+        serializers_tree = {
+            'POST': PersonPasswordResetRequestSerializer,
+            'PATCH': PersonPasswordResetConfirmSerializer
+        }
 
-class PersonForgotRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-    """
-    Can be user for check if password forgot request exists by key
-    It also can be user to update state of requests, mark it as accepted.
-    """
+        try:
+            result = serializers_tree[method]
+        except KeyError:
+            return PersonForgotRequestSerializer
+
+        return result
+
+
+class PersonForgotPasswordRequestView(generics.CreateAPIView):
     queryset = PersonForgotRequest.valid.all()
-    serializer_class = PersonForgotRequestSerializer
-    permission_classes = (AllowAny,)
-    throttle_classes = (AnonRateThrottle,)
-    lookup_field = 'key'
-    http_method_names = (
-        'head',
-        'options',
-        'get',
-        'put'
-    )
 
 
 class PersonInvitationRequestListView(generics.ListAPIView):
@@ -792,33 +795,5 @@ class PasswordResetView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        # @todo send it via celery task
         return Response({'detail': _('Password reset email has been sent.')},
-                        status=status.HTTP_200_OK)
-
-
-class PasswordResetConfirmView(generics.GenericAPIView):
-    """
-    Password reset e-mail link is confirmed, therefore
-    this resets the user's password.
-    Accepts the following POST parameters: token, uid,
-       new_password1, new_password2
-    Returns the success/fail message.
-    """
-    serializer_class = UserPasswordConfirmSerializer
-    permission_classes = (
-        AllowAny,
-    )
-
-    @sensitive_post_parameters_m
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({'detail': _('Password has been reset with the new password.')},
                         status=status.HTTP_200_OK)

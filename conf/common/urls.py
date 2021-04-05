@@ -14,8 +14,7 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonAvatarUpload, \
     PersonRegistrationRequestView, \
     PersonInvitationRequestListView, \
-    PersonInvitationRequestRetrieveUpdateView, PasswordResetView, PasswordResetConfirmView, \
-    PersonForgotRequestRetrieveUpdateView, PersonForgotPasswordRequestConfirmView
+    PersonInvitationRequestRetrieveUpdateView, PasswordResetView, PersonForgotPasswordRequestConfirmView
 from apps.core.api.views import TokenObtainPairExtendedView
 from apps.core.views import SwaggerView
 
@@ -54,8 +53,15 @@ urlpatterns = [
          PasswordResetView.as_view(),
          name='password_reset'),
 
+    path('api/auth/person-password-forgot-requests/',
+         PersonForgotPasswordRequestConfirmView.as_view({'post': 'create'}),
+         name='password_reset_confirm'),
+
     path('api/auth/person-password-forgot-requests/<key>/',
-         PersonForgotPasswordRequestConfirmView.as_view(),
+         PersonForgotPasswordRequestConfirmView.as_view({
+             'get': 'retrieve',
+             'patch': 'partial_update'
+         }),
          name='password_reset_confirm'),
 
     path('api/auth/persons/',

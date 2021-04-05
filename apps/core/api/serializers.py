@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from apps.core.api.tasks import send_forgot_password_email
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.forms import Form
@@ -305,6 +306,31 @@ class PersonPasswordResetConfirmSerializer(serializers.Serializer):
         pass
 
 
+class PersonPasswordResetRequestSerializer(serializers.Serializer):
+    """
+    By this serializer we can request a password restoring.
+    If user follow link than we will use another serializer
+    """
+    email = serializers.EmailField(max_length=128,
+                                   min_length=4)
+
+    def create(self, validated_data):
+        email = validated_data.get('email')
+        password_forgot_request = PersonForgotRequest(
+            email=email
+        )
+
+        password_forgot_request.save()
+
+        if not settings.DEBUG:
+            send_forgot_password_email.delay(password_forgot_request.id)
+
+        return password_forgot_request
+
+    def update(self, instance, validated_data):
+        pass
+
+
 class UserPasswordResetSerializer(serializers.Serializer):
     """
     Some serializer for request a password reset email
@@ -345,58 +371,6 @@ class UserPasswordResetSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
-
-
-class UserPasswordConfirmSerializer(serializers.Serializer):
-    """
-    User password Confirmation serializer.
-    We dont need it yet, but will need soon. Hopefully.
-    """
-    user: object
-    _errors: Dict[Any, Any]
-    set_password_form: SetPasswordForm
-
-    new_password1 = serializers.CharField(max_length=128)
-    new_password2 = serializers.CharField(max_length=128)
-    uid = serializers.CharField()
-    token = serializers.CharField()
-
-    set_password_form_class = SetPasswordForm
-
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        pass
-
-    def custom_validation(self, attrs):
-        pass
-
-    def validate(self, attrs):
-        self._errors = {}
-
-        try:
-
-            uid = force_text(uid_decoder(attrs['uid']))
-            self.user = UserModel._default_manager.get(pk=uid)
-
-        except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
-            raise ValidationError({'uid': [_('Invalid value')]})
-
-        self.custom_validation(attrs)
-        self.set_password_form = self.set_password_form_class(
-            user=self.user, data=attrs
-        )
-        if not self.set_password_form.is_valid():
-            raise serializers.ValidationError(self.set_password_form.errors)
-
-        if not default_token_generator.check_token(self.user, attrs['token']):
-            raise ValidationError({'token': ['Invalid value']})
-
-        return attrs
-
-    def save(self, **kwargs):
-        return self.set_password_form.save()
 
 
 class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
