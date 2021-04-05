@@ -6,6 +6,87 @@
     "description": "Web API for PmDragon service"
   },
   "paths": {
+    "/api/auth/person-password-forgot-requests/{key}/": {
+      "get": {
+        "operationId": "retrievePersonForgotRequest",
+        "description": "By this view we can confirm password resetting to get value.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonForgotRequest"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdatePersonForgotRequest",
+        "description": "By this view we can confirm password resetting to get value.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetConfirm"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetConfirm"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetConfirm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonPasswordResetConfirm"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
     "/api/auth/person-registration-requests/{key}/": {
       "get": {
         "operationId": "retrievePersonRegistrationRequest",
@@ -1168,6 +1249,45 @@
         "tags": [
           "api"
         ]
+      },
+      "post": {
+        "operationId": "createIssueTypeCategoryIcon",
+        "description": "",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueTypeIcon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
       }
     },
     "/api/core/issue-type-icons/{id}/": {
@@ -1194,6 +1314,127 @@
                 }
               }
             },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      },
+      "put": {
+        "operationId": "updateIssueTypeCategoryIcon",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "A unique integer value identifying this Issue Type Icon.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueTypeIcon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateIssueTypeCategoryIcon",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "A unique integer value identifying this Issue Type Icon.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTypeIcon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueTypeIcon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      },
+      "delete": {
+        "operationId": "destroyIssueTypeCategoryIcon",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "A unique integer value identifying this Issue Type Icon.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
             "description": ""
           }
         },
@@ -2863,7 +3104,7 @@
         ]
       }
     },
-    "/api/auth/password/": {
+    "/api/auth/password/change/": {
       "post": {
         "operationId": "createUser",
         "description": "Set password for user",
@@ -2893,6 +3134,88 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserSetPassword"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/auth/password/reset/": {
+      "post": {
+        "operationId": "createUserPasswordReset",
+        "description": "Accept just email field and nothing more.\nBy this view we can request password reset for user by given email.\nFor example",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPasswordReset"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPasswordReset"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPasswordReset"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPasswordReset"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/auth/person-password-forgot-requests/": {
+      "post": {
+        "operationId": "createPersonForgotRequest",
+        "description": "By this view we can confirm password resetting to get value.",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonPasswordResetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonPasswordResetRequest"
                 }
               }
             },
@@ -3248,6 +3571,28 @@
   },
   "components": {
     "schemas": {
+      "PersonForgotRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 128
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "expired_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "PersonRegistrationRequest": {
         "type": "object",
         "properties": {
@@ -3321,8 +3666,7 @@
                 "readOnly": true
               },
               "owned_by": {
-                "type": "integer",
-                "nullable": true
+                "type": "integer"
               },
               "participants": {
                 "type": "array",
@@ -3332,7 +3676,8 @@
               }
             },
             "required": [
-              "prefix_url"
+              "prefix_url",
+              "owned_by"
             ],
             "readOnly": true
           },
@@ -3563,6 +3908,10 @@
             "type": "integer",
             "readOnly": true
           },
+          "project_number": {
+            "type": "string",
+            "readOnly": true
+          },
           "workspace": {
             "type": "integer"
           },
@@ -3611,6 +3960,10 @@
             "type": "string",
             "format": "date-time",
             "readOnly": true
+          },
+          "updated_by": {
+            "type": "integer",
+            "nullable": true
           },
           "ordering": {
             "type": "integer",
@@ -3718,6 +4071,12 @@
             "type": "integer",
             "readOnly": true
           },
+          "workspace": {
+            "type": "integer"
+          },
+          "project": {
+            "type": "integer"
+          },
           "prefix": {
             "type": "string",
             "maxLength": 50
@@ -3729,6 +4088,8 @@
           }
         },
         "required": [
+          "workspace",
+          "project",
           "prefix"
         ]
       },
@@ -4101,6 +4462,34 @@
           "new_password2"
         ]
       },
+      "UserPasswordReset": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 128,
+            "minLength": 4
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "PersonPasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 128,
+            "minLength": 4
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "PersonRegistrationOrInvitationRequest": {
         "type": "object",
         "properties": {
@@ -4194,11 +4583,30 @@
             "type": "integer",
             "maximum": 32767,
             "nullable": true,
-            "minimum": 1
+            "minimum": 0
           }
         },
         "required": [
           "id"
+        ]
+      },
+      "PersonPasswordResetConfirm": {
+        "type": "object",
+        "properties": {
+          "new_password1": {
+            "type": "string",
+            "writeOnly": true,
+            "maxLength": 128
+          },
+          "new_password2": {
+            "type": "string",
+            "writeOnly": true,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "new_password1",
+          "new_password2"
         ]
       }
     }
