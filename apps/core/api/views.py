@@ -1,7 +1,5 @@
 import json
 
-from django.conf import settings
-from django.contrib.auth.admin import sensitive_post_parameters_m
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
