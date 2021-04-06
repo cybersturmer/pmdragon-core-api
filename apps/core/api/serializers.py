@@ -1,21 +1,14 @@
-from django.contrib.auth.models import update_last_login
-from typing import Dict, Any
-
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
-from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
-from apps.core.api.tasks import send_forgot_password_email
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.models import update_last_login
 from django.db import IntegrityError
 from django.forms import Form
-from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt import serializers as serializers_jwt
 
+from apps.core.api.tasks import send_forgot_password_email
 from ..models import *
 
 UserModel = get_user_model()
@@ -45,6 +38,7 @@ def order_issues(validated_data):
 
 class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerializer):
     """
+    We use this serializer to get jwt token
     Extend parent class to add extra data to token.
     Currently: username, first_name, last_name
     """
@@ -93,6 +87,9 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
 
 class PersonRegistrationRequestSerializer(serializers.ModelSerializer):
     """
+    We use it to create and get registration request
+    1) Get for check that registration is correct
+    2) Create for make new registration for user with workspace
     Common Serializer for Person Registration Request on Registration
     """
 
@@ -137,6 +134,8 @@ class PersonRegistrationRequestSerializer(serializers.ModelSerializer):
 
 class PersonInvitationRequestRetrieveUpdateSerializer(serializers.ModelSerializer):
     """
+    We use this for getting invitation requests and checking
+    that this invitation is correct.
     Update request after getting email and follow link inside
     """
 
@@ -174,6 +173,10 @@ class PersonInvitationRequestRetrieveUpdateSerializer(serializers.ModelSerialize
 
 
 class PersonInvitationRequestSerializer(serializers.ModelSerializer):
+    """
+    We use it to invite multiple users to workspace.
+    We also need to check that invitation is correct, update it (set is_accepted to True)
+    """
     class Meta:
         model = PersonInvitationRequest
         fields = (
@@ -185,6 +188,9 @@ class PersonInvitationRequestSerializer(serializers.ModelSerializer):
 
 
 class PersonForgotRequestSerializer(serializers.ModelSerializer):
+    """
+    We use this serializer for GET, HEAD, OPTIONS requests
+    """
     class Meta:
         model = PersonForgotRequest
         fields = (
@@ -195,6 +201,10 @@ class PersonForgotRequestSerializer(serializers.ModelSerializer):
 
 
 class PersonInvitationRequestList(serializers.Serializer):
+    """
+    We use it to invite multiple persons in Workspace
+    From Team page on frontend.
+    """
     def create(self, validated_data):
         pass
 
@@ -212,6 +222,7 @@ class PersonInvitationRequestList(serializers.Serializer):
 class UserSetPasswordSerializer(serializers.Serializer):
     """
     Serializer to update password of user.
+    We use it normally on the Me page on frontend.
     """
 
     old_password = serializers.CharField(max_length=128, write_only=True)
@@ -326,48 +337,6 @@ class PersonPasswordResetRequestSerializer(serializers.Serializer):
             send_forgot_password_email.delay(password_forgot_request.id)
 
         return password_forgot_request
-
-    def update(self, instance, validated_data):
-        pass
-
-
-class UserPasswordResetSerializer(serializers.Serializer):
-    """
-    Some serializer for request a password reset email
-    """
-    email = serializers.EmailField(max_length=128,
-                                   min_length=4)
-
-    password_reset_form_class = PasswordResetForm
-    reset_form: [Form] = None
-
-    @staticmethod
-    def get_email_options():
-        """
-        Override this to change default email options
-        """
-        return {}
-
-    def validate_email(self, value):
-        self.reset_form = self.password_reset_form_class(data=self.initial_data)
-        if not self.reset_form.is_valid():
-            raise serializers.ValidationError(self.reset_form.errors)
-
-        return value
-
-    def save(self, **kwargs):
-        request = self.context.get('request')
-        opts = {
-            'use_https': request.is_secure(),
-            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL'),
-            'request': request,
-        }
-
-        opts.update(self.get_email_options())
-        self.reset_form.save(**opts)
-
-    def create(self, validated_data):
-        pass
 
     def update(self, instance, validated_data):
         pass
@@ -649,6 +618,9 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
 
 class IssueTypeIconSerializer(serializers.ModelSerializer):
+    """
+    We use it to get list of issue types.
+    """
     class Meta:
         model = IssueTypeCategoryIcon
         fields = (

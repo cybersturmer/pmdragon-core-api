@@ -463,11 +463,16 @@ class IssueViewSet(WorkspacesModelViewSet):
 
 
 class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    We use this view to get history entries for current issue.
+    We use filter backend for it with issue param.
+    @todo check that IsParticipateInWorkspace is not a problem's root.
+    """
     queryset = IssueHistory.objects.all()
     serializer_class = IssueHistorySerializer
-    # @todo add IsParticipateInWorkspace ?
     permission_classes = (
         IsAuthenticated,
+        IsParticipateInWorkspace
     )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['issue']
@@ -485,6 +490,10 @@ class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IssueMessagesViewSet(WorkspacesModelViewSet):
+    """
+    We use this view to get messages for current issue.
+    We use filter backend for it with issue param
+    """
     queryset = IssueMessage.objects.all()
     serializer_class = IssueMessageSerializer
     permission_classes = (
@@ -776,24 +785,3 @@ def validate_ids(data, field='id', unique=True):
 
         return id_list
     return [data]
-
-
-class PasswordResetView(generics.GenericAPIView):
-    """
-    Accept just email field and nothing more.
-    By this view we can request password reset for user by given email.
-    For example
-    Action: I press "Forget password on frontend" -> input my email cybersturmer@ya.ru
-    Result: Get an email with token and user_id
-    """
-    serializer_class = UserPasswordResetSerializer
-    permission_classes = (
-        AllowAny,
-    )
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'detail': _('Password reset email has been sent.')},
-                        status=status.HTTP_200_OK)
