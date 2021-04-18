@@ -451,6 +451,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name'
         )
+        extra_kwargs = {
+            'username': {
+                'max_length': 20
+            }
+        }
 
 
 class PersonSerializer(serializers.ModelSerializer):
