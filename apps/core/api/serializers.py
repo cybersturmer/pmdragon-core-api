@@ -753,7 +753,11 @@ class IssueSerializer(WorkspaceModelSerializer):
         return data
 
     def create(self, validated_data):
-        instance = Issue.objects.create(**validated_data)
+        """
+        If we crate it through issue.object.create then we will send two signal
+        on create and on update and frontend will create 2 instance in backlog for issues
+        """
+        instance = Issue(**validated_data)
         instance.created_by = self.context['person']
         instance.save()
 
