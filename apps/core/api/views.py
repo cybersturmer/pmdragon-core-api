@@ -775,11 +775,12 @@ class IssueListUpdateApiView(UpdateAPIView):
 
 
 def validate_ids(data, field='id', unique=True):
-    if isinstance(data, list):
-        id_list = [int(x[field]) for x in data]
+    if not isinstance(data, list):
+        return [data]
 
-        if unique and len(id_list) != len(set(id_list)):
-            raise ValidationError(_('Multiple updates of single field found'))
+    id_list = [int(x[field]) for x in data if field in x]
 
-        return id_list
-    return [data]
+    if unique and len(id_list) != len(set(id_list)):
+        raise ValidationError(_('Multiple updates of single field found'))
+
+    return id_list
