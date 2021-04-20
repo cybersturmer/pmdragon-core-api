@@ -49,7 +49,13 @@ def send_registration_email(request_pk=None):
 @shared_task
 def send_forgot_password_email(request_pk=None):
     request = PersonForgotRequest.objects.get(pk=request_pk)
-    person = Person.objects.get(user__email=request.email)
+
+    """
+    If person does not exist - we need to exit task """
+    try:
+        person = Person.objects.get(user__email=request.email)
+    except Person.DoesNotExist:
+        return True
 
     try:
         context = {
