@@ -780,7 +780,9 @@ def validate_ids(data, field='id', unique=True):
 
     id_list = [int(x[field]) for x in data if field in x]
 
-    if unique and len(id_list) != len(set(id_list)):
-        raise ValidationError(_('Multiple updates of single field found'))
+    unique_id_list = set(id_list)
+
+    if unique and len(id_list) != len(unique_id_list):
+        return unique_id_list
 
     return id_list
