@@ -10,7 +10,7 @@ Crossplatform client can be found in
 [Client repository](https://github.com/cybersturmer/pmdragon-client)
 
 ## Video
-[YouTube](https://www.youtube.com/watch?v=ZlPRVjLoKqA&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0&index=1)
+[YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0)
 
 ## Swagger documentation
 https://pmdragon.org/swagger/
