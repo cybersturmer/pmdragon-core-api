@@ -775,6 +775,14 @@ class IssueListUpdateApiView(UpdateAPIView):
 
 
 def validate_ids(data, field='id', unique=True):
+    """
+    By this method we just return uniq list
+    Actually we use it for {issue_id:xxx order: xxx}
+    We don't really know what to do if we got
+    2 different order for the same issue.
+    Of course frontend should prevent it.
+    But i decided not raise an Exception for this case.
+    """
     if not isinstance(data, list):
         return [data]
 
