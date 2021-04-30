@@ -114,19 +114,6 @@ class PersonForgotPasswordRequestConfirmView(mixins.RetrieveModelMixin,
         return result
 
 
-class PersonForgotPasswordRequestView(generics.CreateAPIView):
-    queryset = PersonForgotRequest.valid.all()
-
-
-class PersonInvitationRequestListView(generics.ListAPIView):
-    queryset = PersonInvitationRequest.valid.all()
-    serializer_class = PersonInvitationRequestSerializer
-    permission_classes = (
-        IsAuthenticated,
-        IsParticipateInWorkspace
-    )
-
-
 class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
     """
     Can be useful for bulk create requests by giving
@@ -416,6 +403,9 @@ class IssueTypeCategoryViewSet(WorkspacesModelViewSet):
 
 
 class IssueTypeIconViewSet(WorkspacesModelViewSet):
+    """
+    Just CRUD with Issue Type Icons
+    """
     queryset = IssueTypeCategoryIcon.objects.all()
     serializer_class = IssueTypeIconSerializer
     permission_classes = (
@@ -439,6 +429,9 @@ class IssueStateCategoryViewSet(WorkspacesModelViewSet):
 
 
 class IssueEstimationCategoryViewSet(WorkspacesModelViewSet):
+    """
+    Just CRUD with Issue Estimations.
+    """
     queryset = IssueEstimationCategory.objects.all()
     serializer_class = IssueEstimationSerializer
     permission_classes = (
