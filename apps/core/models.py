@@ -196,14 +196,6 @@ class Workspace(models.Model):
         verbose_name = _('Workspace')
         verbose_name_plural = _('Workspaces')
 
-    def clean_fields(self, exclude=None):
-        super().clean_fields(exclude=exclude)
-
-        if self.owned_by not in self.participants.all():
-            raise ValidationError({
-                'owned_by': _('Workspace owner should participate in workspace'),
-            })
-
     def __str__(self):
         return self.prefix_url
 
