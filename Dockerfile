@@ -10,8 +10,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN mkdir -p /srv/www/pmdragon
 WORKDIR /srv/www/pmdragon
 
-COPY Pipfile* ./
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY ./pmdragon-core-api/Pipfile* ./
+COPY ./pmdragon-core-api/docker-entrypoint.sh /usr/local/bin/
+COPY ./pmdragon-core-api/celery-entrypoint.sh /usr/local/bin/
 
 RUN set -ex; \
     pip install --upgrade pip; \
@@ -19,6 +20,7 @@ RUN set -ex; \
     pipenv install --deploy --system; \
     ln -s usr/local/bin/docker-entrypoint.sh; \
     chmod +x /usr/local/bin/docker-entrypoint.sh; \
+    chmod +x /usr/local/bin/celery-entrypoint.sh; \
     adduser --disabled-password --gecos '' rabbituu
 
-COPY . .
+COPY ./pmdragon-core-api/ .
