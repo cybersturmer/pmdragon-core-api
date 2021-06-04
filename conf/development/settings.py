@@ -7,6 +7,7 @@ DEBUG = True
 DEPLOYMENT = 'IDE_DEBUG'
 
 ALLOWED_HOSTS = ['*']
+SECRET_KEY = 'just_development_environment'
 
 ROOT_URLCONF = 'conf.development.urls'
 
