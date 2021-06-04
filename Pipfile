@@ -16,6 +16,7 @@ bleach = "*"
 django-filter = "*"
 djangochannelsrestframework = "*"
 channels-redis = "*"
+channelsmultiplexer = "*"
 
 [dev-packages]
 
