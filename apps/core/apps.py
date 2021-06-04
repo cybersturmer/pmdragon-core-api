@@ -6,7 +6,7 @@ class CoreConfig(AppConfig):
     name = 'apps.core'
     label = 'core'
     verbose_name = _('Core')
-    default_auto_field = 'django.db.models.AutoField'
+    default_auto_field = 'django.db.models.BigAutoField'
 
     def ready(self):
         from apps.core import signals
