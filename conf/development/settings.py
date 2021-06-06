@@ -7,7 +7,10 @@ DEBUG = True
 DEPLOYMENT = 'IDE_DEBUG'
 
 ALLOWED_HOSTS = ['*']
-SECRET_KEY = 'just_development_environment'
+
+# I commit this key intentionally, just for development purpose
+# Feel free to change it.
+SECRET_KEY = 'k(j%=d1u#@vm*&$4n$o)sy1)9+%l$z1_t2=q!$%%j7p_so0&ib'
 
 ROOT_URLCONF = 'conf.development.urls'
 
