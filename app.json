@@ -25,23 +25,23 @@
     },
     "FRONTEND_HOSTNAME": {
       "description": "We use it to send emails with hostname + related link",
-      "value": ""
+      "value": "https://pmdragon-client.herokuapp.com"
     },
     "API_HOSTNAME": {
       "description": "We use it to allow calling with this hostname in django settings ALLOWED HOSTS example (pmdragon.org)",
-      "value": ""
+      "value": "pmdragon.org"
     },
     "EMAIL_HOST": {
       "description": "Some SMTP host, for example smtp.yandex.ru, we use it to send emails",
-      "value": ""
+      "value": "smtp.yandex.ru"
     },
     "EMAIL_PASSWORD": {
       "description": "Just password for email account, we use it to send emails",
-      "value": ""
+      "value": "some important password"
     },
     "EMAIL_USER": {
       "description": "Just user for email account, we use it to send emails",
-      "value": ""
+      "value": "robot@pmdragon.org"
     }
   },
   "formation": {
