@@ -11,6 +11,9 @@
   "repository": "https://github.com/cybersturmer/pmdragon-core-api",
   "logo": "https://github.com/cybersturmer/pmdragon/blob/master/docs/images/geometry.svg",
   "success_url": "/swagger/",
+  "scripts": {
+    "postdeploy": "pipenv install django_heroku sentry_sdk"
+  },
   "env": {
     "DJANGO_SECRET_KEY": {
       "description": "Just normal Django Secret Key",
