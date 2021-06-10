@@ -1,5 +1,5 @@
 from conf.production.settings import *
-import django_heroku
+import django_on_heroku
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 

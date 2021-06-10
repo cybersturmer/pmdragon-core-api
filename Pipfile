@@ -5,20 +5,20 @@ name = "pypi"
 
 [packages]
 Django = "*"
-psycopg2-binary = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
+djangochannelsrestframework = "*"
 django-cors-headers = "*"
 Pillow = "*"
 uvicorn = "*"
+psycopg2-binary = "*"
 celery = "*"
 bleach = "*"
 django-filter = "*"
-djangochannelsrestframework = "*"
 channels-redis = "*"
 channelsmultiplexer = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
