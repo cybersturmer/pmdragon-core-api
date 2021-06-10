@@ -20,6 +20,7 @@ channelsmultiplexer = "*"
 django-on-heroku = "*"
 sentry-sdk = "*"
 boto3 = "*"
+django-storages = "*"
 
 [dev-packages]
 
