@@ -90,10 +90,9 @@ sentry_sdk.init(
     send_default_pii=True
 )
 
-django_heroku.settings(locals(),
-                       staticfiles=False,
-                       secret_key=False,
-                       databases=True,
-                       allowed_hosts=False,
-                       logging=False)
-
+django_on_heroku.settings(locals(),
+                          staticfiles=False,
+                          secret_key=False,
+                          databases=True,
+                          allowed_hosts=False,
+                          logging=False)
