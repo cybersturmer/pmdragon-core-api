@@ -17,6 +17,9 @@ bleach = "*"
 django-filter = "*"
 channels-redis = "*"
 channelsmultiplexer = "*"
+django-on-heroku = "*"
+sentry-sdk = "*"
+boto3 = "*"
 
 [dev-packages]
 
