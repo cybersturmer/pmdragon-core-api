@@ -435,7 +435,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         _edited_field_verbose_name = field.verbose_name
 
         """
-        Let's crop text data by 255 symbols but remove all tags from it """
+        Let's crop text data by 255 symbols but remove all tags from it before """
         _str_before_value = bleach.clean(
             text=str(_db_value),
             tags=[],
