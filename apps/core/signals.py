@@ -1,3 +1,4 @@
+import bleach
 from django.db.models import Q
 from django.db.models.signals import \
     pre_save, \
@@ -424,24 +425,45 @@ def signal_set_issue_history(instance: Issue, **kwargs):
         _db_value = getattr(db_version, field.name)
         _instance_value = getattr(instance, field.name)
 
+        """
+        If value is the same or we decided do not track it - let's skip it
+        in creating history entry"""
         if _db_value == _instance_value or \
                 field.name in do_not_watch_fields:
             continue
 
         _edited_field_verbose_name = field.verbose_name
-        _before_value = _db_value
-        _after_value = _instance_value
+
+        """
+        Let's crop text data by 255 symbols but remove all tags from it """
+        _str_before_value = bleach.clean(
+            text=str(_db_value),
+            tags=[],
+            strip=True
+        )
+
+        _str_after_value = bleach.clean(
+            text=str(_instance_value),
+            tags=[],
+            strip=True
+        )
+
+        if len(_str_before_value) > 255:
+            _str_before_value = f'{_str_before_value[0:255]}...'
+
+        if len(_str_after_value) > 255:
+            _str_after_value = f'{_str_after_value[0:255]}...'
 
         if field.name in foreign_data:
-            if _before_value is None:
-                _before_value = 'None'
+            if _str_before_value is None:
+                _str_before_value = 'None'
             else:
                 _before_value = getattr(_db_value, 'title')
 
-            if _after_value is None:
-                _after_value = 'None'
+            if _str_after_value is None:
+                _str_after_value = 'None'
             else:
-                _after_value = getattr(_instance_value, 'title')
+                _str_after_value = getattr(_instance_value, 'title')
 
         """
         Issue history instance """
@@ -449,8 +471,8 @@ def signal_set_issue_history(instance: Issue, **kwargs):
             issue=instance,
             entry_type=FRONTEND_ICON_SET + 'playlist-edit',
             edited_field=_edited_field_verbose_name,
-            before_value=_before_value,
-            after_value=_after_value,
+            before_value=_str_before_value,
+            after_value=_str_after_value,
             changed_by=instance.updated_by
         )
 
