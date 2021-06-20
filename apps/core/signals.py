@@ -455,12 +455,16 @@ def signal_set_issue_history(instance: Issue, **kwargs):
             _str_after_value = f'{_str_after_value[0:255]}...'
 
         if field.name in foreign_data:
-            if _str_before_value is None:
+            """
+            Here we need exactly _db_value, not _str_before_value """
+            if _db_value is None:
                 _str_before_value = 'None'
             else:
                 _before_value = getattr(_db_value, 'title')
 
-            if _str_after_value is None:
+            """
+            Here we need exactly _instance_value, not _str_after_value """
+            if _instance_value is None:
                 _str_after_value = 'None'
             else:
                 _str_after_value = getattr(_instance_value, 'title')
