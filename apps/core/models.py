@@ -873,7 +873,7 @@ class IssueHistory(models.Model):
                               on_delete=models.CASCADE,
                               related_name='history')
 
-    entry_type = models.CharField(verbose_name=_('Entry time'),
+    entry_type = models.CharField(verbose_name=_('Entry type'),
                                   max_length=255,
                                   help_text=_('We use this to set icon in timeline.'))
 
