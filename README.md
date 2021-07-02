@@ -1,4 +1,4 @@
-# PmDragon Community API
+# PmDragon API
 Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
 Django Rest Framework based API as a server side of PmDragon Community  software.
 
