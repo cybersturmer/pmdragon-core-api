@@ -22,7 +22,7 @@ sentry-sdk = "*"
 boto3 = "*"
 django-storages = "*"
 websockets = "*"
-uritemplate = "*"
+drf-yasg = "*"
 
 [dev-packages]
 

@@ -21,7 +21,8 @@ INSTALLED_APPS = [
     'apps.core.apps.CoreConfig',
     'django_filters',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -169,3 +170,13 @@ BLEACH_ALLOWED_PROTOCOLS = [
 ]
 
 BLEACH_STRIPPING = True
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Bearer'
+        }
+    }
+}

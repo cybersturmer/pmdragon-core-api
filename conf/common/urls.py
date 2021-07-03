@@ -4,10 +4,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.permissions import AllowAny
-from rest_framework.renderers import JSONOpenAPIRenderer
-from rest_framework.schemas import get_schema_view
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework.authentication import SessionAuthentication
 
 from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonSetPasswordView, \
@@ -17,7 +17,6 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonInvitationRequestListView, \
     PersonInvitationRequestRetrieveUpdateView, PersonForgotPasswordRequestConfirmView
 from apps.core.api.views import TokenObtainPairExtendedView
-from apps.core.views import SwaggerView
 
 API_TITLE = 'PmDragon API'
 API_DESCRIPTION = 'Web API for PmDragon service'
@@ -25,22 +24,25 @@ schema_url_patterns = [
     url(r'^api/', include('apps.core.api.urls'))
 ]
 
-schema_view = get_schema_view(version=1,
-                              title=API_TITLE,
-                              description=API_DESCRIPTION,
-                              renderer_classes=[
-                                  JSONOpenAPIRenderer
-                              ],
-                              permission_classes=(
-                                  AllowAny,
-                              ))
+schema_view = get_schema_view(
+    openapi.Info(
+        title="PmDragon API",
+        default_version='v1',
+        description="Swagger documentation for PmDragon API",
+        contact=openapi.Contact(email="cybersturmer@ya.ru"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', auth_views.LoginView.as_view(), name='login'),
 
-    path('schema/', schema_view, name='openapi-schema'),
+    path('schema/', schema_view.without_ui(cache_timeout=0), name='openapi-schema'),
 
-    path('swagger/', SwaggerView.as_view()),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('api/auth/obtain/',
          TokenObtainPairExtendedView.as_view(),
