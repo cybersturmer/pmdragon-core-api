@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework.schemas import get_schema_view
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.authentication import SessionAuthentication
 
 from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonSetPasswordView, \
@@ -27,8 +28,12 @@ schema_url_patterns = [
 schema_view = get_schema_view(version=1,
                               title=API_TITLE,
                               description=API_DESCRIPTION,
-                              renderer_classes=[JSONOpenAPIRenderer],
-                              permission_classes=(AllowAny,))
+                              renderer_classes=[
+                                  JSONOpenAPIRenderer
+                              ],
+                              permission_classes=(
+                                  AllowAny,
+                              ))
 
 urlpatterns = [
     path('admin/', admin.site.urls),
