@@ -2,15 +2,10 @@
 Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
 Django Rest Framework based API as a server side of PmDragon Community  software.
 
-## Links
-You can find deployment tool, documentation, licensing in
-[Main repository](https://github.com/cybersturmer/pmdragon)
-
-Crossplatform client can be found in
-[Client repository](https://github.com/cybersturmer/pmdragon-client)
-
-## Video
-[YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0)
+## Useful links
+| Backlog | Video | Client | Tools |
+| ------- | ----- | --- | ------ |
+| [GitHub Project](https://github.com/cybersturmer/pmdragon/projects/1?fullscreen=true) | [YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0) | [GitHub](https://github.com/cybersturmer/pmdragon-client) | [GitHub](https://github.com/cybersturmer/pmdragon) |
 
 ## Swagger documentation
 https://pmdragon.org/swagger/
