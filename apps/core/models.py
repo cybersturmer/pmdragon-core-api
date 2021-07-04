@@ -562,6 +562,19 @@ class IssueStateCategory(ProjectWorkspaceAbstractModel):
 
         super().clean()
 
+    def set_next_ordering(self):
+        max_number = IssueStateCategory \
+            .objects \
+            .filter(workspace=self.workspace,
+                    project=self.project) \
+            .aggregate(Max('ordering')) \
+            .get('ordering__max')
+
+        if max_number is None:
+            max_number = 0
+
+        self.ordering = max_number + 1
+
     def save(self, *args, **kwargs):
         """
         There is only one task in a project with:
@@ -569,6 +582,10 @@ class IssueStateCategory(ProjectWorkspaceAbstractModel):
         2) Default as state
         So we have to control it carefully
         """
+
+        if self.ordering is None:
+            self.set_next_ordering()
+
         if self.is_default:
             default_issue_states = IssueStateCategory.objects \
                 .filter(workspace=self.workspace,
