@@ -176,7 +176,7 @@ SWAGGER_SETTINGS = {
         'api_key': {
             'type': 'apiKey',
             'in': 'header',
-            'name': 'Bearer'
+            'name': 'Authorization'
         }
     }
 }
