@@ -434,40 +434,27 @@ def signal_set_issue_history(instance: Issue, **kwargs):
 
         _edited_field_verbose_name = field.verbose_name
 
-        """
-        Let's crop text data by 255 symbols but remove all tags from it before """
-        _str_before_value = bleach.clean(
-            text=str(_db_value),
-            tags=[],
-            strip=True
-        )
-
-        _str_after_value = bleach.clean(
-            text=str(_instance_value),
-            tags=[],
-            strip=True
-        )
-
-        if len(_str_before_value) > 255:
-            _str_before_value = f'{_str_before_value[0:255]}...'
-
-        if len(_str_after_value) > 255:
-            _str_after_value = f'{_str_after_value[0:255]}...'
-
         if field.name in foreign_data:
-            """
-            Here we need exactly _db_value, not _str_before_value """
-            if _db_value is None:
-                _str_before_value = 'None'
-            else:
-                _before_value = getattr(_db_value, 'title')
+            _str_before = 'None' if _db_value is None else getattr(_db_value, 'title')
+            _str_after = 'None' if _instance_value is None else getattr(_instance_value, 'title')
+        else:
+            _str_before = bleach.clean(
+                text=str(_db_value),
+                tags=[],
+                strip=True
+            )
 
-            """
-            Here we need exactly _instance_value, not _str_after_value """
-            if _instance_value is None:
-                _str_after_value = 'None'
-            else:
-                _str_after_value = getattr(_instance_value, 'title')
+            _str_after = bleach.clean(
+                text=str(_instance_value),
+                tags=[],
+                strip=True
+            )
+
+        if len(_str_before) > 60:
+            _str_before = f'{_str_before[0:60]}...'
+
+        if len(_str_after) > 60:
+            _str_after = f'{_str_after[0:60]}...'
 
         """
         Issue history instance """
@@ -475,8 +462,8 @@ def signal_set_issue_history(instance: Issue, **kwargs):
             issue=instance,
             entry_type=FRONTEND_ICON_SET + 'playlist-edit',
             edited_field=_edited_field_verbose_name,
-            before_value=_str_before_value,
-            after_value=_str_after_value,
+            before_value=_str_before,
+            after_value=_str_after,
             changed_by=instance.updated_by
         )
 
