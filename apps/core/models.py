@@ -248,6 +248,7 @@ class ProjectWorkspaceAbstractModel(models.Model):
     """
     We use this abstract model to inherit workspace and project fields
     """
+
     @staticmethod
     def get_workspace_related_name():
         return '%(app_label)s_%(class)s'
@@ -452,6 +453,7 @@ class IssueTypeCategory(ProjectWorkspaceAbstractModel):
     For example Issue Type can be:
     User Story, Bug, Task
     """
+
     @staticmethod
     def get_workspace_related_name():
         return 'issue_categories'
@@ -1120,12 +1122,12 @@ class Sprint(ProjectWorkspaceAbstractModel):
                 """
                 Checking if we have another one started sprint
                 """
-                started_sprints_amount = \
-                    Sprint.objects.filter(workspace=self.workspace,
-                                          project=self.project,
-                                          is_started=True) \
-                        .exclude(pk=self.pk) \
-                        .count()
+                started_sprints_amount = Sprint.objects \
+                    .filter(workspace=self.workspace,
+                            project=self.project,
+                            is_started=True) \
+                    .exclude(pk=self.pk) \
+                    .count()
 
                 if started_sprints_amount > 0:
                     raise ValidationError(_('Another sprint was already started. '
@@ -1199,9 +1201,9 @@ class SprintEstimation(ProjectWorkspaceAbstractModel):
     def calculate_estimations(self):
         estimations = self.sprint.issues \
             .values_list(
-            'estimation_category__value',
-            'state_category__is_done'
-        )
+                'estimation_category__value',
+                'state_category__is_done'
+            )
 
         cleaned_estimations = filter(lambda estimation: estimation[0] is not None, estimations)
 
