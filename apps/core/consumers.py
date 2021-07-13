@@ -155,6 +155,23 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
 
 
 class WorkspaceIssueTypeCategoriesObserver(AsyncAPIConsumer):
+    """
+    This consumer allow us to subscribe to all issues types in given workspace.
+    By checking permission we have to check that person participate in given workspace.
+    Payload example
+    {
+        "action": "subscribe_to_issue_type_categories_in_workspace",
+        "request_id": 4,
+        "workspace_pk": 34
+    }
+    With stream payload should look like this.
+    {
+    "stream":"workspace_issues","payload":{
+        "action":"subscribe_to_issue_type_categories_in_workspace",
+        "request_id":442,
+        "issue_pk":61}
+    }
+    """
     permission_classes = (
         IsAuthenticated,
     )
@@ -207,6 +224,23 @@ class WorkspaceIssueTypeCategoriesObserver(AsyncAPIConsumer):
 
 
 class WorkspaceIssueTypeCategoriesIconsObserver(AsyncAPIConsumer):
+    """
+    This consumer allow us to subscribe to all issues types icons in given workspace.
+    By checking permission we have to check that person participate in given workspace.
+    Payload example
+    {
+        "action": "subscribe_to_issue_type_categories_icons_in_workspace",
+        "request_id": 4,
+        "workspace_pk": 34
+    }
+    With stream payload should look like this.
+    {
+    "stream":"workspace_issues","payload":{
+        "action":"subscribe_to_issue_type_categories_icons_in_workspace",
+        "request_id":442,
+        "issue_pk":61}
+    }
+    """
     permission_classes = (
         IsAuthenticated,
     )
@@ -259,6 +293,24 @@ class WorkspaceIssueTypeCategoriesIconsObserver(AsyncAPIConsumer):
 
 
 class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
+    """
+    This consumer allow us to subscribe to all issues states in given workspace.
+    By checking permission we have to check that person participate in given workspace.
+    Payload example
+    {
+        "action": "subscribe_to_issue_state_categories_in_workspace",
+        "request_id": 4,
+        "workspace_pk": 34
+    }
+    With stream payload should look like this.
+    {
+    "stream":"workspace_issues","payload":{
+            "action":"subscribe_to_issue_state_categories_in_workspace",
+            "request_id":442,
+            "issue_pk":61
+        }
+    }
+    """
     permission_classes = (
         IsAuthenticated,
     )
@@ -311,6 +363,24 @@ class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
 
 
 class WorkspaceIssueEstimationCategoriesObserver(AsyncAPIConsumer):
+    """
+    This consumer allow us to subscribe to all issues states in given workspace.
+    By checking permission we have to check that person participate in given workspace.
+    Payload example
+    {
+        "action": "subscribe_to_issue_estimation_categories_in_workspace",
+        "request_id": 4,
+        "workspace_pk": 34
+    }
+    With stream payload should look like this.
+    {
+    "stream":"workspace_issues","payload":{
+            "action":"subscribe_to_issue_estimation_categories_in_workspace",
+            "request_id":442,
+            "issue_pk":61
+        }
+    }
+    """
     permission_classes = (
         IsAuthenticated,
     )
