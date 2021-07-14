@@ -96,7 +96,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     workspace=instance.workspace,
                     project=instance,
                     prefix='mdi-bag-personal',
-                    color='deep-purple',
+                    color='#b366ff',
                     ordering=3
                 ),
                 # User Story
@@ -104,7 +104,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     workspace=instance.workspace,
                     project=instance,
                     prefix='mdi-bookmark',
-                    color='light-green-8',
+                    color='#8ffc77',
                     ordering=1
                 ),
                 # Task
@@ -112,7 +112,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     workspace=instance.workspace,
                     project=instance,
                     prefix='mdi-file-tree',
-                    color='grey-12',
+                    color='#66b3ff',
                     ordering=2
                 ),
                 # Bug
@@ -120,7 +120,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
                     workspace=instance.workspace,
                     project=instance,
                     prefix='mdi-bug',
-                    color='red-10',
+                    color='#f02222',
                     ordering=0
                 )]
             )
