@@ -326,9 +326,9 @@ class PersonPasswordResetRequestSerializer(serializers.Serializer):
                                    min_length=4)
 
     def create(self, validated_data):
-        email = validated_data.get('email')
+        email: str = validated_data.get('email')
         password_forgot_request = PersonForgotRequest(
-            email=email
+            email=email.lower()
         )
 
         password_forgot_request.save()
