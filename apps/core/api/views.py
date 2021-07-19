@@ -1,5 +1,9 @@
 import json
 
+import socket
+from django.db import connections
+from django.db.utils import OperationalError
+
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,6 +19,47 @@ from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorO
 from .schemas import IssueListUpdateSchema
 from .serializers import *
 from .tasks import send_registration_email, send_invitation_email
+
+
+class CheckConnection(views.APIView):
+    permission_classes = (
+        AllowAny,
+    )
+    throttle_classes = (
+        AnonRateThrottle,
+    )
+
+    def get(self, request, format=None):
+        db_con = connections['default']
+
+        try:
+            _ = db_con.cursor()
+        except OperationalError:
+            db_connected = False
+        else:
+            db_connected = True
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            s.connect(settings.REDIS_CONNECTION)
+            s.shutdown(2)
+        except OSError:
+            redis_connected = False
+        else:
+            redis_connected = True
+
+        ok = all([db_connected, redis_connected])
+
+        http_code = status.HTTP_200_OK if ok else status.HTTP_400_BAD_REQUEST
+
+        return Response({
+            'ok': ok,  # Overall status
+            'details': {
+                'database': db_connected,  # If we are able to connect database
+                'redis': redis_connected,  # If we are able to use channels
+            }
+        }, status=http_code)
 
 
 class TokenObtainPairExtendedView(TokenObtainPairView):
@@ -747,6 +792,28 @@ class UserUpdateView(generics.UpdateAPIView,
         return super().update(request, *args, **kwargs)
 
 
+def validate_ids(data, field='id', unique=True):
+    """
+    By this method we just return uniq list
+    Actually we use it for {issue_id:xxx order: xxx}
+    We don't really know what to do if we got
+    2 different order for the same issue.
+    Of course frontend should prevent it.
+    But i decided not raise an Exception for this case.
+    """
+    if not isinstance(data, list):
+        return [data]
+
+    id_list = [int(x[field]) for x in data if field in x]
+
+    unique_id_list = set(id_list)
+
+    if unique and len(id_list) != len(unique_id_list):
+        return unique_id_list
+
+    return id_list
+
+
 class IssueListUpdateApiView(UpdateAPIView):
     """
     Bulk update issues ordering, doesn't matter is it a Backlog
@@ -774,25 +841,3 @@ class IssueListUpdateApiView(UpdateAPIView):
         self.perform_update(serializer)
 
         return Response(serializer.data)
-
-
-def validate_ids(data, field='id', unique=True):
-    """
-    By this method we just return uniq list
-    Actually we use it for {issue_id:xxx order: xxx}
-    We don't really know what to do if we got
-    2 different order for the same issue.
-    Of course frontend should prevent it.
-    But i decided not raise an Exception for this case.
-    """
-    if not isinstance(data, list):
-        return [data]
-
-    id_list = [int(x[field]) for x in data if field in x]
-
-    unique_id_list = set(id_list)
-
-    if unique and len(id_list) != len(unique_id_list):
-        return unique_id_list
-
-    return id_list

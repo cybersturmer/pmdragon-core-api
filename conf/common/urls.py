@@ -15,7 +15,10 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     PersonAvatarUpload, \
     PersonRegistrationRequestView, \
     PersonInvitationRequestListView, \
-    PersonInvitationRequestRetrieveUpdateView, PersonForgotPasswordRequestConfirmView
+    PersonInvitationRequestRetrieveUpdateView, \
+    PersonForgotPasswordRequestConfirmView, \
+    CheckConnection
+
 from apps.core.api.views import TokenObtainPairExtendedView
 
 API_TITLE = 'PmDragon API'
@@ -45,6 +48,10 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc-ui'),
+
+    path('api/check/',
+         CheckConnection.as_view(),
+         name='check_connection'),
 
     path('api/auth/obtain/',
          TokenObtainPairExtendedView.as_view(),
