@@ -39,9 +39,12 @@ class CheckConnection(views.APIView):
         else:
             db_connected = True
 
-        redis_url: str = settings.REDIS_CONNECTION
+        redis_url = settings.REDIS_CONNECTION
 
         def extract_from_string(data: str):
+            if type(data) is not str:
+                return False
+
             """
             By taken this: redis://:some@some.eu-west-1.compute.amazonaws.com:13299
             We return this: (some.eu-west-1.compute.amazonaws.com, 13299)
@@ -50,7 +53,7 @@ class CheckConnection(views.APIView):
             return host_port_string.split(':')
 
         redis_url_type_decision_tree = {
-            type(redis_url) is tuple: redis_url[0],
+            type(redis_url) is tuple: redis_url,
             type(redis_url) is str: extract_from_string(redis_url)
         }
 
