@@ -49,7 +49,7 @@ class CheckConnection(views.APIView):
             host_port_string = data.split('@')[1]
             return host_port_string.split(':')
 
-        decision_tree = {
+        redis_url_type_decision_tree = {
             type(redis_url) is tuple: redis_url[0],
             type(redis_url) is str: extract_from_string(redis_url)
         }
@@ -57,7 +57,7 @@ class CheckConnection(views.APIView):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
-            s.connect(decision_tree[True])
+            s.connect(redis_url_type_decision_tree[True])
             s.shutdown(2)
         except OSError:
             redis_connected = False
