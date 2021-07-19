@@ -39,10 +39,25 @@ class CheckConnection(views.APIView):
         else:
             db_connected = True
 
+        redis_url: str = settings.REDIS_CONNECTION
+
+        def extract_from_string(data: str):
+            """
+            By taken this: redis://:some@some.eu-west-1.compute.amazonaws.com:13299
+            We return this: (some.eu-west-1.compute.amazonaws.com, 13299)
+            """
+            host_port_string = data.split('@')[1]
+            return host_port_string.split(':')
+
+        decision_tree = {
+            type(redis_url) is tuple: redis_url[0],
+            type(redis_url) is str: extract_from_string(redis_url)
+        }
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
-            s.connect(settings.REDIS_CONNECTION)
+            s.connect(decision_tree[True])
             s.shutdown(2)
         except OSError:
             redis_connected = False
