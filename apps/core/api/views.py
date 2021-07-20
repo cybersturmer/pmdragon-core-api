@@ -1,6 +1,8 @@
 import json
 
 import socket
+
+import celery
 from django.db import connections
 from django.db.utils import OperationalError
 
@@ -15,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from libs.check.health import Health
 from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorOrReadOnly, WorkspaceOwnerOrReadOnly
 from .schemas import IssueListUpdateSchema
 from .serializers import *
@@ -30,54 +33,13 @@ class CheckConnection(views.APIView):
     )
 
     def get(self, request, format=None):
-        db_con = connections['default']
+        health_overall = Health.get_overall_status()
 
-        try:
-            _ = db_con.cursor()
-        except OperationalError:
-            db_connected = False
-        else:
-            db_connected = True
+        http_code = status.HTTP_200_OK \
+            if health_overall['ok'] \
+            else status.HTTP_400_BAD_REQUEST
 
-        redis_url = settings.REDIS_CONNECTION
-
-        def extract_from_string(data: str):
-            if type(data) is not str:
-                return False
-
-            """
-            By taken this: redis://:some@some.eu-west-1.compute.amazonaws.com:13299
-            We return this: (some.eu-west-1.compute.amazonaws.com, 13299)
-            """
-            host_port_string = data.split('@')[1]
-            return host_port_string.split(':')
-
-        redis_url_type_decision_tree = {
-            type(redis_url) is tuple: redis_url,
-            type(redis_url) is str: extract_from_string(redis_url)
-        }
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        try:
-            s.connect(redis_url_type_decision_tree[True])
-            s.shutdown(2)
-        except OSError:
-            redis_connected = False
-        else:
-            redis_connected = True
-
-        ok = all([db_connected, redis_connected])
-
-        http_code = status.HTTP_200_OK if ok else status.HTTP_400_BAD_REQUEST
-
-        return Response({
-            'ok': ok,  # Overall status
-            'details': {
-                'database': db_connected,  # If we are able to connect database
-                'redis': redis_connected,  # If we are able to use channels
-            }
-        }, status=http_code)
+        return Response(health_overall, status=http_code)
 
 
 class TokenObtainPairExtendedView(TokenObtainPairView):
