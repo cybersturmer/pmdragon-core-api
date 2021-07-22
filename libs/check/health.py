@@ -32,7 +32,7 @@ class Health:
         We return this: (some.eu-west-1.compute.amazonaws.com, 13299)
         """
         host_port_string = string.split('@')[1]
-        return host_port_string.split(':')
+        return tuple(host_port_string.split(':'))
 
     @staticmethod
     def check_redis():
