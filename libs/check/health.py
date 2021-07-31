@@ -31,8 +31,11 @@ class Health:
         By taken this: redis://:some@some.eu-west-1.compute.amazonaws.com:13299
         We return this: (some.eu-west-1.compute.amazonaws.com, 13299)
         """
-        host_port_string = string.split('@')[1]
-        return tuple(host_port_string.split(':'))
+        host_port_string: str = string.split('@')[1]
+        host_str, port_str = host_port_string.split(':')
+        port_int = int(port_str)
+
+        return host_str, port_int
 
     @staticmethod
     def check_redis():
