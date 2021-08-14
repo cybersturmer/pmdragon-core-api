@@ -20,6 +20,7 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
     CheckConnection
 
 from apps.core.api.views import TokenObtainPairExtendedView
+from apps.core.views import MainView
 
 API_TITLE = 'PmDragon API'
 API_DESCRIPTION = 'Web API for PmDragon service'
@@ -40,6 +41,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('', MainView.as_view()),
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(), name='login'),
 
