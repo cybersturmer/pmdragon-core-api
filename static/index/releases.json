@@ -1,0 +1,56 @@
+{
+    "releases": {
+        "linux": [
+            {
+                "filename": "pmdragon-client-linux-arm64-1.0.43.zip",
+                "size": "81M",
+                "title": "pmdragon-client-linux-arm64"
+            },
+            {
+                "filename": "pmdragon-client-linux-armv7l-1.0.43.zip",
+                "size": "68M",
+                "title": "pmdragon-client-linux-armv7l"
+            },
+            {
+                "filename": "pmdragon-client-linux-ia32-1.0.43.zip",
+                "size": "77M",
+                "title": "pmdragon-client-linux-ia32"
+            },
+            {
+                "filename": "pmdragon-client-linux-x64-1.0.43.zip",
+                "size": "78M",
+                "title": "pmdragon-client-linux-x64"
+            }
+        ],
+        "macos": [
+            {
+                "filename": "pmdragon-client-darwin-x64-1.0.43.zip",
+                "size": "212M",
+                "title": "pmdragon-client-darwin-x64"
+            },
+            {
+                "filename": "pmdragon-client-mas-x64-1.0.43.zip",
+                "size": "208M",
+                "title": "pmdragon-client-mas-x64"
+            }
+        ],
+        "windows": [
+            {
+                "filename": "pmdragon-client-win32-arm64-1.0.43.zip",
+                "size": "77M",
+                "title": "pmdragon-client-win32-arm64"
+            },
+            {
+                "filename": "pmdragon-client-win32-ia32-1.0.43.zip",
+                "size": "71M",
+                "title": "pmdragon-client-win32-ia32"
+            },
+            {
+                "filename": "pmdragon-client-win32-x64-1.0.43.zip",
+                "size": "74M",
+                "title": "pmdragon-client-win32-x64"
+            }
+        ]
+    },
+    "version": "1.0.43"
+}
