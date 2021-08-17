@@ -47,13 +47,11 @@ const app = Vue.createApp({
         }
     },
     async mounted () {
-        const response = await fetch('/static/index/releases.json', {
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': "text/plain"
-                }
-            })
+        const response = await axios({
+            method: 'get',
+            url: '/static/index/releases.json'
+        })
 
-        console.log(response.json())
+        console.log(response.data)
     }
 })
