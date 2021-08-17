@@ -56,6 +56,13 @@
                     <i class="fas fa-cloud fa-sm"></i> PmDragon API
                 </a>
             </p>
+            <h6>
+                Release v{% templatetag openvariable %} version {% templatetag closevariable %}
+                (<a href="https://sourceforge.net/projects/pmdragon/files/"
+                    class="text-white fw-bold text-decoration-none">
+                    show all
+                </a>)
+            </h6>
             <ul class="nav nav-pills justify-content-center mt-5" id="pills-tab" role="tablist">
               <li v-for="env in envs" class="nav-item" role="presentation">
                 <button :class="`nav-link ${env.alias === defaultEnvAlias ? 'active' : ''}`"
@@ -67,8 +74,8 @@
                         role="tab"
                         :aria-controls="`pills-${env.alias}`"
                         aria-selected="true">
-                        <span><i :class="env.icon"></i></span>
-                        &nbsp;&nbsp;<span v-html="env.title"></span>
+                        <i :class="env.icon"></i>
+                        <span>&nbsp;&nbsp;{% templatetag openvariable %} env.title {% templatetag closevariable %}</span>
                 </button>
               </li>
             </ul>
