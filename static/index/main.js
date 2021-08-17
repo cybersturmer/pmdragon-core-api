@@ -49,7 +49,7 @@ const app = Vue.createApp({
     async mounted () {
         const response = await axios({
             method: 'get',
-            url: '/static/index/releases.json'
+            url: 'https://pmdragon.s3.eu-central-1.amazonaws.com/static/index/releases.json'
         })
 
         console.log(response.data)
