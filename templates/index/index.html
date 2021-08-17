@@ -182,7 +182,63 @@
 
     <!-- Mount application -->
     <script>
-      const mountedApp = app.mount('#app')
+      const app = Vue.createApp({
+        data() {
+        return {
+            releases: {},
+            version: null,
+            defaultEnvAlias: "linux",
+            envs: [
+                {
+                    title: "Linux",
+                    alias: "linux",
+                    icon: "fab fa-linux fa-lg"
+                },
+                {
+                    title: "MacOs",
+                    alias: "macos",
+                    icon: "fab fa-apple fa-lg"
+                },
+                {
+                    title: "Windows",
+                    alias: "windows",
+                    icon: "fab fa-windows fa-lg"
+                }
+            ]
+        }
+        },
+        computed: {
+        linuxReleases () {
+            try {
+                return this.releases.linux
+            } catch (e) {
+                return []
+            }
+        },
+        macosReleases () {
+            try {
+                return this.releases.macos
+            } catch (e) {
+                return []
+            }
+        },
+        windowsReleases () {
+            try {
+                return this.releases.windows
+            } catch (e) {
+                return []
+            }
+        }
+        },
+        async mounted () {
+        const response = await axios({
+            method: 'get',
+            url: "{% static 'index/releases.json' %}"
+        })
+
+        console.log(response.data)
+        }
+    }).mount('#app')
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
     <script defer src="https://pro.fontawesome.com/releases/v5.10.0/js/all.js" integrity="sha384-G/ZR3ntz68JZrH4pfPJyRbjW+c0+ojii5f+GYiYwldYU69A+Ejat6yIfLSxljXxD" crossorigin="anonymous"></script>
