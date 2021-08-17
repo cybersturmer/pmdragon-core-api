@@ -1,8 +1,6 @@
 const app = Vue.createApp({
     data() {
         return {
-            releases: {},
-            version: null,
             defaultEnvAlias: "linux",
             envs: [
                 {
@@ -24,34 +22,11 @@ const app = Vue.createApp({
         }
     },
     computed: {
-        linuxReleases () {
-            try {
-                return this.releases.linux
-            } catch (e) {
-                return []
-            }
+        releases () {
+            return $releases
         },
-        macosReleases () {
-            try {
-                return this.releases.macos
-            } catch (e) {
-                return []
-            }
-        },
-        windowsReleases () {
-            try {
-                return this.releases.windows
-            } catch (e) {
-                return []
-            }
+        version () {
+            return $version
         }
-    },
-    async mounted () {
-        const response = await axios({
-            method: 'get',
-            url: 'https://pmdragon.s3.eu-central-1.amazonaws.com/static/index/releases.json'
-        })
-
-        console.log(response.data)
     }
 })

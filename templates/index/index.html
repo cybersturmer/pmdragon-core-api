@@ -80,84 +80,20 @@
                    :id="`pills-${env.alias}`"
                    role="tabpanel"
                    :aria-labelledby="`pills-${env.alias}-tab`">
-                   <table class="table table-bordered text-white">
+                   <table class="table table-bordered table-striped table-dark">
                      <tbody>
-                       <tr>
-                         <td>
-                           <a href="#pmdragon-client-darwin-x64">
-
+                       <tr v-for="release in releases[env.alias]">
+                         <td class="col-10">
+                           <a :href="`https://sourceforge.net/projects/pmdragon/files/${version}/${release.filename}/download`"
+                              target="_blank"
+                              class="fw-bold text-white text-decoration-none">
+                               {% templatetag openvariable %} release.title {% templatetag closevariable %}
                            </a>
                           </td>
-                         <td></td>
-                         <td></td>
+                         <td class="col-2">{% templatetag openvariable %} release.size {% templatetag closevariable %}</td>
                        </tr>
                      </tbody>
                    </table>
-              </div>
-              <div class="tab-pane fade show active px-md-5"
-                   id="pills-linux"
-                   role="tabpanel"
-                   aria-labelledby="pills-linux-tab">
-                  <table class="table table-bordered text-white">
-                      <tbody>
-                        <tr style="display: none">
-                          <td>
-                              <a href="#" class="fw-bold text-white">
-                                Download  x86
-                              </a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                              <a href="https://master.dl.sourceforge.net/project/pmdragon/pmdragon-client-linux-x64.zip?viasf=1"
-                                 class="fw-bold text-white">
-                                  Download x64
-                              </a>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-              </div>
-              <!-- MacOs block -->
-              <div class="tab-pane fade px-md-5"
-                   id="pills-macos"
-                   role="tabpanel"
-                   aria-labelledby="pills-macos-tab">
-                  <table class="table table-bordered text-white">
-                      <tbody>
-                        <tr>
-                          <td>
-                              <a href="https://master.dl.sourceforge.net/project/pmdragon/pmdragon-client-darwin-x64.zip?viasf=1"
-                                 class="fw-bold text-white">
-                                Download x64
-                              </a>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-              </div>
-              <div class="tab-pane fade px-5"
-                   id="pills-windows"
-                   role="tabpanel"
-                   aria-labelledby="pills-windows-tab">
-                    <table class="table table-bordered text-white">
-                      <tbody>
-                        <tr>
-                          <td>
-                              <a href="#" class="fw-bold text-white">
-                                Download  x86
-                              </a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                              <a href="#" class="fw-bold text-white">
-                                  Download x64
-                              </a>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
               </div>
             </div>
         </main>
@@ -177,65 +113,17 @@
         </footer>
       </div>
     </div>
+    <!-- Import application -->
+    <script src="{% static 'index/main.js' %}"></script>
+
     <!-- Mount application -->
     <script>
-      const app = Vue.createApp({
-        data() {
-        return {
-            releases: {},
-            version: null,
-            defaultEnvAlias: "linux",
-            envs: [
-                {
-                    title: "Linux",
-                    alias: "linux",
-                    icon: "fab fa-linux fa-lg"
-                },
-                {
-                    title: "MacOs",
-                    alias: "macos",
-                    icon: "fab fa-apple fa-lg"
-                },
-                {
-                    title: "Windows",
-                    alias: "windows",
-                    icon: "fab fa-windows fa-lg"
-                }
-            ]
-        }
-        },
-        computed: {
-        linuxReleases () {
-            try {
-                return this.releases.linux
-            } catch (e) {
-                return []
-            }
-        },
-        macosReleases () {
-            try {
-                return this.releases.macos
-            } catch (e) {
-                return []
-            }
-        },
-        windowsReleases () {
-            try {
-                return this.releases.windows
-            } catch (e) {
-                return []
-            }
-        }
-        },
-        async mounted () {
-        const response = await axios({
-            method: 'get',
-            url: "{% static 'index/releases.json' %}"
-        })
+      const $releases = {{ releases|safe }}
+      const $version = "{{ version }}"
+      const mountedApp = app.mount('#app')
+    </script>
+    <script>
 
-        console.log(response.data)
-        }
-    }).mount('#app')
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
     <script defer src="https://pro.fontawesome.com/releases/v5.10.0/js/all.js" integrity="sha384-G/ZR3ntz68JZrH4pfPJyRbjW+c0+ojii5f+GYiYwldYU69A+Ejat6yIfLSxljXxD" crossorigin="anonymous"></script>
