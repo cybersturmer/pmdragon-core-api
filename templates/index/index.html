@@ -47,8 +47,8 @@
             </div>
         </header>
         <main class="px-3">
-            <div class="mt-1 justify-content-center">
-                <img src="{% static 'index/logo_dark.svg' %}" height="150" width="150">
+            <div class="justify-content-center">
+                <img src="{% static 'index/logo_dark.svg' %}" height="120" width="120">
             </div>
             <h1 class="py-2">Project management tool</h1>
             <p class="lead">Cross-platform client for
@@ -111,11 +111,19 @@
                     Vladimir Shturmer
                 </a>
             </p>
-            <a href='https://play.google.com/store/apps/details?id=com.cybersturmer.pmdragon.pmdragonce&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
-                <img alt='Get it on Google Play'
-                     src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'
-                     height='65'/>
-            </a>
+            <div style="height: 65px" class="overflow-hidden">
+                <a href='https://play.google.com/store/apps/details?id=com.cybersturmer.pmdragon.pmdragonce&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'
+                >
+                    <img alt='Get it on Google Play'
+                         src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'
+                         height='65'/>
+                </a>
+                <a href="https://github.com/cybersturmer/pmdragon-client"
+                   target="_blank"
+                   class="align-items-center fw-bold text-white text-decoration-none">
+                    <i class="fab fa-github fa-lg"></i> GitHub
+                </a>
+            </div>
         </footer>
       </div>
     </div>
