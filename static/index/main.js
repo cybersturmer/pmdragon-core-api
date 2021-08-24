@@ -27,6 +27,9 @@ const app = Vue.createApp({
         },
         version () {
             return $version
+        },
+        timestamp () {
+            return $timestamp
         }
     }
 })

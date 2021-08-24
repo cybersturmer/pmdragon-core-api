@@ -58,6 +58,7 @@
             </p>
             <h6>
                 Release v{% templatetag openvariable %} version {% templatetag closevariable %}
+                {% templatetag openvariable %} timestamp {% templatetag closevariable %}
                 (<a href="https://sourceforge.net/projects/pmdragon/files/"
                     class="text-white fw-bold text-decoration-none">
                     show all
@@ -134,6 +135,7 @@
     <script>
       const $releases = {{ releases|safe }}
       const $version = "{{ version }}"
+      const $timestamp = "{{ timestamp }}"
       const mountedApp = app.mount('#app')
     </script>
     <script>

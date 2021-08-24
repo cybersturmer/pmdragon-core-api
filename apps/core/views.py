@@ -13,5 +13,6 @@ class MainView(TemplateView):
 
             context['version'] = data["version"]
             context['releases'] = json.dumps(data["releases"])
+            context['timestamp'] = data['timestamp']
 
             return context
