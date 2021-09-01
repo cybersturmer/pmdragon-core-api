@@ -29,4 +29,7 @@ urlpatterns += [path('issue/ordering/',
                      name='issue-ordering'),
                 path('person-invitation-requests/',
                      views.PersonInvitationRequestListCreateView.as_view(),
-                     name='person-invitation-requests-list-create')]
+                     name='person-invitation-requests-list-create'),
+                path('issue-messages-packed/<int:issue_id>/',
+                     views.IssueMessagesPackedView.as_view(),
+                     name='issue-messages-packed')]

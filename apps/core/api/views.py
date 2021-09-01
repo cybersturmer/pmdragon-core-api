@@ -530,6 +530,70 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
     filterset_fields = ['issue']
 
 
+def format_message(message: IssueMessage, is_mine: bool, is_label: bool):
+    return {
+        "label": message.created_at.strftime('%B %-d') if is_label else False,
+        "key": message.id,
+        "createdBy": PersonSerializer(data=message.created_by).data,
+        "sent": is_mine,
+        "text": [
+            message.description
+        ],
+        "date": message.created_at,
+        "list": [
+            message
+        ]
+    }
+
+
+class IssueMessagesPackedView(GenericAPIView):
+    permission_classes = (
+        AllowAny,
+    )
+
+    @staticmethod
+    def get(request, issue_id):
+        """
+        We need packed messages to group messaged
+        for the same author and same date
+        It's look much much better
+        """
+        messages = IssueMessage \
+            .objects \
+            .filter(issue_id=issue_id) \
+            .all()
+
+        not_normalized_message_pack = []
+        for index, message in enumerate(messages):
+            same_author_as_last: bool = index != 0 and message.created_by == messages[index - 1].created_by
+            same_date_as_last: bool = index != 0 and message.created_at.date() == messages[index - 1].created_at.date()
+
+            """
+            We can aggregate messages that was created 
+            at the same day and by the same person
+            """
+            if same_author_as_last and same_date_as_last:
+                not_normalized_message_pack[-1].append(message)
+            else:
+                not_normalized_message_pack.append([message])
+
+        normalized_message_pack = []
+        for pack_slice in not_normalized_message_pack:
+            first_message: IssueMessage = pack_slice[0]
+            normalized_message_pack.append({
+                "label": first_message.created_at.strftime('%B %-d'),
+                "key": first_message.id,
+                "createdBy": PersonSerializer(instance=first_message.created_by).data,
+                "sent": first_message.created_by.user == request.user,
+                "text": [message.description for message in pack_slice],
+                "date": first_message.created_at,
+                "list": IssueMessageSerializer(pack_slice, many=True).data
+            })
+
+        return Response(data=normalized_message_pack,
+                        status=status.HTTP_200_OK)
+
+
 class IssueAttachmentViewSet(WorkspacesReadOnlyModelViewSet,
                              mixins.CreateModelMixin,
                              mixins.UpdateModelMixin,
