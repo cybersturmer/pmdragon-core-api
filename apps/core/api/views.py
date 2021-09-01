@@ -585,7 +585,6 @@ class IssueMessagesPackedView(GenericAPIView):
                 "key": first_message.id,
                 "createdBy": PersonSerializer(instance=first_message.created_by).data,
                 "sent": first_message.created_by.user == request.user,
-                "text": [message.description for message in pack_slice],
                 "date": first_message.created_at,
                 "list": IssueMessageSerializer(pack_slice, many=True).data
             })
