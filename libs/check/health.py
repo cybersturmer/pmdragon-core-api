@@ -2,17 +2,15 @@ from django.db import connections
 from django.db.utils import OperationalError
 from django.conf import settings
 
-import celery
-import celery.bin.base
-import celery.bin.celery
-import celery.platforms
-
 import socket
 
 
 class Health:
     @staticmethod
     def check_database():
+        """
+        Check if connection to database is correct by getting cursor
+        """
         connection = connections['default']
 
         try:

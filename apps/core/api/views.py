@@ -1,11 +1,5 @@
 import json
 
-import socket
-
-import celery
-from django.db import connections
-from django.db.utils import OperationalError
-
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -25,6 +19,10 @@ from .tasks import send_registration_email, send_invitation_email
 
 
 class CheckConnection(views.APIView):
+    """
+    This View is just for check if connection is correct
+    Look at libs/check/health.py for detailed information.
+    """
     permission_classes = (
         AllowAny,
     )
@@ -125,6 +123,10 @@ class PersonForgotPasswordRequestConfirmView(mixins.RetrieveModelMixin,
     )
 
     def get_serializer_class(self):
+        """
+        We have to use 2 different serializer for POST and PATCH
+        So that we can use 2 different inputs model.
+        """
         method = self.request.method
         serializers_tree = {
             'POST': PersonPasswordResetRequestSerializer,
@@ -140,6 +142,10 @@ class PersonForgotPasswordRequestConfirmView(mixins.RetrieveModelMixin,
 
 
 class PersonInvitationRequestListView(generics.ListAPIView):
+    """
+    Invited person is already exists in PmDragon but should accept invitation
+    to be participant in workspace.
+    """
     queryset = PersonInvitationRequest.valid.all()
     serializer_class = PersonInvitationRequestSerializer
     permission_classes = (
@@ -213,17 +219,6 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
 
         return Response(data=invitations_response,
                         status=status.HTTP_201_CREATED)
-
-
-class PersonInvitationRequestViewSet(viewsets.GenericViewSet,
-                                     mixins.RetrieveModelMixin,
-                                     mixins.CreateModelMixin):
-    queryset = PersonInvitationRequest.valid.all()
-    permission_classes = (
-        AllowAny,
-    )
-    serializer_class = PersonInvitationRequestSerializer
-    lookup_field = 'key'
 
 
 class PersonInvitationRequestAcceptView(viewsets.GenericViewSet,
