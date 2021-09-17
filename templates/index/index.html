@@ -4,16 +4,27 @@
     <meta charset="utf-8">
     <meta name="robots" content="index, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-          content="An open-source project management tool to track tasks, epics, bugs,
+    <meta name="description" content="An open-source project management tool to track tasks, epics, bugs,
           and manage it with agile boards and sprints.">
     <meta name="author" content="Vladimir Shturmer">
     <title>PmDragon - An open-source project management tool, adjusted to SCRUM</title>
     <script src="https://unpkg.com/vue@next"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+          crossorigin="anonymous">
     <link rel=icon type=image/png sizes=32x32 href="{% static 'icons/favicon-32x32.png' %}">
     <link rel=icon type=image/png sizes=16x16 href="{% static 'icons/favicon-16x16.png' %}">
     <link rel=mask-icon href="{% static 'icons/safari-pinned-tab.svg' %}" color=#5bbad5>
+    <!-- Og block -->
+    <meta property="og:title" content="Free Open Source Tool to make SCRUM" />
+    <meta property="og:site_name" content="PmDragon" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pmdragon.org/" />
+    <!-- <meta property="og:image" content="images/tbd.png" /> -->
+    <meta property="og:description" content="An open-source project management tool to track tasks, epics, bugs,
+    and manage it with agile boards and sprints." />
+    <meta name="yandex-verification" content="444cc1554eb201b0" />
     <meta name=msapplication-TileColor content=#da532c>
     <meta name=theme-color content=#393939>
     <link rel=icon type=image/ico href={% static 'icons/favicon.ico' %}>
@@ -55,8 +66,11 @@
             </div>
             <h1 class="py-2">Project management tool</h1>
             <p class="lead">Cross-platform client for
-                <a href="https://github.com/cybersturmer/pmdragon-core-api" target="_blank" class="text-white fw-bold text-decoration-none">
-                    <i class="fas fa-cloud fa-sm"></i> PmDragon API
+                <a href="https://github.com/cybersturmer/pmdragon-core-api"
+                   target="_blank"
+                   class="text-white fw-bold text-decoration-none">
+                    <i class="fas fa-cloud fa-sm"></i>
+                  PmDragon API
                 </a>
             </p>
             <h6>
