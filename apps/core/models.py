@@ -936,6 +936,9 @@ class IssueHistory(models.Model):
 		verbose_name = _('Issue History')
 		verbose_name_plural = _('Issue History')
 
+	def __str__(self):
+		return f'#{self.issue.id} ({self.issue.title}) - {self.edited_field} changed [ {self.updated_at:%B %d %Y} ]'
+
 
 class IssueMessage(ProjectWorkspaceAbstractModel):
 	"""
