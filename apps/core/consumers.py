@@ -364,7 +364,7 @@ class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
 
 class WorkspaceIssueEstimationCategoriesObserver(AsyncAPIConsumer):
     """
-    This consumer allow us to subscribe to all issues states in given workspace.
+    This consumer allow us to subscribe to all issues estimations in given workspace.
     By checking permission we have to check that person participate in given workspace.
     Payload example
     {
