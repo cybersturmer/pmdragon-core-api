@@ -110,9 +110,6 @@
                    :aria-labelledby="`pills-${env.alias}-tab`">
 				  <!-- using <table> for layout purpose is a bad practice, however. -->
                    <table class="table table-bordered table-striped table-dark" role="presentation">
-					   <caption>
-						   Releases for {% templatetag openvariable %} env.title {% templatetag closevariable %}
-					   </caption>
                      <tbody>
                        <tr v-for="release in releases[env.alias]">
                          <td class="col-10">
