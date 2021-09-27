@@ -1,5 +1,7 @@
+import json
+import urllib.request
+
 from django.views.generic import TemplateView
-import urllib.request, json
 
 
 class MainView(TemplateView):
