@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <title>{% block title %}{{ title }}{% endblock %}</title>
@@ -8,7 +8,6 @@
     {% block extra_head %}
         {# -- Add any extra HTML heads tags here - except scripts and styles -- #}
     {% endblock %}
-
     {% block favicon %}
         {# -- Maybe replace the favicon -- #}
         <link rel="icon" type="image/png" href="{% static 'drf-yasg/swagger-ui-dist/favicon-32x32.png' %}"/>
