@@ -7,7 +7,7 @@ class MainView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        with urllib.request.urlopen('https://master.dl.sourceforge.net/project/pmdragon/releases.json?viasf=1') as url:
+        with urllib.request.urlopen('https://phoenixnap.dl.sourceforge.net/project/pmdragon/releases.json') as url:
             # @todo Not the best option - better do it on client.
             data = json.loads(url.read().decode())
 
