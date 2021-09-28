@@ -8,7 +8,9 @@
           and manage it with agile boards and sprints.">
     <meta name="author" content="Vladimir Shturmer">
     <title>PmDragon - An open-source project management tool, adjusted to SCRUM</title>
-    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/vue@3.2.19/dist/vue.global.prod.js"
+			integrity="sha384-2zQZn2TaATqdlwt6sb4i/nzOnojeEMf8BlvbOWT7fCTLVQfkxaIbAJmBc3YYC6Gf"
+			crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
           rel="stylesheet"
           integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
@@ -81,6 +83,7 @@
                 Release v{% templatetag openvariable %} version {% templatetag closevariable %}
                 {% templatetag openvariable %} timestamp {% templatetag closevariable %}
                 (<a href="https://sourceforge.net/projects/pmdragon/files/"
+					rel="noopener"
                     class="text-white fw-bold text-decoration-none">
                     show all
                 </a>)
@@ -109,20 +112,21 @@
                    role="tabpanel"
                    :aria-labelledby="`pills-${env.alias}-tab`">
 				  <!-- using <table> for layout purpose is a bad practice, however. -->
-                   <table class="table table-bordered table-striped table-dark" role="presentation">
-                     <tbody>
-                       <tr v-for="release in releases[env.alias]">
-                         <td class="col-10">
-                           <a :href="`https://sourceforge.net/projects/pmdragon/files/${version}/${release.filename}/download`"
-                              target="_blank"
-                              class="fw-bold text-white text-decoration-none">
+				  <div class="container">
+					  <div v-for="release in releases[env.alias]" class="row">
+						  <div class="col col-10 p-1 border border-1">
+							  <a :href="`https://sourceforge.net/projects/pmdragon/files/${version}/${release.filename}/download`"
+								 target="_blank"
+								 rel="noopener"
+								 class="fw-bold text-white text-decoration-none">
                                {% templatetag openvariable %} release.title {% templatetag closevariable %}
-                           </a>
-                          </td>
-                         <td class="col-2">{% templatetag openvariable %} release.size {% templatetag closevariable %}</td>
-                       </tr>
-                     </tbody>
-                   </table>
+							  </a>
+						  </div>
+						  <div class="col col-2 p-1 border border-1">
+							  {% templatetag openvariable %} release.size {% templatetag closevariable %}
+						  </div>
+					  </div>
+				  </div>
               </div>
             </div>
         </main>
@@ -130,19 +134,20 @@
         <footer class="mt-auto text-white-50">
             <p>PmDragon is an MIT-licensed open source project.</p>
             <p>Copyright ©2020-present
-                <a href="https://t.me/cybersturmer" class="text-white fw-bold">
+                <a href="https://t.me/cybersturmer" rel="noopener" class="text-white fw-bold">
                     Vladimir Shturmer
                 </a>
             </p>
             <div style="height: 65px" class="overflow-hidden">
                 <a href='https://play.google.com/store/apps/details?id=com.cybersturmer.pmdragon.pmdragonce&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'
-                >
+				   rel="noopener">
                     <img alt='Get it on Google Play'
                          src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'
                          height='65'/>
                 </a>
                 <a href="https://github.com/cybersturmer/pmdragon-client"
                    target="_blank"
+				   rel="noopener"
                    class="align-items-center fw-bold text-white text-decoration-none">
                     <em class="fab fa-github fa-lg"></em> GitHub
                 </a>
@@ -159,9 +164,6 @@
       const $version = "{{ version }}"
       const $timestamp = "{{ timestamp }}"
       const mountedApp = app.mount('#app')
-    </script>
-    <script>
-
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
     <script defer src="https://pro.fontawesome.com/releases/v5.10.0/js/all.js" integrity="sha384-G/ZR3ntz68JZrH4pfPJyRbjW+c0+ojii5f+GYiYwldYU69A+Ejat6yIfLSxljXxD" crossorigin="anonymous"></script>
