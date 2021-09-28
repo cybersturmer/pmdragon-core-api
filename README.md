@@ -1,3 +1,4 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cybersturmer_pmdragon-core-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=cybersturmer_pmdragon-core-api)
 # PmDragon API
 Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
 Django Rest Framework based API as a server side of PmDragon Community  software.
