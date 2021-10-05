@@ -368,7 +368,7 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
         is_invited = validated_data.get('is_invited')
 
         """
-        If person was invited than we have to search him in PersonInvitationRequests 
+        If person was invited than we have to search him in PersonInvitationRequests
         else we will try to find him in PersonRegistrationRequests """
         if is_invited:
             request_with_key = PersonInvitationRequest.valid.filter(key=key)
@@ -414,7 +414,7 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
             workspace = request.workspace
         else:
             """
-            If user is self registered with prefix_url for workspace then 
+            If user is self registered with prefix_url for workspace then
             we have to create workspace for him. """
             request: PersonRegistrationRequest
             workspace = Workspace(prefix_url=request.prefix_url,
@@ -886,14 +886,14 @@ class SprintWritableSerializer(WorkspaceModelSerializer):
         return super().update(instance, validated_data)
 
 
-class SprintEstimationSerializer(serializers.ModelSerializer):
+class SprintEffortsHistorySerializer(serializers.ModelSerializer):
     """
     Sprint Estimation Serializer to get data and build a Chart
     (BurnDown Chart for example)
     """
 
     class Meta:
-        model = SprintEstimation
+        model = SprintEffortsHistory
         fields = (
             'point_at',
             'total_value',

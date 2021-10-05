@@ -5,13 +5,14 @@ from enum import Enum
 from typing import Union
 
 import bleach
+import pytz
 from PIL import Image
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F
+from django.db.models import Max, F, ExpressionWrapper, fields
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import re
@@ -75,7 +76,6 @@ def get_mentioned_user_ids(data: str) -> list:
 
 
 def order_and_save_issues(issues):
-
 	_issues = []
 	for _index, _issue in enumerate(issues):
 		_issue.ordering = _index
@@ -1094,6 +1094,14 @@ class Sprint(ProjectWorkspaceAbstractModel):
 									   blank=True,
 									   null=True)
 
+	@property
+	def duration(self):
+		return self.finished_at - self.started_at
+
+	@property
+	def days(self):
+		return self.duration.days
+
 	class Meta:
 		db_table = 'core_sprint'
 		unique_together = [
@@ -1116,21 +1124,25 @@ class Sprint(ProjectWorkspaceAbstractModel):
 		We have to order all issues that were passed
 		to Sprint in correct order
 		"""
+
 		if self.pk is not None:
-			order_and_save_issues(self.issues.all())
+			issues = self.issues.all()
+			order_and_save_issues(issues)
 
 		super().save(*args, **kwargs)
 
 	def clean(self):
-		all_issues_count = self.issues.count()
-		other_project_issues_count = self.issues.exclude(
-			workspace=self.workspace,
-			project=self.project
-		)
+		other_project_issues_count = self \
+			.issues \
+			.exclude(
+				workspace=self.workspace,
+				project=self.project
+			) \
+			.count()
 
 		"""
 				If all issues amount is not 0 we have to check if other projects issues is equal to 0 """
-		if not (all_issues_count != 0 and other_project_issues_count == 0):
+		if other_project_issues_count > 0:
 			raise ValidationError(_('Issues must be assigned to the same Project and Workspace as Sprint'))
 
 		try:
@@ -1157,7 +1169,8 @@ class Sprint(ProjectWorkspaceAbstractModel):
 				started_sprints_amount = Sprint.objects \
 					.filter(workspace=self.workspace,
 							project=self.project,
-							is_started=True) \
+							is_started=True,
+							is_completed=False) \
 					.exclude(pk=self.pk) \
 					.count()
 
@@ -1184,7 +1197,103 @@ class Sprint(ProjectWorkspaceAbstractModel):
 		super().delete(using, keep_parents)
 
 
-class SprintEstimation(ProjectWorkspaceAbstractModel):
+class ProjectNonWorkingDay(ProjectWorkspaceAbstractModel):
+	date = models.DateField(verbose_name=_('Date'))
+
+	class Meta:
+		db_table = 'core_project_non_working_day'
+		ordering = (
+			'-date',
+		)
+		verbose_name = 'Project Non-Working Day'
+		verbose_name_plural = 'Project Non-Working Days'
+
+	def __str__(self):
+		return str(self.date)
+
+	__repr__ = __str__
+
+
+class ProjectWorkingDays(ProjectWorkspaceAbstractModel):
+	"""
+	Standard working days for project.
+	We use it to calculate estimated efforts on Sprint BurnDown Chart
+	"""
+	IS_A_WORKING_DAY = _('Is a working day')
+
+	timezone_choices = [
+		(timezone_choice, timezone_choice)
+		for timezone_choice
+		in pytz.all_timezones
+	]
+
+	timezone = models.CharField(verbose_name=_('Timezone'),
+								max_length=255,
+								choices=timezone_choices)
+
+	monday = models.BooleanField(verbose_name=_('Monday'),
+								 help_text=IS_A_WORKING_DAY,
+								 default=True)
+
+	tuesday = models.BooleanField(verbose_name=_('Tuesday'),
+								  help_text=IS_A_WORKING_DAY,
+								  default=True)
+
+	wednesday = models.BooleanField(verbose_name=_('Wednesday'),
+									help_text=IS_A_WORKING_DAY,
+									default=True)
+
+	thursday = models.BooleanField(verbose_name=_('Thursday'),
+								   help_text=IS_A_WORKING_DAY,
+								   default=True)
+
+	friday = models.BooleanField(verbose_name=_('Friday'),
+								 help_text=IS_A_WORKING_DAY,
+								 default=True)
+
+	saturday = models.BooleanField(verbose_name=_('Saturday'),
+								   help_text=IS_A_WORKING_DAY,
+								   default=False)
+
+	sunday = models.BooleanField(verbose_name=_('Sunday'),
+								 help_text=IS_A_WORKING_DAY,
+								 default=False)
+
+	non_working_days = models.ManyToManyField(ProjectNonWorkingDay,
+											  verbose_name=_('Non-working days'),
+											  blank=True)
+
+	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+									  auto_now=True)
+
+	class Meta:
+		db_table = 'core_project_working_day'
+		ordering = (
+			'-updated_at',
+		)
+		verbose_name = 'Project Working Days'
+		verbose_name_plural = 'Project Working Days'
+
+	def __str__(self):
+		working_days = (
+			self.monday,
+			self.tuesday,
+			self.wednesday,
+			self.thursday,
+			self.friday,
+			self.saturday,
+			self.sunday
+		)
+
+		working_days_strings = ["Y" if working_day else "N" for working_day in working_days]
+		working_days_representation = '|'.join(working_days_strings)
+
+		return f'#{self.project.title} - {working_days_representation} + {self.non_working_days.count()} days'
+
+	__repr__ = __str__
+
+
+class SprintEffortsHistory(ProjectWorkspaceAbstractModel):
 	"""
 		Sprint Estimation is small history of estimation for Sprint.
 		The last action in a Sprint such as completion of issue
@@ -1195,7 +1304,7 @@ class SprintEstimation(ProjectWorkspaceAbstractModel):
 							   verbose_name=_('Sprint'),
 							   db_index=True,
 							   on_delete=models.CASCADE,
-							   related_name='estimation_history')
+							   related_name='actual_efforts_history')
 
 	point_at = models.DateTimeField(verbose_name=_('Point at'),
 									help_text=_('We need this point for manual sorting'),
@@ -1216,34 +1325,16 @@ class SprintEstimation(ProjectWorkspaceAbstractModel):
 		return self.total_value - self.done_value
 
 	class Meta:
-		db_table = 'core_sprint_estimation'
+		db_table = 'core_sprint_efforts_history'
 		ordering = (
 			'-point_at',
 			'-updated_at',
 			'-created_at'
 		)
-		verbose_name = 'Sprint Estimation'
-		verbose_name_plural = 'Sprint Estimations'
+		verbose_name = 'Sprint Efforts History'
+		verbose_name_plural = 'Sprints Efforts History'
 
 	def __str__(self):
 		return f'#{self.id} {self.sprint.title} - {self.done_value} done of {self.total_value} - {self.point_at}'
 
 	__repr__ = __str__
-
-	def calculate_estimations(self):
-		estimations = self.sprint.issues \
-			.values_list(
-			'estimation_category__value',
-			'state_category__is_done'
-		)
-
-		cleaned_estimations = filter(lambda estimation: estimation[0] is not None, estimations)
-
-		self.total_value = sum([estimation[0]
-								for estimation
-								in cleaned_estimations])
-
-		self.done_value = sum([estimation[0]
-							   for estimation
-							   in cleaned_estimations
-							   if estimation[1]])

@@ -89,7 +89,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -152,7 +152,7 @@ BLEACH_ALLOWED_TAGS = [
     'ul'
 ]
 
-""" 
+"""
 We really need:
  1) data-mentioned-user-id (Mentioned snippet for issue messages)
  2) @todo Block preview attachment in issue message
