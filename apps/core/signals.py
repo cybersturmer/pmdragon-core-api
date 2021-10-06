@@ -73,6 +73,36 @@ def create_backlog_for_project(instance: Project, created: bool, **kwargs):
 
 
 @receiver(post_save, sender=Project)
+def create_project_working_days_settings(instance: Project, created: bool, **kwargs):
+	"""
+	We have to create ProjectWorkingDays for just created Project.
+	So that we will be able to create Sprint and calculate BurnDown Chart entries
+	"""
+	if not created:
+		return True
+
+	"""
+	By default we use 5 working days week and UTC timezone
+	Right now timezone does not affect interface and API
+	Cuz USE_TZ=False """
+	# @todo i have to implement timezone switcher for projects
+	ProjectWorkingDays\
+		.objects\
+		.create(
+			workspace=instance.workspace,
+			project=instance,
+			timezone='UTC',
+			monday=True,
+			tuesday=True,
+			wednesday=True,
+			thursday=True,
+			friday=True,
+			saturday=False,
+			sunday=False
+		)
+
+
+@receiver(post_save, sender=Project)
 def create_default_issue_type_category_for_project(instance: Project, created: bool, **kwargs):
 	"""
 	Every project should contain defaults Issue Types
@@ -262,10 +292,10 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	default_issue_state = IssueStateCategory \
 		.objects \
 		.filter(
-			workspace=instance.workspace,
-			project=instance.project,
-			is_default=True
-		) \
+		workspace=instance.workspace,
+		project=instance.project,
+		is_default=True
+	) \
 		.get()
 
 	"""
