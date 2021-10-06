@@ -19,7 +19,7 @@ router.register('issue-messages', views.IssueMessagesViewSet, basename='issue-me
 router.register('issue-attachments', views.IssueAttachmentViewSet, basename='issue-attachments')
 router.register('backlogs', views.ProjectBacklogViewSet, basename='backlogs')
 router.register('sprints', views.SprintViewSet, basename='sprints')
-router.register('sprint-actual-efforts-history', views.SprintEffortsHistoryViewSet, basename='sprint-estimations')
+router.register('sprint-efforts-history', views.SprintEffortsHistoryViewSet, basename='sprint-estimations')
 router.register('sprint-durations', views.SprintDurationViewSet, basename='sprint-durations')
 
 urlpatterns = router.urls
