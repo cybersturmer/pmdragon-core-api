@@ -52,19 +52,24 @@ def put_created_issue_to_backlog(instance: Issue, created: bool, **kwargs):
 		backlog.issues.add(instance)
 
 
+"""
+PROJECT SIGNALS
+"""
+
+
 @receiver(post_save, sender=Project)
 def create_backlog_for_project(instance: Project, created: bool, **kwargs):
 	"""
 	Every project should contain only one Backlog.
 	So we provide it.
 	"""
-	project_backlog = ProjectBacklog.objects.filter(workspace=instance.workspace,
-													project=instance)
+	if not created:
+		return True
 
-	if created and not project_backlog.exists():
-		backlog = ProjectBacklog(workspace=instance.workspace,
-								 project=instance)
-		backlog.save()
+	ProjectBacklog \
+		.objects \
+		.create(workspace=instance.workspace,
+				project=instance)
 
 
 @receiver(post_save, sender=Project)
@@ -290,14 +295,14 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	SprintEffortsHistory \
 		.objects \
 		.create(
-			sprint=instance,
-			workspace=instance.workspace,
-			project=instance.project,
-			point_at=instance.started_at,
-			total_value=sprint_analyser.calculate_total_story_points(),
-			done_value=sprint_analyser.calculate_completed_story_points()
-			# We can set 0 here, but let's calculate it so far
-		)
+		sprint=instance,
+		workspace=instance.workspace,
+		project=instance.project,
+		point_at=instance.started_at,
+		total_value=sprint_analyser.calculate_total_story_points(),
+		done_value=sprint_analyser.calculate_completed_story_points()
+		# We can set 0 here, but let's calculate it so far
+	)
 
 
 @receiver(m2m_changed, sender=Sprint.issues.through)
@@ -406,13 +411,13 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 	"""
 	Analysing sprint to get total story points """
 	sprint_analyser = SprintAnalyser(sprint.get(), project_standard_working_days)
-	last_history_entry = SprintEffortsHistory\
+	last_history_entry = SprintEffortsHistory \
 		.objects \
 		.filter(
-			workspace=instance.workspace,
-			project=instance.project,
-			sprint=sprint.get()
-		) \
+		workspace=instance.workspace,
+		project=instance.project,
+		sprint=sprint.get()
+	) \
 		.order_by('-point_at') \
 		.first()
 
@@ -424,12 +429,12 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 		return True
 
 	sprint_history = SprintEffortsHistory(
-			workspace=instance.workspace,
-			project=instance.project,
-			sprint=sprint.get(),
-			total_value=total_sp,
-			done_value=completed_sp
-		)
+		workspace=instance.workspace,
+		project=instance.project,
+		sprint=sprint.get(),
+		total_value=total_sp,
+		done_value=completed_sp
+	)
 
 	sprint_history.save()
 

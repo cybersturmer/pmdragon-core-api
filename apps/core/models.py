@@ -1031,7 +1031,9 @@ class ProjectBacklog(ProjectWorkspaceAbstractModel):
 		We have to order all issues that were passed
 		to Backlog in correct order
 		"""
-		order_and_save_issues(self.issues.all())
+		if self.pk is not None:
+			order_and_save_issues(self.issues.all())
+
 		super().save(*args, **kwargs)
 
 
