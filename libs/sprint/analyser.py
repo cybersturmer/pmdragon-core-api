@@ -174,7 +174,10 @@ class SprintAnalyser:
 
 		working_marked_day_series_length = len(working_marked_day_series)
 
-		normal_story_points_distribution = total_story_points / (working_marked_day_series_length - 1)
+		# @todo Please check if that approach works for theoretical and crazy 1 day long Sprint.
+		normal_story_points_distribution = total_story_points / (working_marked_day_series_length - 1) \
+			if working_marked_day_series_length \
+			else total_story_points
 
 		_estimation = total_story_points
 		for index, element in enumerate(marked_day_series):
