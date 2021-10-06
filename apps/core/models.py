@@ -1306,7 +1306,7 @@ class SprintEffortsHistory(ProjectWorkspaceAbstractModel):
 							   verbose_name=_('Sprint'),
 							   db_index=True,
 							   on_delete=models.CASCADE,
-							   related_name='actual_efforts_history')
+							   related_name='efforts_history')
 
 	point_at = models.DateTimeField(verbose_name=_('Point at'),
 									help_text=_('We need this point for manual sorting'),
@@ -1329,9 +1329,9 @@ class SprintEffortsHistory(ProjectWorkspaceAbstractModel):
 	class Meta:
 		db_table = 'core_sprint_efforts_history'
 		ordering = (
-			'-point_at',
-			'-updated_at',
-			'-created_at'
+			'point_at',
+			'updated_at',
+			'created_at'
 		)
 		verbose_name = 'Sprint Efforts History'
 		verbose_name_plural = 'Sprints Efforts History'
