@@ -261,9 +261,15 @@ class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
 	)
 
 	def get_queryset(self):
-		workspaces = Workspace.objects \
-			.filter(participants__in=[self.request.user.person]) \
-			.all()
+		queryset: Person.objects = super().get_queryset()
+
+		try:
+			workspaces = Workspace\
+				.objects \
+				.filter(participants__in=[self.request.user.person]) \
+				.all()
+		except Person.DoesNotExist:
+			workspaces = queryset.none()
 
 		collaborators = []
 		for workspace in workspaces:
@@ -271,8 +277,6 @@ class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
 				collaborators.append(participant.id)
 
 		collaborators_set = set(collaborators)
-
-		queryset: Person.objects = super().get_queryset()
 
 		return queryset.filter(id__in=collaborators_set).all()
 
@@ -293,9 +297,11 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
 	def get_queryset(self):
 		queryset = super().get_queryset()
-		return queryset.filter(
-			participants__in=[self.request.user.person]
-		).all()
+		try:
+			person = self.request.user.person
+			queryset.filter(participants__in=[person])
+		except Person.DoesNotExist:
+			return queryset.none()
 
 	def get_serializer_class(self):
 		if self.action == 'list':
@@ -308,9 +314,12 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 		Put to serializer context information about current person
 		"""
 		context = super().get_serializer_context()
-		context.update({
-			'person': self.request.user.person
-		})
+		try:
+			context.update({
+				'person': self.request.user.person
+			})
+		except Person.DoesNotExist:
+			pass
 
 		return context
 
@@ -351,9 +360,11 @@ class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
 
 	def get_queryset(self):
 		queryset = super().get_queryset()
-		return queryset.filter(
-			participants__in=[self.request.user.person]
-		).all()
+		try:
+			person = self.request.user.person
+			return queryset.filter(participants__in=[person])
+		except Person.DoesNotExist:
+			return queryset.none()
 
 
 class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -370,10 +381,11 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 		Getting all instances, that belong to this workspace.
 		"""
 		queryset = super().get_queryset()
-		queryset = queryset. \
-			filter(workspace__participants__in=[self.request.user.person])
-
-		return queryset
+		try:
+			person = self.request.user.person
+			return queryset.filter(participants__in=[person])
+		except Person.DoesNotExist:
+			return queryset.none()
 
 	def get_serializer_context(self):
 		"""
@@ -381,10 +393,13 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 		"""
 		context = super().get_serializer_context()
 		context['person'] = None
-		if not isinstance(self.request.user, AnonymousUser):
+		try:
+			person = self.request.user.person
 			context.update({
-				'person': self.request.user.person
+				'person': person
 			})
+		except Person.DoesNotExist:
+			pass
 
 		return context
 
@@ -503,9 +518,13 @@ class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 		Put to serializer context information about current person
 		"""
 		context = super().get_serializer_context()
-		context.update({
-			'person': self.request.user.person
-		})
+
+		try:
+			context.update({
+				'person': self.request.user.person
+			})
+		except Person.DoesNotExist:
+			pass
 
 		return context
 
@@ -690,6 +709,19 @@ class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,
 	permission_classes = (
 		IsAuthenticated,
 		IsParticipateInWorkspace,
+	)
+
+
+class ProjectWorkingDaysViewSet(WorkspacesReadOnlyModelViewSet,
+										mixins.UpdateModelMixin):
+	"""
+	View, editing instance (Not removing)
+	"""
+	queryset = ProjectWorkingDays.objects.all()
+	serializer_class = ProjectWorkingDaysSerializer
+	permission_classes = (
+		IsAuthenticated,
+		IsParticipateInWorkspace
 	)
 
 

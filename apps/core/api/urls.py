@@ -21,6 +21,7 @@ router.register('backlogs', views.ProjectBacklogViewSet, basename='backlogs')
 router.register('sprints', views.SprintViewSet, basename='sprints')
 router.register('sprint-efforts-history', views.SprintEffortsHistoryViewSet, basename='sprint-estimations')
 router.register('sprint-durations', views.SprintDurationViewSet, basename='sprint-durations')
+router.register('working-days', views.ProjectWorkingDaysViewSet, basename='working-days')
 
 urlpatterns = router.urls
 urlpatterns += [path('issue/ordering/',
