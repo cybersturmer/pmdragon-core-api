@@ -299,7 +299,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 		queryset = super().get_queryset()
 		try:
 			person = self.request.user.person
-			queryset.filter(participants__in=[person])
+			return queryset.filter(participants__in=[person])
 		except Person.DoesNotExist:
 			return queryset.none()
 
@@ -362,7 +362,7 @@ class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
 		queryset = super().get_queryset()
 		try:
 			person = self.request.user.person
-			return queryset.filter(participants__in=[person])
+			return queryset.filter(participants__in=[person]).all()
 		except Person.DoesNotExist:
 			return queryset.none()
 
@@ -383,7 +383,7 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 		queryset = super().get_queryset()
 		try:
 			person = self.request.user.person
-			return queryset.filter(participants__in=[person])
+			return queryset.filter(workspace__participants__in=[person]).all()
 		except Person.DoesNotExist:
 			return queryset.none()
 
