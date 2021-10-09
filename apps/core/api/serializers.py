@@ -846,10 +846,22 @@ class BacklogWritableSerializer(WorkspaceModelSerializer):
 		return super().update(instance, validated_data)
 
 
+class NonWorkingDaysSerializer(WorkspaceModelSerializer):
+	class Meta:
+		model = ProjectNonWorkingDay
+		fields = (
+			'id',
+			'date'
+		)
+
+
 class ProjectWorkingDaysSerializer(WorkspaceModelSerializer):
+	non_working_days = NonWorkingDaysSerializer(many=True)
+
 	class Meta:
 		model = ProjectWorkingDays
 		fields = (
+			'id',
 			'workspace',
 			'project',
 			'timezone',
