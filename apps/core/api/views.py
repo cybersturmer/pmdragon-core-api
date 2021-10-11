@@ -250,7 +250,7 @@ class PersonRegistrationRequestVerifyView(generics.CreateAPIView,
 	)
 
 
-class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
+class PersonsViewSet(viewsets.ReadOnlyModelViewSet):
 	"""
 	Getting all persons in available workspaces
 	"""
@@ -271,6 +271,7 @@ class CollaboratorsViewSet(viewsets.ReadOnlyModelViewSet):
 		except Person.DoesNotExist:
 			workspaces = queryset.none()
 
+		# @todo Make it much simplier via db
 		collaborators = []
 		for workspace in workspaces:
 			for participant in workspace.participants.all():
