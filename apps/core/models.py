@@ -1207,6 +1207,10 @@ class ProjectNonWorkingDay(ProjectWorkspaceAbstractModel):
 		ordering = (
 			'-date',
 		)
+		unique_together = (
+			'project',
+			'date'
+		)
 		verbose_name = 'Project Non-Working Day'
 		verbose_name_plural = 'Project Non-Working Days'
 
