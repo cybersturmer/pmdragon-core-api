@@ -22,6 +22,7 @@ router.register('sprints', views.SprintViewSet, basename='sprints')
 router.register('sprint-efforts-history', views.SprintEffortsHistoryViewSet, basename='sprint-estimations')
 router.register('sprint-durations', views.SprintDurationViewSet, basename='sprint-durations')
 router.register('working-days', views.ProjectWorkingDaysViewSet, basename='working-days')
+router.register('non-working-days', views.ProjectNonWorkingDayViewSet, basename='non-working-days')
 
 urlpatterns = router.urls
 urlpatterns += [path('issue/ordering/',
