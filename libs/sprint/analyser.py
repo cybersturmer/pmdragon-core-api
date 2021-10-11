@@ -136,10 +136,14 @@ class SprintAnalyser:
 			6: self.working_days.sunday
 		}
 
-		is_not_in_non_working_day = day not in self.working_days.non_working_days.all()
+		is_non_working_day = self.working_days\
+			.non_working_days\
+			.filter(date__exact=day)\
+			.exists()
+
 		is_standard_working_day = weekday_decision_tree[day.weekday()]
 
-		return is_standard_working_day and is_not_in_non_working_day
+		return is_standard_working_day and not is_non_working_day
 
 	def calculate_marked_is_working_series(self) -> tuple:
 		"""
