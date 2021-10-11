@@ -718,16 +718,11 @@ class ProjectWorkingDaysViewSet(WorkspacesReadOnlyModelViewSet,
 	View, editing instance (Not removing)
 	"""
 	queryset = ProjectWorkingDays.objects.all()
+	serializer_class = ProjectWorkingDaysSerializer
 	permission_classes = (
 		IsAuthenticated,
 		IsParticipateInWorkspace
 	)
-
-	def get_serializer_class(self):
-		if self.action == 'list':
-			return ProjectWorkingDaysDetailedSerializer
-		else:
-			return ProjectWorkingDaysSerializer
 
 
 class ProjectNonWorkingDayViewSet(WorkspacesModelViewSet):

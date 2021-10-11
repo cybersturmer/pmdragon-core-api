@@ -857,26 +857,6 @@ class NonWorkingDaysSerializer(WorkspaceModelSerializer):
 		)
 
 
-class ProjectWorkingDaysDetailedSerializer(WorkspaceModelSerializer):
-	class Meta:
-		model = ProjectWorkingDays
-		fields = (
-			'id',
-			'workspace',
-			'project',
-			'timezone',
-			'monday',
-			'tuesday',
-			'wednesday',
-			'thursday',
-			'friday',
-			'saturday',
-			'sunday',
-			'non_working_days',
-			'updated_at'
-		)
-
-
 class ProjectWorkingDaysSerializer(WorkspaceModelSerializer):
 	class Meta:
 		model = ProjectWorkingDays
