@@ -604,7 +604,10 @@ class IssueMessagesPackedView(GenericAPIView):
 					context={'request': request}).data,
 				"sent": first_message.created_by.user == request.user,
 				"date": first_message.created_at,
-				"list": IssueMessageSerializer(pack_slice, many=True).data
+				"list": IssueMessageSerializer(
+					instance=pack_slice,
+					many=True,
+					context={'request': request}).data
 			})
 
 		return Response(data=normalized_message_pack,
