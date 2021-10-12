@@ -226,6 +226,8 @@ class PersonInvitationRequestAcceptView(viewsets.GenericViewSet,
 										mixins.UpdateModelMixin):
 	"""
 	Accept collaboration request for already registered persons.
+	We use key as a uniq identifier
+	When user accept it - we update field is_accepted from False -> True
 	"""
 	queryset = PersonInvitationRequest.valid.all()
 	serializer_class = PersonInvitationRequestSerializer
@@ -351,6 +353,10 @@ class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
 	"""
 	Get all workspaces current Person participate in
 	We need it on frontend to understand list of workspaces to switch between
+	If person does not participate in Workspace -> he / her has no access
+	to Workspace related data.
+	On the other hand - if person participate in Workspace - he / her has full access
+	to all Workspace related data.
 	"""
 	permission_classes = (
 		IsAuthenticated,
@@ -372,6 +378,8 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 	"""
 	Extendable class to have read only ViewSet of any instance, that have
 	workspace isolation.
+	We can use it without mixins as Read Only view
+	Or can use Mixins to add Update | Remove options.
 	"""
 	permission_classes = (
 		IsAuthenticated,
@@ -563,6 +571,18 @@ def format_message(message: IssueMessage, is_mine: bool, is_label: bool):
 
 
 class IssueMessagesPackedView(GenericAPIView):
+	"""
+	Actually we already have a message view.
+	But on frontend we have to group close by time
+	and author messages.
+	I think it's much more easier to get already packed
+	messages from backend.
+	Of course we can pack it on frontend, but it can lead us to
+	performance related issues on client side.
+
+	When we add one more message or remove one from the group -
+	we do it on frontend based on message creation response body + post 201.
+	"""
 	permission_classes = (
 		AllowAny,
 	)
@@ -709,6 +729,9 @@ class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,
 							mixins.UpdateModelMixin):
 	"""
 	View for getting, editing, instance.
+	Project Backlog view allow us to read issues list
+	or change it if we moving issues between sprint Backlog and
+	Project Backlog.
 	"""
 	queryset = ProjectBacklog.objects.all()
 	serializer_class = BacklogWritableSerializer
@@ -721,7 +744,9 @@ class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,
 class ProjectWorkingDaysViewSet(WorkspacesReadOnlyModelViewSet,
 										mixins.UpdateModelMixin):
 	"""
-	View, editing instance (Not removing)
+	We use Working Days to build a guideline for Sprint BurnDown Chart.
+	ProjectWorkingDays contain:
+	weekday + non-working days
 	"""
 	queryset = ProjectWorkingDays.objects.all()
 	serializer_class = ProjectWorkingDaysSerializer
@@ -732,6 +757,12 @@ class ProjectWorkingDaysViewSet(WorkspacesReadOnlyModelViewSet,
 
 
 class ProjectNonWorkingDayViewSet(WorkspacesModelViewSet):
+	"""
+	Non-working days are always linked to
+	ProjectWorkingDays.
+	At this stage we use non-working days to calculate
+	guideline for sprint completion.
+	"""
 	queryset = ProjectNonWorkingDay.objects.all()
 	serializer_class = NonWorkingDaysSerializer
 	permission_classes = (
@@ -743,6 +774,9 @@ class ProjectNonWorkingDayViewSet(WorkspacesModelViewSet):
 class SprintDurationViewSet(WorkspacesModelViewSet):
 	"""
 	View for getting, editing, deleting instance.
+	We do not use it at this stage.
+	It can be useful to prefill Sprint Finished at
+	based on Sprint started at.
 	"""
 	queryset = SprintDuration.objects.all()
 	serializer_class = SprintDurationSerializer
