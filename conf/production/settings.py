@@ -32,3 +32,12 @@ CORS_ALLOWED_ORIGINS = [
 	'https://pmdragon.org',
 	'https://pmdragon-client.herokuapp.com'
 ]
+
+CORS_ALLOW_METHODS = [
+	'DELETE',
+	'GET',
+	'OPTIONS',
+	'PATCH',
+	'POST',
+	'PUT'
+]

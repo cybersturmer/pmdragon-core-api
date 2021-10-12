@@ -81,3 +81,12 @@ CORS_ALLOWED_ORIGINS = [
 	'http://localhost:8080',
 	'https://localhost:8080'
 ]
+
+CORS_ALLOW_METHODS = [
+	'DELETE',
+	'GET',
+	'OPTIONS',
+	'PATCH',
+	'POST',
+	'PUT'
+]
