@@ -11,7 +11,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_CONNECTION_TIMEOUT = 10
 
 """
-Custom EMAIL Settings 
+Custom EMAIL Settings
 FRONTEND_HOSTNAME just for email replacing """
 
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
@@ -26,3 +26,9 @@ EMAIL_USE_SSL = True
 EMAIL_PORT = 465
 
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
+
+
+CORS_ALLOWED_ORIGINS = [
+	'https://pmdragon.org',
+	'https://pmdragon-client.herokuapp.com'
+]

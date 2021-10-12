@@ -119,16 +119,12 @@ SIMPLE_JWT = {
 	'BLACKLIST_AFTER_ROTATION': True,
 	'ALGORITHM': 'HS256',
 	"SIGNING_KEY": SECRET_KEY,
-	'ISSUER': 'PmDragon CE API',
+	'ISSUER': 'PmDragon API',
 }
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
-
-"""
-Django rest framework cors headers """
-CORS_ORIGIN_ALLOW_ALL = True
 
 """
 Bleach allowed """

@@ -42,7 +42,7 @@ DJANGO_CHANNELS_REST_API = {
 }
 
 """
-Custom EMAIL Settings 
+Custom EMAIL Settings
 FRONTEND_HOSTNAME just for email replacing """
 EMAIL_FROM_BY_DEFAULT = os.getenv('EMAIL_USER')
 FRONTEND_HOSTNAME = 'localhost'
@@ -74,3 +74,10 @@ LOGGING = {
         'django': {'handlers': ['console'], 'level': 'INFO'}
     }
 }
+
+CORS_ALLOWED_ORIGINS = [
+	'http://localhost:8000',
+	'https://localhost:8000',
+	'http://localhost:8080',
+	'https://localhost:8080'
+]
