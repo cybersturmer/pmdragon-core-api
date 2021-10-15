@@ -1,14 +1,12 @@
 import os
 
 from django.utils.translation import ugettext_lazy as _
-from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 DEBUG = False
 
 ALLOWED_HOSTS = []
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 INSTALLED_APPS = [
 	'django.contrib.admin',
@@ -39,8 +37,7 @@ MIDDLEWARE = [
 TEMPLATES = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [os.path.join(BASE_DIR, 'templates')]
-		,
+		'DIRS': [os.path.join(BASE_DIR, 'templates')],
 		'APP_DIRS': True,
 		'OPTIONS': {
 			'context_processors': [
@@ -110,16 +107,6 @@ REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'rest_framework_simplejwt.authentication.JWTAuthentication',
 	)
-}
-
-SIMPLE_JWT = {
-	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-	'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-	'ROTATE_REFRESH_TOKENS': True,
-	'BLACKLIST_AFTER_ROTATION': True,
-	'ALGORITHM': 'HS256',
-	"SIGNING_KEY": SECRET_KEY,
-	'ISSUER': 'PmDragon API',
 }
 
 LOGIN_REDIRECT_URL = 'dashboard'
