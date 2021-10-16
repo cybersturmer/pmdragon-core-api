@@ -177,7 +177,7 @@ def create_default_issue_type_category_for_project(instance: Project, created: b
 							  project=instance,
 							  title=_('Bug'),
 							  icon=icons[3],
-							  is_subtask=False,
+							  is_subtask=True,
 							  is_default=False,
 							  ordering=3)
 		])
@@ -194,37 +194,28 @@ def create_default_issue_state_category_for_project(instance: Project, created: 
 													 project=instance)
 
 	if created and not issue_states.exists():
-		todo = IssueStateCategory(workspace=instance.workspace,
-								  project=instance,
-								  title=_('Todo'),
-								  is_default=True,
-								  is_done=False)
-
-		todo.save()
-
-		in_progress = IssueStateCategory(workspace=instance.workspace,
-										 project=instance,
-										 title=_('In Progress'),
-										 is_default=False,
-										 is_done=False)
-
-		in_progress.save()
-
-		verify = IssueStateCategory(workspace=instance.workspace,
-									project=instance,
-									title=_('Verify'),
-									is_default=False,
-									is_done=False)
-
-		verify.save()
-
-		done = IssueStateCategory(workspace=instance.workspace,
-								  project=instance,
-								  title=_('Done'),
-								  is_default=False,
-								  is_done=True)
-
-		done.save()
+		IssueStateCategory.objects.bulk_create([
+			IssueStateCategory(workspace=instance.workspace,
+							   project=instance,
+							   title=_('Todo'),
+							   is_default=True,
+							   is_done=False),
+			IssueStateCategory(workspace=instance.workspace,
+							   project=instance,
+							   title=_('In Progress'),
+							   is_default=False,
+							   is_done=False),
+			IssueStateCategory(workspace=instance.workspace,
+							   project=instance,
+							   title=_('Verify'),
+							   is_default=False,
+							   is_done=False),
+			IssueStateCategory(workspace=instance.workspace,
+							   project=instance,
+							   title=_('Done'),
+							   is_default=False,
+							   is_done=True)
+		])
 
 
 @receiver(post_save, sender=Project)
@@ -233,41 +224,34 @@ def create_default_issue_estimation_for_project(instance: Project, created: bool
 															   project=instance)
 
 	if created and not issue_estimations.exists():
-		xs = IssueEstimationCategory(workspace=instance.workspace,
-									 project=instance,
-									 title=_('XS'),
-									 value=1)
-		xs.save()
-
-		sm = IssueEstimationCategory(workspace=instance.workspace,
-									 project=instance,
-									 title=_('SM'),
-									 value=2)
-		sm.save()
-
-		m = IssueEstimationCategory(workspace=instance.workspace,
-									project=instance,
-									title=_('M'),
-									value=3)
-		m.save()
-
-		l_ = IssueEstimationCategory(workspace=instance.workspace,
-									 project=instance,
-									 title=_('L'),
-									 value=5)
-		l_.save()
-
-		xl = IssueEstimationCategory(workspace=instance.workspace,
-									 project=instance,
-									 title=_('XL'),
-									 value=8)
-		xl.save()
-
-		xxl = IssueEstimationCategory(workspace=instance.workspace,
-									  project=instance,
-									  title=_('XXL'),
-									  value=13)
-		xxl.save()
+		IssueEstimationCategory\
+			.objects\
+			.bulk_create([
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('XS'),
+										value=1),
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('SM'),
+										value=2),
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('M'),
+										value=3),
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('L'),
+										value=5),
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('XL'),
+										value=8),
+				IssueEstimationCategory(workspace=instance.workspace,
+										project=instance,
+										title=_('XXL'),
+										value=13)
+			])
 
 
 @receiver(pre_save, sender=Sprint)
