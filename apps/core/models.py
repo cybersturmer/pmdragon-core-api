@@ -212,6 +212,10 @@ class Workspace(models.Model):
 
 	__repr__ = __str__
 
+	def save(self, *args, **kwargs):
+		self.prefix_url = self.prefix_url.upper()
+		super().save(*args, **kwargs)
+
 
 class Project(models.Model):
 	"""
@@ -253,6 +257,12 @@ class Project(models.Model):
 		return f'[ {self.workspace.prefix_url} - {self.title} ]'
 
 	__repr__ = __str__
+
+	def save(self, *args, **kwargs):
+		self.title = self.title.upper()
+		self.key = self.key.upper()
+
+		super().save(*args, **kwargs)
 
 
 class ProjectWorkspaceAbstractModel(models.Model):

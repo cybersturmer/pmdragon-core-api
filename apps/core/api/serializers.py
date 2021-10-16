@@ -505,7 +505,7 @@ class WorkspaceWritableSerializer(serializers.ModelSerializer):
 		person = self.context.get('person')
 
 		workspace = Workspace(
-			prefix_url=prefix_url.upper(),
+			prefix_url=prefix_url,
 			owned_by=person
 		)
 
@@ -593,8 +593,8 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
 		project = Project(
 			workspace=workspace,
-			title=title.upper(),
-			key=key.upper(),
+			title=title,
+			key=key,
 			owned_by=self.context.get('person')
 		)
 
@@ -612,14 +612,6 @@ class ProjectSerializer(WorkspaceModelSerializer):
 			raise ValidationError(_('You can change owner only to participant of current project'))
 
 		return attrs
-
-	@classmethod
-	def validate_title(cls, attrs: str):
-		return attrs.upper()
-
-	@classmethod
-	def validate_key(cls, attrs: str):
-		return attrs.upper()
 
 
 class IssueTypeIconSerializer(serializers.ModelSerializer):
