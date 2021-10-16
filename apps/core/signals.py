@@ -276,10 +276,10 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	default_issue_state = IssueStateCategory \
 		.objects \
 		.filter(
-		workspace=instance.workspace,
-		project=instance.project,
-		is_default=True
-	) \
+			workspace=instance.workspace,
+			project=instance.project,
+			is_default=True
+		) \
 		.get()
 
 	"""
@@ -309,14 +309,14 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	SprintEffortsHistory \
 		.objects \
 		.create(
-		sprint=instance,
-		workspace=instance.workspace,
-		project=instance.project,
-		point_at=instance.started_at,
-		total_value=sprint_analyser.calculate_total_story_points(),
-		done_value=sprint_analyser.calculate_completed_story_points()
-		# We can set 0 here, but let's calculate it so far
-	)
+			sprint=instance,
+			workspace=instance.workspace,
+			project=instance.project,
+			point_at=instance.started_at,
+			total_value=sprint_analyser.calculate_total_story_points(),
+			done_value=sprint_analyser.calculate_completed_story_points()
+			# We can set 0 here, but let's calculate it so far
+		)
 
 
 @receiver(m2m_changed, sender=Sprint.issues.through)
@@ -428,10 +428,10 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 	last_history_entry = SprintEffortsHistory \
 		.objects \
 		.filter(
-		workspace=instance.workspace,
-		project=instance.project,
-		sprint=sprint.get()
-	) \
+			workspace=instance.workspace,
+			project=instance.project,
+			sprint=sprint.get()
+		) \
 		.order_by('-point_at') \
 		.first()
 
