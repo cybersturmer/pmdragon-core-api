@@ -5,7 +5,8 @@ from django.test import TestCase
 
 from libs.cryptography import hashing
 from .models import Person, Workspace, Project, PersonForgotRequest, PersonRegistrationRequest, PersonInvitationRequest, \
-	IssueTypeCategoryIcon, IssueTypeCategory, IssueStateCategory, IssueEstimationCategory, Issue, ProjectBacklog
+	IssueTypeCategoryIcon, IssueTypeCategory, IssueStateCategory, IssueEstimationCategory, Issue, ProjectBacklog, \
+	IssueHistory, IssueMessage, Sprint, ProjectNonWorkingDay, ProjectWorkingDays, SprintEffortsHistory
 
 SAMPLE_CORRECT_USERNAME = 'cybersturmer'
 SAMPLE_CORRECT_FIRST_NAME = 'Vladimir'
@@ -24,6 +25,12 @@ SAMPLE_CORRECT_ISSUE_TYPE_CATEGORY_TITLE = 'User Story'
 
 SAMPLE_CORRECT_ISSUE_TITLE = 'As a user i want to create new issue'
 SAMPLE_CORRECT_ISSUE_DESCRIPTION = 'This description is really good'
+
+SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION = 'Hello, how are you?'
+
+SAMPLE_CORRECT_SPRINT_TITLE = 'Crucial Sprint N15'
+SAMPLE_CORRECT_SPRINT_GOAL = 'Do extremely important things.'
+
 
 
 class BaseModelTesting(TestCase):
@@ -602,12 +609,273 @@ class IssueModelTesting(IssueBasedModelTesting):
 			0
 		)
 
+
+class IssueHistoryModelTesting(IssueBasedModelTesting):
+	def setUp(self):
+		super().setUp()
+
+		self.issue_history = IssueHistory \
+			.objects \
+			.filter(
+				issue=self.issue,
+				entry_type__contains='playlist-plus'
+			) \
+			.first()
+
+	def test_issue(self):
+		self.assertEqual(
+			self.issue_history.issue,
+			self.issue
+		)
+
+	def test_entry_type(self):
+		self.assertTrue(isinstance(self.issue_history, IssueHistory))
+
+	def test_edited_field(self):
+		self.assertIsNone(self.issue_history.edited_field)
+
+	def test_before_value(self):
+		self.assertIsNone(self.issue_history.before_value)
+
+	def test_after_value(self):
+		self.assertIsNone(self.issue_history.after_value)
+
+
+class IssueMessageModelTesting(IssueBasedModelTesting):
+	def setUp(self):
+		super().setUp()
+
+		self.issue_message = IssueMessage\
+			.objects\
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				issue=self.issue,
+				created_by=self.person,
+				description=SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION
+			)
+
+	def test_issue(self):
+		self.assertEqual(
+			self.issue_message.issue,
+			self.issue
+		)
+
+	def test_description(self):
+		self.assertEqual(
+			self.issue_message.description,
+			SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION
+		)
+
+	def test_created_at(self):
+		self.assertTrue(
+			datetime.datetime.now() - self.issue_message.created_at <= datetime.timedelta(hours=1)
+		)
+
+	def test_updated_at(self):
+		self.assertTrue(
+			self.issue_message.updated_at.date() == datetime.date.today()
+		)
+
+
+class ProjectBacklogModelTesting(IssueBasedModelTesting):
+	def setUp(self):
+		super().setUp()
+
+		self.project_backlog = ProjectBacklog \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project
+			) \
+			.get()
+
+	def test_issues_list_is_manageable(self):
+		# Test that created issue was automatically assigned to ProjectBacklog.
+		self.assertEqual(self.project_backlog.issues.count(), 1)
+
+		self.project_backlog \
+			.issues \
+			.add(self.issue)
+
+		self.assertEqual(self.project_backlog.issues.count(), 1)
+		self.assertEqual(self.project_backlog.issues.first(), self.issue)
+
+		self.project_backlog.issues.remove(self.issue)
+
+		self.assertEqual(self.project_backlog.issues.count(), 0)
+
+
+class SprintBasedModelTesting(BaseModelTesting):
+	def setUp(self):
+		super().setUp()
+
+		self.sprint = Sprint \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=SAMPLE_CORRECT_SPRINT_TITLE,
+				goal=SAMPLE_CORRECT_SPRINT_GOAL
+			)
+
+
+class SprintModelTesting(SprintBasedModelTesting):
+	def test_title(self):
+		self.assertEqual(
+			self.sprint.title, SAMPLE_CORRECT_SPRINT_TITLE
+		)
+
+	def test_goal(self):
+		self.assertEqual(
+			self.sprint.goal, SAMPLE_CORRECT_SPRINT_GOAL
+		)
+
+	def test_issues(self):
+		self.assertEqual(
+			self.sprint.issues.count(), 0
+		)
+
+	def test_is_started(self):
+		self.assertFalse(self.sprint.is_started)
+
+	def test_is_completed(self):
+		self.assertFalse(self.sprint.is_completed)
+
+	def test_started_at(self):
+		self.assertIsNone(self.sprint.started_at)
+
+	def test_finished_at(self):
+		self.assertIsNone(self.sprint.finished_at)
+
+
+class ProjectNonWorkingDayModelTesting(BaseModelTesting):
+	def setUp(self):
+		super().setUp()
+		self.project_non_working_day = ProjectNonWorkingDay \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				date=datetime.date.today()
+			)
+
+	def test_workspace(self):
+		self.assertEqual(
+			self.project_non_working_day.workspace,
+			self.workspace
+		)
+
+	def test_project(self):
+		self.assertEqual(
+			self.project_non_working_day.project,
+			self.project
+		)
+
+	def test_date(self):
+		self.assertEqual(
+			self.project_non_working_day.date,
+			datetime.date.today()
+		)
+
+
+class ProjectWorkingDaysModelTesting(BaseModelTesting):
+	def setUp(self):
+		super().setUp()
+		self.project_working_days = ProjectWorkingDays \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project
+			) \
+			.get()
+
+	def test_timezone(self):
+		self.assertEqual(
+			self.project_working_days.timezone,
+			'UTC'
+		)
+
+	def test_monday(self):
+		self.assertTrue(self.project_working_days.monday)
+
+	def test_tuesday(self):
+		self.assertTrue(self.project_working_days.tuesday)
+
+	def test_wednesday(self):
+		self.assertTrue(self.project_working_days.wednesday)
+
+	def test_thursday(self):
+		self.assertTrue(self.project_working_days.thursday)
+
+	def test_friday(self):
+		self.assertTrue(self.project_working_days.friday)
+
+	def test_saturday(self):
+		self.assertFalse(self.project_working_days.saturday)
+
+	def test_sunday(self):
+		self.assertFalse(self.project_working_days.sunday)
+
+	def test_non_working_days_are_manageable(self):
+		self.assertEqual(self.project_working_days.non_working_days.count(), 0)
+
+	def test_updated_at(self):
+		self.assertTrue(
+			datetime.datetime.now() - self.project_working_days.updated_at <= datetime.timedelta(hours=1)
+		)
+
+
+class SprintEffortsHistoryModelTesting(SprintBasedModelTesting):
+	def setUp(self):
+		super().setUp()
+
+		self.sprint_efforts_history = SprintEffortsHistory \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				sprint=self.sprint,
+				total_value=0,
+				done_value=0
+			)
+
+	def test_sprint(self):
+		self.assertEqual(
+			self.sprint,
+			self.sprint_efforts_history.sprint
+		)
+
+	def test_point_at(self):
+		self.assertTrue(
+			datetime.datetime.now() - self.sprint_efforts_history.point_at <= datetime.timedelta(hours=1)
+		)
+
+	def test_created_at(self):
+		self.assertTrue(
+			datetime.datetime.now() - self.sprint_efforts_history.created_at <= datetime.timedelta(hours=1)
+		)
+
+	def test_updated_at(self):
+		self.assertTrue(
+			datetime.datetime.now() - self.sprint_efforts_history.updated_at <= datetime.timedelta(hours=1)
+		)
+
+	def test_total_value(self):
+		self.assertEqual(
+			self.sprint_efforts_history.total_value, 0
+		)
+
+	def test_done_value(self):
+		self.assertEqual(
+			self.sprint_efforts_history.done_value, 0
+		)
+
+	def test_estimated_value(self):
+		self.assertEqual(
+			self.sprint_efforts_history.total_value - self.sprint_efforts_history.done_value,
+			self.sprint_efforts_history.estimated_value
+		)
+
 # IssueAttachment
-# IssueHistory
-# IssueMessage
-# ProjectBacklog
 # SprintDuration
-# Sprint
-# ProjectNonWorkingDay
-# ProjectWorkingDays
-# SprintEffortsHistory
