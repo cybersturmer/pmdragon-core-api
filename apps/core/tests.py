@@ -32,7 +32,6 @@ SAMPLE_CORRECT_SPRINT_TITLE = 'Crucial Sprint N15'
 SAMPLE_CORRECT_SPRINT_GOAL = 'Do extremely important things.'
 
 
-
 class BaseModelTesting(TestCase):
 	def setUp(self):
 		self.user = User.objects.create_user(
