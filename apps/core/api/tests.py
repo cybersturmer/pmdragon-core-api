@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from apps.core.models import Person, PersonRegistrationRequest
+from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest
 
 SAMPLE_CORRECT_USER_USERNAME = 'test'
 
@@ -57,27 +57,19 @@ class PersonRegistrationRequestTest(APITestCase):
 		)
 
 	def test_can_get_created(self):
-		url = reverse('request-register_create')
-		data = {
-			'email': SAMPLE_CORRECT_USER_EMAIL,
-			'prefix_url': SAMPLE_CORRECT_PREFIX_URL
-		}
+		registration_request = PersonRegistrationRequest \
+			.objects \
+			.create(
+				email=SAMPLE_CORRECT_USER_EMAIL,
+				prefix_url=SAMPLE_CORRECT_PREFIX_URL
+			)
 
-		response = self.client.post(url, data, format='json', follow=True)
-		self.assertEqual(
-			response.status_code,
-			201
+		get_registration_request_url = reverse(
+			'request-register_retrieve',
+			args=[registration_request.key]
 		)
 
-		registration_request = PersonRegistrationRequest \
-			.valid \
-			.filter(email=SAMPLE_CORRECT_USER_EMAIL,
-					prefix_url=SAMPLE_CORRECT_PREFIX_URL) \
-			.first()
-
-		get_registration_request_url = reverse('request-register_retrieve', args=[registration_request.key])
-
-		response = self.client.get(get_registration_request_url, follow=True)
+		response = self.client.get(get_registration_request_url, format='json', follow=True)
 		json_response = json.loads(response.content)
 
 		self.assertEqual(
@@ -86,6 +78,55 @@ class PersonRegistrationRequestTest(APITestCase):
 
 		self.assertIn('email', json_response)
 		self.assertIn('prefix_url', json_response)
+
+
+class PersonForgotRequestTest(APITestCase):
+	def test_can_create(self):
+		url = reverse('request-forgot_create')
+		data = {
+			'email': SAMPLE_CORRECT_USER_EMAIL
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(
+			response.status_code,
+			201
+		)
+
+		json_response = json.loads(response.content)
+		self.assertIn('email', json_response)
+
+	def test_can_retrieve(self):
+		request_model_data = PersonForgotRequest \
+			.objects \
+			.create(email=SAMPLE_CORRECT_USER_EMAIL)
+
+		url = reverse(
+			'request-forgot_actions',
+			args=[request_model_data.key]
+		)
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(
+			response.status_code,
+			200
+		)
+
+		json_response = json.loads(response.content)
+		self.assertIn(
+			'email',
+			json_response
+		)
+
+		self.assertIn(
+			'created_at',
+			json_response
+		)
+
+		self.assertIn(
+			'expired_at',
+			json_response
+		)
 
 
 class AuthTests(APITestCase):
@@ -116,12 +157,11 @@ class AuthTests(APITestCase):
 			'password': SAMPLE_CORRECT_USER_PASSWORD
 		}
 
-		response = json.loads(
-			self.client.post(url, data, format='json', follow=True).content
-		)
+		response = self.client.post(url, data, format='json', follow=True)
+		json_response = json.loads(response.content)
 
-		self.assertIn('access', response)
-		self.assertIn('refresh', response)
+		self.assertIn('access', json_response)
+		self.assertIn('refresh', json_response)
 
 	def test_cant_get_tokens_with_wrong_password(self):
 		url = reverse('token_obtain_pair')
@@ -131,17 +171,16 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		json_response = json.loads(response.content)
 
-		obtain_response = json.loads(response.content)
-
-		self.assertIn('detail', obtain_response)
+		self.assertIn('detail', json_response)
 		self.assertEqual(
-			obtain_response['detail'],
+			json_response['detail'],
 			'No active account found with the given credentials'
 		)
 
-		self.assertNotIn('access', obtain_response)
-		self.assertNotIn('refresh', obtain_response)
+		self.assertNotIn('access', json_response)
+		self.assertNotIn('refresh', json_response)
 
 	def test_can_refresh_tokens(self):
 		url = reverse('token_obtain_pair')
@@ -150,23 +189,21 @@ class AuthTests(APITestCase):
 			'password': SAMPLE_CORRECT_USER_PASSWORD
 		}
 
-		obtain_response = json.loads(
-			self.client.post(url, data, format='json', follow=True).content
-		)
+		response = self.client.post(url, data, format='json', follow=True)
+		json_response = json.loads(response.content)
 
-		refresh_token = obtain_response.get('refresh')
+		refresh_token = json_response.get('refresh')
 
 		url = reverse('token_refresh')
 		data = {
 			'refresh': refresh_token
 		}
 
-		refresh_response = json.loads(
-			self.client.post(url, data, format='json', follow=True).content
-		)
+		response = self.client.post(url, data, format='json', follow=True)
+		json_response = json.loads(response.content)
 
-		self.assertIn('access', refresh_response)
-		self.assertIn('refresh', refresh_response)
+		self.assertIn('access', json_response)
+		self.assertIn('refresh', json_response)
 
 	def test_cant_refresh_tokens_with_wrong_refresh_token(self):
 		url = reverse('token_refresh')
@@ -175,36 +212,31 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
-		refresh_response = json.loads(response.content)
+		json_response = json.loads(response.content)
 
-		self.assertIn('detail', refresh_response)
-		self.assertIn('code', refresh_response)
+		self.assertIn('detail', json_response)
+		self.assertIn('code', json_response)
 
 		self.assertEqual(
-			refresh_response['detail'],
+			json_response['detail'],
 			'Token is invalid or expired'
 		)
 
 		self.assertEqual(
-			refresh_response['code'],
+			json_response['code'],
 			'token_not_valid'
 		)
 
 
 class APIAuthBaseTestCase(APITestCase):
 	def setUp(self):
-		auth_url = reverse('token_obtain_pair')
+		url = reverse('token_obtain_pair')
 		data = {
 			'username': SAMPLE_CORRECT_USER_USERNAME,
 			'password': SAMPLE_INCORRECT_USER_PASSWORD
 		}
 
-		response = self.client.post(
-			auth_url,
-			data,
-			format='json',
-			follow=True
-		)
+		response = self.client.post(url, data, format='json', follow=True)
 
 		self.tokens = json.loads(response.content)
 		self.access_token = self.tokens['access']

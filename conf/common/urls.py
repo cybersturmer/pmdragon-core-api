@@ -69,14 +69,14 @@ urlpatterns = [
 
 	path('api/auth/person-password-forgot-requests/',
 		 PersonForgotPasswordRequestConfirmView.as_view({'post': 'create'}),
-		 name='password_reset_confirm'),
+		 name='request-forgot_create'),
 
 	path('api/auth/person-password-forgot-requests/<key>/',
 		 PersonForgotPasswordRequestConfirmView.as_view({
 			 'get': 'retrieve',
 			 'patch': 'partial_update'
 		 }),
-		 name='password_reset_confirm'),
+		 name='request-forgot_actions'),
 
 	path('api/auth/persons/',
 		 PersonRegistrationRequestVerifyView.as_view(),
