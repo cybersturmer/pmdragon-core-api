@@ -84,11 +84,11 @@ urlpatterns = [
 
 	path('api/auth/person-registration-requests/',
 		 PersonRegistrationRequestView.as_view({'post': 'create'}),
-		 name='request-register'),
+		 name='request-register_create'),
 
 	path('api/auth/person-registration-requests/<key>/',
 		 PersonRegistrationRequestView.as_view({'get': 'retrieve'}),
-		 name='request-register'),
+		 name='request-register_retrieve'),
 
 	path('api/auth/person-invitation-requests/',
 		 PersonInvitationRequestListView.as_view(),

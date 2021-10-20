@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from apps.core.models import Person
+from apps.core.models import Person, PersonRegistrationRequest
 
 SAMPLE_CORRECT_USER_USERNAME = 'test'
 
@@ -15,15 +15,84 @@ SAMPLE_CORRECT_USER_FIRST_NAME = 'Test'
 SAMPLE_CORRECT_USER_LAST_NAME = 'Test'
 SAMPLE_CORRECT_USER_EMAIL = 'cybersturmer@ya.ru'
 SAMPLE_CORRECT_USER_PHONE = '+79999999999'
+SAMPLE_CORRECT_PREFIX_URL = 'TEST'
 
 SAMPLE_INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'
+
+
+class PersonRegistrationRequestTest(APITestCase):
+	def test_can_create(self):
+		url = reverse('request-register_create')
+		data = {
+			'email': SAMPLE_CORRECT_USER_EMAIL,
+			'prefix_url': SAMPLE_CORRECT_PREFIX_URL
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(
+			response.status_code,
+			201
+		)
+
+		json_response = json.loads(response.content)
+
+		self.assertIn(
+			'email',
+			json_response
+		)
+
+		self.assertEqual(
+			json_response['email'],
+			SAMPLE_CORRECT_USER_EMAIL
+		)
+
+		self.assertIn(
+			'prefix_url',
+			json_response
+		)
+
+		self.assertEqual(
+			json_response['prefix_url'],
+			SAMPLE_CORRECT_PREFIX_URL
+		)
+
+	def test_can_get_created(self):
+		url = reverse('request-register_create')
+		data = {
+			'email': SAMPLE_CORRECT_USER_EMAIL,
+			'prefix_url': SAMPLE_CORRECT_PREFIX_URL
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(
+			response.status_code,
+			201
+		)
+
+		registration_request = PersonRegistrationRequest \
+			.valid \
+			.filter(email=SAMPLE_CORRECT_USER_EMAIL,
+					prefix_url=SAMPLE_CORRECT_PREFIX_URL) \
+			.first()
+
+		get_registration_request_url = reverse('request-register_retrieve', args=[registration_request.key])
+
+		response = self.client.get(get_registration_request_url, follow=True)
+		json_response = json.loads(response.content)
+
+		self.assertEqual(
+			response.status_code, 200
+		)
+
+		self.assertIn('email', json_response)
+		self.assertIn('prefix_url', json_response)
 
 
 class AuthTests(APITestCase):
 	def setUp(self) -> None:
 		self.user = User \
 			.objects \
-			.create(
+			.create_user(
 				username=SAMPLE_CORRECT_USER_USERNAME,
 				password=SAMPLE_CORRECT_USER_PASSWORD,
 				first_name=SAMPLE_CORRECT_USER_FIRST_NAME,
@@ -32,9 +101,6 @@ class AuthTests(APITestCase):
 				is_active=True,
 				email=SAMPLE_CORRECT_USER_EMAIL
 			)
-
-		self.user.set_password(SAMPLE_CORRECT_USER_PASSWORD)
-		self.user.save()
 
 		self.person = Person \
 			.objects \
@@ -123,3 +189,23 @@ class AuthTests(APITestCase):
 			refresh_response['code'],
 			'token_not_valid'
 		)
+
+
+class APIAuthBaseTestCase(APITestCase):
+	def setUp(self):
+		auth_url = reverse('token_obtain_pair')
+		data = {
+			'username': SAMPLE_CORRECT_USER_USERNAME,
+			'password': SAMPLE_INCORRECT_USER_PASSWORD
+		}
+
+		response = self.client.post(
+			auth_url,
+			data,
+			format='json',
+			follow=True
+		)
+
+		self.tokens = json.loads(response.content)
+		self.access_token = self.tokens['access']
+		self.refresh_token = self.tokens['refresh']

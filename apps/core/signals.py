@@ -377,7 +377,7 @@ def signal_mentioned_in_message_emails(instance: IssueMessage, created: bool, **
 	2) Send an email if someone was mentioned
 	"""
 
-	if not created or settings.DEBUG:
+	if any([not created, settings.DEBUG, settings.TESTING]):
 		return False
 
 	send_mentioned_in_message_email.delay(instance.pk)
@@ -388,7 +388,7 @@ def signal_mentioned_in_description_emails(instance: Issue, created: bool, **kwa
 	"""
 	Send an email if someone was mentioned in issue description
 	"""
-	if not created or settings.DEBUG:
+	if any([not created, settings.DEBUG, settings.TESTING]):
 		return False
 
 	send_mentioned_in_description_email.delay(instance.pk)

@@ -1,8 +1,12 @@
+import sys
 from datetime import timedelta
 
 from conf.common.settings import *
 
 DEBUG = True
+
+TESTING = sys.argv[1:2] == ['test']
+
 DEPLOYMENT = 'IDE_DEBUG'
 
 ALLOWED_HOSTS = ['*']
