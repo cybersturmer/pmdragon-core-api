@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest
+from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace
 
 SAMPLE_CORRECT_USER_USERNAME = 'test'
 
@@ -230,14 +230,59 @@ class AuthTests(APITestCase):
 
 class APIAuthBaseTestCase(APITestCase):
 	def setUp(self):
-		url = reverse('token_obtain_pair')
-		data = {
-			'username': SAMPLE_CORRECT_USER_USERNAME,
-			'password': SAMPLE_INCORRECT_USER_PASSWORD
-		}
+		super().setUp()
 
-		response = self.client.post(url, data, format='json', follow=True)
+		self.user = User \
+			.objects \
+			.create_user(
+				username=SAMPLE_CORRECT_USER_USERNAME,
+				email=SAMPLE_CORRECT_USER_EMAIL,
+				password=SAMPLE_CORRECT_USER_PASSWORD
+			)
 
-		self.tokens = json.loads(response.content)
-		self.access_token = self.tokens['access']
-		self.refresh_token = self.tokens['refresh']
+		self.person = Person \
+			.objects \
+			.create(
+				user=self.user,
+				phone=SAMPLE_CORRECT_USER_PHONE
+			)
+
+		self.workspace = Workspace \
+			.objects \
+			.create(
+				prefix_url=SAMPLE_CORRECT_PREFIX_URL,
+				owned_by=self.person
+			)
+
+		self.workspace.participants.add(self.person)
+
+
+class WorkspaceTest(APIAuthBaseTestCase):
+	def test_can_retrieve(self):
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
+
+		response = self.client.get(url, format='json', follow=True)
+
+		self.assertEqual(
+			response.status_code,
+			200
+		)
+
+		json_response = json.loads(response.content)
+		self.assertEqual(
+			json_response['id'],
+			self.workspace.id
+		)
+
+		self.assertEqual(
+			json_response['prefix_url'],
+			self.workspace.prefix_url
+		)
+
+		self.assertEqual(
+			json_response['participants'],
+			[self.person.id]
+		)
+
