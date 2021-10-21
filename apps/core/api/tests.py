@@ -258,7 +258,7 @@ class APIAuthBaseTestCase(APITestCase):
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
-	def test_can_retrieve(self):
+	def test_can_get_detail(self):
 		self.client.force_login(self.user)
 
 		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
@@ -284,5 +284,26 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		self.assertEqual(
 			json_response['participants'],
 			[self.person.id]
+		)
+
+	def test_can_get_list(self):
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:workspaces-list')
+
+		response = self.client.get(url)
+
+		self.assertEqual(
+			response.status_code,
+			200
+		)
+
+		json_response = json.loads(response.content)
+
+		self.assertIsInstance(json_response, list)
+
+		self.assertEqual(
+			len(json_response),
+			1
 		)
 
