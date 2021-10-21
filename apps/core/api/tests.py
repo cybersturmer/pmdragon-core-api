@@ -286,6 +286,29 @@ class WorkspaceTest(APIAuthBaseTestCase):
 			[self.person.id]
 		)
 
+	def test_cant_get_detail_without_credentials(self):
+		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
+
+		response = self.client.get(url, format='json', follow=True)
+		json_response = json.loads(response.content)
+
+		print(response.content)
+
+		self.assertEqual(
+			response.status_code,
+			401
+		)
+
+		self.assertIn(
+			'detail',
+			json_response
+		)
+
+		self.assertEqual(
+			'Authentication credentials were not provided.',
+			json_response['detail']
+		)
+
 	def test_can_get_list(self):
 		self.client.force_login(self.user)
 
