@@ -19,6 +19,8 @@ SAMPLE_CORRECT_PREFIX_URL = 'TEST'
 
 SAMPLE_INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'
 
+SAMPLE_NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
+
 
 class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
@@ -292,8 +294,6 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		response = self.client.get(url, format='json', follow=True)
 		json_response = json.loads(response.content)
 
-		print(response.content)
-
 		self.assertEqual(
 			response.status_code,
 			401
@@ -305,7 +305,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 		self.assertEqual(
-			'Authentication credentials were not provided.',
+			SAMPLE_NO_AUTH_MESSAGE,
 			json_response['detail']
 		)
 
@@ -330,3 +330,23 @@ class WorkspaceTest(APIAuthBaseTestCase):
 			1
 		)
 
+	def test_cant_get_list_without_credentials(self):
+		url = reverse('core_api:workspaces-list')
+
+		response = self.client.get(url, format='json', follow=True)
+		json_response = json.loads(response.content)
+
+		self.assertEqual(
+			response.status_code,
+			401
+		)
+
+		self.assertIn(
+			'detail',
+			json_response
+		)
+
+		self.assertEqual(
+			SAMPLE_NO_AUTH_MESSAGE,
+			json_response['detail']
+		)
