@@ -35,10 +35,7 @@ class PersonRegistrationRequestTest(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
-		self.assertEqual(
-			response.status_code,
-			201
-		)
+		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
 
@@ -76,11 +73,9 @@ class PersonRegistrationRequestTest(APITestCase):
 		)
 
 		response = self.client.get(get_registration_request_url, format='json', follow=True)
-		json_response = json.loads(response.content)
+		self.assertEqual(response.status_code, 200)
 
-		self.assertEqual(
-			response.status_code, 200
-		)
+		json_response = json.loads(response.content)
 
 		self.assertIn('email', json_response)
 		self.assertIn('prefix_url', json_response)
@@ -94,10 +89,7 @@ class PersonForgotRequestTest(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
-		self.assertEqual(
-			response.status_code,
-			201
-		)
+		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
 		self.assertIn('email', json_response)
@@ -113,10 +105,7 @@ class PersonForgotRequestTest(APITestCase):
 		)
 
 		response = self.client.get(url, format='json', follow=True)
-		self.assertEqual(
-			response.status_code,
-			200
-		)
+		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 		self.assertIn(
@@ -166,6 +155,8 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn('access', json_response)
@@ -179,6 +170,8 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 401)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn('detail', json_response)
@@ -198,6 +191,8 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		refresh_token = json_response.get('refresh')
@@ -552,7 +547,7 @@ class ProjectTest(APIAuthBaseTestCase):
 			self.another_person.id
 		)
 
-	def test_cant_patch_owner_by_not_participant(self):
+	def test_cant_patch_owner_by_to_not_participant(self):
 		self.client.force_login(self.user)
 
 		url = reverse('core_api:projects-detail', args=[self.project.id])
@@ -593,4 +588,35 @@ class ProjectTest(APIAuthBaseTestCase):
 			json_response['detail'],
 			'You do not have permission to perform this action.'
 		)
+
+	def test_cant_patch_owner_by_by_not_participant(self):
+		"""
+		Not participants cant see workspace, so cant' change it
+		"""
+		self.client.force_login(self.wrong_user)
+
+		url = reverse('core_api:projects-detail', args=[self.project.id])
+		data = {
+			'owned_by': self.wrong_person.id
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(
+			response.status_code,
+			404
+		)
+
+		json_response = json.loads(response.content)
+
+		self.assertIn(
+			'detail',
+			json_response
+		)
+
+		self.assertEqual(
+			'Not found.',
+			json_response['detail']
+		)
+
+
 
