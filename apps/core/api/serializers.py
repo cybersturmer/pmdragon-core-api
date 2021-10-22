@@ -609,7 +609,7 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
 	def validate_owned_by(self, attrs):
 		if self.instance and attrs not in self.instance.workspace.participants.all():
-			raise ValidationError(_('You can change owner only to participant of current project'))
+			raise ValidationError(_('You can change owner only to participant of current workspace'))
 
 		return attrs
 
