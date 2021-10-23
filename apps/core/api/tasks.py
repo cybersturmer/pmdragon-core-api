@@ -147,6 +147,7 @@ def send_mentioned_in_message_email(message_pk=None):
             )
 
     except SMTPException as e:
+        print(e)
         raise e
 
 
@@ -170,4 +171,5 @@ def send_mentioned_in_description_email(issue_pk=None):
                 context=context
             )
     except SMTPException as e:
+        print(e)
         raise e
