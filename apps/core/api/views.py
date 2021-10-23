@@ -1,9 +1,11 @@
 import json
 
-from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser, User
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, mixins, status, views
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView, UpdateAPIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,8 +17,20 @@ from libs.check.health import Health
 from libs.sprint.analyser import SprintAnalyser
 from .permissions import IsParticipateInWorkspace, IsOwnerOrReadOnly, IsCreatorOrReadOnly, WorkspaceOwnerOrReadOnly
 from .schemas import IssueListUpdateSchema
-from .serializers import *
+from .serializers import TokenObtainPairExtendedSerializer, PersonRegistrationRequestSerializer, \
+	PersonInvitationRequestRetrieveUpdateSerializer, PersonPasswordResetRequestSerializer, \
+	PersonPasswordResetConfirmSerializer, PersonForgotRequestSerializer, PersonInvitationRequestSerializer, \
+	PersonInvitationRequestList, PersonRegistrationOrInvitationRequestSerializer, PersonSerializer, \
+	WorkspaceWritableSerializer, WorkspaceDetailedSerializer, ProjectSerializer, IssueTypeSerializer, \
+	IssueTypeIconSerializer, IssueStateSerializer, IssueEstimationSerializer, IssueSerializer, IssueHistorySerializer, \
+	IssueMessageSerializer, IssueAttachmentSerializer, BacklogWritableSerializer, ProjectWorkingDaysSerializer, \
+	NonWorkingDaysSerializer, SprintDurationSerializer, SprintWritableSerializer, SprintEffortsHistorySerializer, \
+	UserSetPasswordSerializer, UserUpdateSerializer, IssueChildOrderingSerializer
 from .tasks import send_registration_email, send_invitation_email
+from ..models import PersonRegistrationRequest, PersonInvitationRequest, PersonForgotRequest, Workspace, Person, \
+	Project, IssueTypeCategory, IssueTypeCategoryIcon, IssueStateCategory, IssueEstimationCategory, Issue, IssueHistory, \
+	IssueMessage, IssueAttachment, ProjectBacklog, ProjectWorkingDays, ProjectNonWorkingDay, SprintDuration, Sprint, \
+	SprintEffortsHistory
 
 
 class CheckConnection(views.APIView):
@@ -307,10 +321,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 			return queryset.none()
 
 	def get_serializer_class(self):
-		if self.action == 'list':
-			return WorkspaceDetailedSerializer
-		else:
-			return WorkspaceWritableSerializer
+		return WorkspaceDetailedSerializer if self.action == 'list' else WorkspaceWritableSerializer
 
 	def get_serializer_context(self):
 		"""
