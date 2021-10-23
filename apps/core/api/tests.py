@@ -28,7 +28,7 @@ SAMPLE_NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
 
 class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
-		url = reverse('request-register_create')
+		url = reverse('person-registration-requests-list')
 		data = {
 			'email': SAMPLE_CORRECT_USER_EMAIL,
 			'prefix_url': SAMPLE_CORRECT_PREFIX_URL
@@ -67,12 +67,12 @@ class PersonRegistrationRequestTest(APITestCase):
 				prefix_url=SAMPLE_CORRECT_PREFIX_URL
 			)
 
-		get_registration_request_url = reverse(
-			'request-register_retrieve',
+		url = reverse(
+			'person-registration-requests-detail',
 			args=[registration_request.key]
 		)
 
-		response = self.client.get(get_registration_request_url, format='json', follow=True)
+		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -83,7 +83,7 @@ class PersonRegistrationRequestTest(APITestCase):
 
 class PersonForgotRequestTest(APITestCase):
 	def test_can_create(self):
-		url = reverse('request-forgot_create')
+		url = reverse('person-forgot-requests-list')
 		data = {
 			'email': SAMPLE_CORRECT_USER_EMAIL
 		}
@@ -100,7 +100,7 @@ class PersonForgotRequestTest(APITestCase):
 			.create(email=SAMPLE_CORRECT_USER_EMAIL)
 
 		url = reverse(
-			'request-forgot_actions',
+			'person-forgot-requests-detail',
 			args=[request_model_data.key]
 		)
 
@@ -244,16 +244,12 @@ class APIAuthBaseTestCase(APITestCase):
 				password=SAMPLE_CORRECT_USER_PASSWORD
 			)
 
-		cls.user = user
-
 		person = Person \
 			.objects \
 			.create(
 				user=user,
 				phone=SAMPLE_CORRECT_USER_PHONE
 			)
-
-		cls.person = person
 
 		workspace = Workspace \
 			.objects \
@@ -262,9 +258,51 @@ class APIAuthBaseTestCase(APITestCase):
 				owned_by=person
 			)
 
+		project = Project \
+			.objects \
+			.create(
+				workspace=workspace,
+				title=f'{SAMPLE_CORRECT_PROJECT_TITLE}N',
+				key=f'{SAMPLE_CORRECT_PROJECT_KEY}N',
+				owned_by=person
+			)
+
+		second_participant_user = User \
+			.objects \
+			.create_user(
+				username='another',
+				email='another@email.com',
+				password='another'
+			)
+
+		second_participant_person = Person\
+			.objects\
+			.create(
+				user=second_participant_user
+			)
+
+		third_not_participant_user = User\
+			.objects\
+			.create_user(username='third_not_participant_user')
+
+		third_not_participant_person = Person\
+			.objects\
+			.create(user=third_not_participant_user)
+
 		workspace.participants.add(person)
+		workspace.participants.add(second_participant_person)
 
 		cls.workspace = workspace
+		cls.project = project
+
+		cls.user = user
+		cls.person = person
+
+		cls.second_participant_user = second_participant_user
+		cls.second_participant_person = second_participant_person
+
+		cls.third_not_participant_user = third_not_participant_user
+		cls.third_not_participant_person = third_not_participant_person
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
@@ -290,7 +328,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 
 		self.assertEqual(
 			json_response['participants'],
-			[self.person.id]
+			[self.second_participant_person.id, self.person.id]
 		)
 
 	def test_cant_get_detail_without_credentials(self):
@@ -348,50 +386,6 @@ class WorkspaceTest(APIAuthBaseTestCase):
 
 
 class ProjectTest(APIAuthBaseTestCase):
-	@classmethod
-	def setUpTestData(cls):
-		super().setUpTestData()
-
-		project = Project \
-			.objects \
-			.create(
-				workspace=cls.workspace,
-				title=f'{SAMPLE_CORRECT_PROJECT_TITLE}N',
-				key=f'{SAMPLE_CORRECT_PROJECT_KEY}N',
-				owned_by=cls.person
-			)
-
-		another_user = User \
-			.objects \
-			.create_user(
-				username='another',
-				email='another@email.com',
-				password='another'
-			)
-
-		another_person = Person\
-			.objects\
-			.create(
-				user=another_user
-			)
-
-		wrong_user = User\
-			.objects\
-			.create_user(username='wrong_user')
-
-		wrong_person = Person\
-			.objects\
-			.create(user=wrong_user)
-
-		cls.project = project
-		cls.workspace.participants.add(another_person)
-
-		cls.another_user = another_user
-		cls.another_person = another_person
-
-		cls.wrong_user = wrong_user
-		cls.wrong_person = wrong_person
-
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
@@ -528,7 +522,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		url = reverse('core_api:projects-detail', args=[self.project.id])
 		data = {
-			'owned_by': self.another_person.id
+			'owned_by': self.second_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -543,7 +537,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		self.assertEqual(
 			json_response['owned_by'],
-			self.another_person.id
+			self.second_participant_person.id
 		)
 
 	def test_cant_patch_owner_by_to_not_participant(self):
@@ -551,7 +545,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		url = reverse('core_api:projects-detail', args=[self.project.id])
 		data = {
-			'owned_by': self.wrong_person.id
+			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -570,11 +564,11 @@ class ProjectTest(APIAuthBaseTestCase):
 		)
 
 	def test_cant_patch_owner_by_not_owner(self):
-		self.client.force_login(self.another_user)
+		self.client.force_login(self.second_participant_user)
 
 		url = reverse('core_api:projects-detail', args=[self.project.id])
 		data = {
-			'owned_by': self.wrong_person.id
+			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -596,11 +590,11 @@ class ProjectTest(APIAuthBaseTestCase):
 		"""
 		Not participants cant see workspace, so cant' change it
 		"""
-		self.client.force_login(self.wrong_user)
+		self.client.force_login(self.third_not_participant_user)
 
 		url = reverse('core_api:projects-detail', args=[self.project.id])
 		data = {
-			'owned_by': self.wrong_person.id
+			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -619,4 +613,23 @@ class ProjectTest(APIAuthBaseTestCase):
 		)
 
 
+class PersonInvitationRequestTest(APIAuthBaseTestCase):
+	def test_can_create(self):
+		self.client.force_login(self.user)
 
+		url = reverse('core_api:person-invitations-requests-list')
+		data = {
+			'invitees': [
+				{
+					'email': self.third_not_participant_person.email,
+					'workspace': self.workspace.id,
+				}
+			],
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
+		json_response = json.loads(response.content)
+
+		print(json_response)
