@@ -178,9 +178,9 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
 		invited_by = request.user.person
 
 		try:
-			invitations = request.data['invites']
+			invitations = request.data['invitees']
 		except KeyError:
-			raise ValidationError(_('Invalid data. Expected a invites key in dictionary.'))
+			raise ValidationError(_('Invalid data. Expected a invitees key in dictionary.'))
 
 		if type(invitations) is not list:
 			raise ValidationError(_('Invalid data. Expected a list'))
