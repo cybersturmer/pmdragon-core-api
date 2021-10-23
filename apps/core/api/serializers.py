@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm
-from django.contrib.auth.models import update_last_login
+from django.contrib.auth.models import update_last_login, User
 from django.db import IntegrityError
+from django.db.models import Max
 from django.forms import Form
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -9,7 +11,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt import serializers as serializers_jwt
 
 from apps.core.api.tasks import send_forgot_password_email
-from ..models import *
+from apps.core.models import PersonRegistrationRequest, Workspace, PersonInvitationRequest, PersonForgotRequest, Person, \
+	Project, IssueTypeCategoryIcon, IssueTypeCategory, IssueStateCategory, IssueEstimationCategory, Issue, IssueHistory, \
+	IssueMessage, IssueAttachment, ProjectNonWorkingDay, ProjectBacklog, ProjectWorkingDays, SprintDuration, Sprint, \
+	SprintEffortsHistory
 
 UserModel = get_user_model()
 
