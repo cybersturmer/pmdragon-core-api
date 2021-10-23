@@ -91,7 +91,7 @@ class PersonInvitationRequestRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 		'head',
 		'options',
 		'get',
-		'put'
+		'patch'
 	)
 
 
