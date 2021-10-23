@@ -215,6 +215,8 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 401)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn('detail', json_response)
@@ -272,13 +274,10 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
 
 		response = self.client.get(url, format='json', follow=True)
-
-		self.assertEqual(
-			response.status_code,
-			200
-		)
+		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
+
 		self.assertEqual(
 			json_response['id'],
 			self.workspace.id
@@ -298,12 +297,9 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
 
 		response = self.client.get(url, format='json', follow=True)
-		json_response = json.loads(response.content)
+		self.assertEqual(response.status_code, 401)
 
-		self.assertEqual(
-			response.status_code,
-			401
-		)
+		json_response = json.loads(response.content)
 
 		self.assertIn(
 			'detail',
@@ -321,11 +317,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		url = reverse('core_api:workspaces-list')
 
 		response = self.client.get(url)
-
-		self.assertEqual(
-			response.status_code,
-			200
-		)
+		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 
@@ -340,12 +332,9 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		url = reverse('core_api:workspaces-list')
 
 		response = self.client.get(url, format='json', follow=True)
-		json_response = json.loads(response.content)
+		self.assertEqual(response.status_code, 401)
 
-		self.assertEqual(
-			response.status_code,
-			401
-		)
+		json_response = json.loads(response.content)
 
 		self.assertIn(
 			'detail',
@@ -415,6 +404,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn('id', json_response)
@@ -450,6 +441,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		url = reverse('core_api:projects-detail', args=[self.project.id])
 
 		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn('id', json_response)
@@ -493,6 +486,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn(
@@ -514,6 +509,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn(
@@ -535,6 +532,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn(
@@ -556,6 +555,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 400)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn(
@@ -577,6 +578,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 403)
+
 		json_response = json.loads(response.content)
 
 		self.assertIn(
@@ -601,10 +604,7 @@ class ProjectTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(
-			response.status_code,
-			404
-		)
+		self.assertEqual(response.status_code, 404)
 
 		json_response = json.loads(response.content)
 
