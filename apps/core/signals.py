@@ -41,7 +41,7 @@ def put_created_issue_to_backlog(instance: Issue, created: bool, **kwargs):
 	Lets put just created issue to Backlog.
 	"""
 	if not created:
-		return True
+		return
 
 	backlog_with_same_workspace_and_project = ProjectBacklog.objects \
 		.filter(workspace=instance.workspace,
@@ -64,7 +64,7 @@ def create_backlog_for_project(instance: Project, created: bool, **kwargs):
 	So we provide it.
 	"""
 	if not created:
-		return True
+		return
 
 	ProjectBacklog \
 		.objects \
@@ -79,7 +79,7 @@ def create_project_working_days_settings(instance: Project, created: bool, **kwa
 	So that we will be able to create Sprint and calculate BurnDown Chart entries
 	"""
 	if not created:
-		return True
+		return
 
 	"""
 	By default we use 5 working days week and UTC timezone
@@ -260,7 +260,7 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	Create first history entry for just started sprint
 	"""
 	if not instance.pk:
-		return True
+		return
 
 	"""
 	We need to understand state of sprint before.
@@ -269,7 +269,7 @@ def create_sprint_history_first_entry_and_set_issues_state_to_default(instance: 
 	if any([not instance.is_started,  # If updated instance is not start
 			state_before.is_started,  # If old instance is started already
 			instance.is_completed]):  # Or if updated instance already completed
-		return True
+		return
 
 	"""
 	Lets get the default state category """
@@ -328,7 +328,7 @@ def arrange_issue_in_sprints(sender, action, instance, **kwargs):
 	bind to sprint or Backlog from sprints.
 	"""
 	if action != ActionM2M.POST_ADD.value:
-		return True
+		return
 
 	base_query = Q(issues__in=instance.issues.all())
 	additional_query = {
@@ -340,7 +340,7 @@ def arrange_issue_in_sprints(sender, action, instance, **kwargs):
 		.filter(base_query, additional_query)
 
 	if not sprint_with_intersection_of_issues.exists():
-		return True
+		return
 
 	to_remove = instance.issues.values_list('id', flat=True)
 	for _sprint in sprint_with_intersection_of_issues.all():
@@ -357,7 +357,7 @@ def arrange_issue_in_backlog(action, instance, **kwargs):
 	"""
 	We need to track only post add action """
 	if action != ActionM2M.POST_ADD.value:
-		return True
+		return
 
 	base_query = Q(workspace=instance.workspace) & Q(project=instance.project) & Q(issues__in=instance.issues.all())
 	to_remove = instance.issues.values_list('id', flat=True)
@@ -378,7 +378,7 @@ def signal_mentioned_in_message_emails(instance: IssueMessage, created: bool, **
 	"""
 
 	if any([not created, settings.DEBUG, settings.TESTING]):
-		return False
+		return
 
 	send_mentioned_in_message_email.delay(instance.pk)
 
@@ -389,7 +389,7 @@ def signal_mentioned_in_description_emails(instance: Issue, created: bool, **kwa
 	Send an email if someone was mentioned in issue description
 	"""
 	if any([not created, settings.DEBUG, settings.TESTING]):
-		return False
+		return
 
 	send_mentioned_in_description_email.delay(instance.pk)
 
@@ -413,7 +413,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 	If we don't have a started sprint or this sprint do not include current issue
 	then we just exit """
 	if not sprint.exists():
-		return True
+		return
 
 	"""
 	If this Sprint was just created - we have to create first History Entry. """
@@ -440,7 +440,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 
 	if all([last_history_entry.total_value == total_sp,
 			last_history_entry.done_value == completed_sp]):
-		return True
+		return
 
 	sprint_history = SprintEffortsHistory(
 		workspace=instance.workspace,
@@ -458,14 +458,14 @@ def set_default_for_instance(instance, sender):
 	Just set default is somehow default value was deleted.
 	 """
 	if not instance.is_default:
-		return True
+		return
 
 	categories = sender.objects \
 		.filter(workspace=instance.workspace,
 				project=instance.project)
 
 	if not categories.exists() or categories.filter(is_default=True).exists():
-		return True
+		return
 
 	new_default_category = categories.all().order_by('id').first()
 	new_default_category.is_default = True
@@ -490,7 +490,7 @@ def signal_set_issue_history(instance: Issue, **kwargs):
 	instance data with database values.
 	"""
 	if not instance.id:
-		return True
+		return
 
 	all_fields = Issue._meta.concrete_fields
 	db_version = Issue.objects.get(pk=instance.id)
@@ -568,7 +568,7 @@ def signal_set_create_issue_history(instance: Issue, created: bool, **kwargs):
 	Create History Entry on Issue Creation """
 
 	if not created:
-		return True
+		return
 
 	history_entry = IssueHistory(
 		issue=instance,
