@@ -43,8 +43,6 @@ def send_registration_email(request_pk=None):
         request.is_email_sent = True
         request.save()
 
-    return True
-
 
 @shared_task
 def send_forgot_password_email(request_pk=None):
@@ -77,8 +75,6 @@ def send_forgot_password_email(request_pk=None):
     else:
         request.is_email_sent = True
         request.save()
-
-    return True
 
 
 @shared_task
@@ -128,8 +124,6 @@ def send_invitation_email(request_pk=None):
         request.is_email_sent = True
         request.save()
 
-    return True
-
 
 @shared_task
 def send_mentioned_in_message_email(message_pk=None):
@@ -155,8 +149,6 @@ def send_mentioned_in_message_email(message_pk=None):
     except SMTPException as e:
         raise e
 
-    return True
-
 
 @shared_task
 def send_mentioned_in_description_email(issue_pk=None):
@@ -179,5 +171,3 @@ def send_mentioned_in_description_email(issue_pk=None):
             )
     except SMTPException as e:
         raise e
-
-    return True
