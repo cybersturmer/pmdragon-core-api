@@ -24,6 +24,9 @@ from libs.helpers.datetimepresets import day_later
 url_validator = RegexValidator(r'^[a-zA-Z0-9]{3,20}$',
 							   _('From 3 to 20 letters and numbers are allowed'))
 
+CREATED_AT_STRING = 'Created at'
+UPDATED_AT_STRING = 'Updated at'
+
 
 class UploadPersonsDirections(Enum):
 	AVATAR = 'avatar'
@@ -102,7 +105,7 @@ class Person(models.Model):
 							 null=True,
 							 blank=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	avatar = models.ImageField(
@@ -198,7 +201,7 @@ class Workspace(models.Model):
 								 verbose_name=_('Owner'),
 								 on_delete=models.RESTRICT)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
 	class Meta:
@@ -240,7 +243,7 @@ class Project(models.Model):
 								 null=True,
 								 on_delete=models.SET_NULL)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
 	class Meta:
@@ -320,7 +323,7 @@ class PersonParticipationRequestAbstract(models.Model):
 	is_accepted = models.BooleanField(verbose_name=_('Request was accepted?'),
 									  default=False)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
 	expired_at = models.DateTimeField(verbose_name=_('Expired at'),
@@ -642,10 +645,10 @@ class IssueEstimationCategory(ProjectWorkspaceAbstractModel):
 	value = models.IntegerField(verbose_name=_('Value'),
 								help_text=_('This value is for calculating team velocity'))
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	class Meta:
@@ -696,10 +699,10 @@ class IssueAttachment(ProjectWorkspaceAbstractModel):
 								   null=True,
 								   on_delete=models.SET_NULL)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	class Meta:
@@ -776,10 +779,10 @@ class Issue(ProjectWorkspaceAbstractModel):
 								   on_delete=models.SET_NULL,
 								   related_name='updated_by_issues')
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	ordering = models.PositiveSmallIntegerField(verbose_name=_('Ordering'),
@@ -934,10 +937,10 @@ class IssueHistory(models.Model):
 								   null=True,
 								   on_delete=models.SET_NULL)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	class Meta:
@@ -970,10 +973,10 @@ class IssueMessage(ProjectWorkspaceAbstractModel):
 	description = models.TextField(verbose_name=_('Description'),
 								   blank=True)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	class Meta:
@@ -1279,7 +1282,7 @@ class ProjectWorkingDays(ProjectWorkspaceAbstractModel):
 											  verbose_name=_('Non-working days'),
 											  blank=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	class Meta:
@@ -1326,10 +1329,10 @@ class SprintEffortsHistory(ProjectWorkspaceAbstractModel):
 									help_text=_('We need this point for manual sorting'),
 									default=timezone.now)
 
-	created_at = models.DateTimeField(verbose_name=_('Created at'),
+	created_at = models.DateTimeField(verbose_name=_(CREATED_AT_STRING),
 									  auto_now_add=True)
 
-	updated_at = models.DateTimeField(verbose_name=_('Updated at'),
+	updated_at = models.DateTimeField(verbose_name=_(UPDATED_AT_STRING),
 									  auto_now=True)
 
 	total_value = models.IntegerField(verbose_name=_('Total value'))
