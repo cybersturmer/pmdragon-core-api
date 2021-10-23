@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project
+from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project, \
+	PersonInvitationRequest
 
 SAMPLE_CORRECT_USER_USERNAME = 'test'
 SAMPLE_CORRECT_USER_USERNAME_2 = 'test2'
@@ -65,7 +66,7 @@ class PersonRegistrationRequestTest(APITestCase):
 			SAMPLE_CORRECT_PREFIX_URL
 		)
 
-	def test_can_get_created(self):
+	def test_can_retrieve(self):
 		registration_request = PersonRegistrationRequest \
 			.objects \
 			.create(
@@ -642,6 +643,12 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
+
+		self.assertEqual(
+			1,
+			len(json_response)
+		)
+
 		json_response_first_slice = json_response[0]
 
 		self.assertIn(
@@ -672,4 +679,31 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 		self.assertEqual(
 			self.workspace.id,
 			json_response_first_slice['workspace']
+		)
+
+	def test_can_retrieve(self):
+		person_invitation_request = PersonInvitationRequest \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				email=self.third_not_participant_person.email,
+			)
+
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:person-invitations-requests-detail', args=[person_invitation_request.key])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		self.assertIn(
+			'email',
+			json_response
+		)
+
+		self.assertIn(
+			'workspace',
+			json_response
 		)
