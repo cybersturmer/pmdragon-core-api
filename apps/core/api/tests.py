@@ -691,7 +691,10 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:person-invitations-requests-detail', args=[person_invitation_request.key])
+		url = reverse(
+			'core_api:person-invitations-requests-detail',
+			args=[person_invitation_request.key]
+		)
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
@@ -707,3 +710,53 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 			'workspace',
 			json_response
 		)
+
+	def test_can_be_accepted(self):
+		person_invitation_request = PersonInvitationRequest \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				email=self.third_not_participant_person.email,
+			)
+
+		self.client.force_login(self.user)
+
+		url = reverse(
+			'core_api:person-invitations-requests-detail',
+			args=[person_invitation_request.key]
+		)
+		data = {
+			'is_accepted': True
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		self.assertIn(
+			'email',
+			json_response
+		)
+
+		self.assertIn(
+			'workspace',
+			json_response
+		)
+
+		self.assertIn(
+			self.person.id,
+			json_response['workspace']['participants']
+		)
+
+		self.assertIn(
+			self.second_participant_person.id,
+			json_response['workspace']['participants']
+		)
+
+		self.assertIn(
+			self.third_not_participant_person.id,
+			json_response['workspace']['participants']
+		)
+
+
