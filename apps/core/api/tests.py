@@ -8,13 +8,19 @@ from rest_framework.test import APITestCase
 from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project
 
 SAMPLE_CORRECT_USER_USERNAME = 'test'
+SAMPLE_CORRECT_USER_USERNAME_2 = 'test2'
+SAMPLE_CORRECT_USER_USERNAME_3 = 'test3'
 
 SAMPLE_CORRECT_USER_PASSWORD = 'test'
 SAMPLE_INCORRECT_USER_PASSWORD = 'no test'
 
 SAMPLE_CORRECT_USER_FIRST_NAME = 'Test'
 SAMPLE_CORRECT_USER_LAST_NAME = 'Test'
-SAMPLE_CORRECT_USER_EMAIL = 'cybersturmer@ya.ru'
+
+SAMPLE_CORRECT_USER_EMAIL = 'test1@email.com'
+SAMPLE_CORRECT_USER_EMAIL_2 = 'test2@email.com'
+SAMPLE_CORRECT_USER_EMAIL_3 = 'test3@email.com'
+
 SAMPLE_CORRECT_USER_PHONE = '+79999999999'
 SAMPLE_CORRECT_PREFIX_URL = 'TEST'
 
@@ -271,23 +277,28 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create_user(
 				username='another',
-				email='another@email.com',
+				email=SAMPLE_CORRECT_USER_EMAIL_2,
 				password='another'
 			)
 
-		second_participant_person = Person\
-			.objects\
+		second_participant_person = Person \
+			.objects \
 			.create(
 				user=second_participant_user
 			)
 
-		third_not_participant_user = User\
-			.objects\
-			.create_user(username='third_not_participant_user')
+		third_not_participant_user = User \
+			.objects \
+			.create_user(
+				username='third_not_participant_user',
+				email=SAMPLE_CORRECT_USER_EMAIL_3
+			)
 
-		third_not_participant_person = Person\
-			.objects\
-			.create(user=third_not_participant_user)
+		third_not_participant_person = Person \
+			.objects \
+			.create(
+				user=third_not_participant_user
+			)
 
 		workspace.participants.add(person)
 		workspace.participants.add(second_participant_person)
@@ -631,5 +642,34 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
+		json_response_first_slice = json_response[0]
 
-		print(json_response)
+		self.assertIn(
+			'email',
+			json_response_first_slice
+		)
+
+		self.assertIn(
+			'workspace',
+			json_response_first_slice
+		)
+
+		self.assertIn(
+			'created_at',
+			json_response_first_slice
+		)
+
+		self.assertIn(
+			'expired_at',
+			json_response_first_slice
+		)
+
+		self.assertEqual(
+			self.third_not_participant_person.email,
+			json_response_first_slice['email']
+		)
+
+		self.assertEqual(
+			self.workspace.id,
+			json_response_first_slice['workspace']
+		)
