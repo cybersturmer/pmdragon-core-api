@@ -439,7 +439,6 @@ class WorkspacesModelViewSet(WorkspacesReadOnlyModelViewSet,
 	Extendable class to have writable ViewSet,
 	that have isolation by workspaces.
 	"""
-	pass
 
 
 class ProjectViewSet(WorkspacesModelViewSet):
