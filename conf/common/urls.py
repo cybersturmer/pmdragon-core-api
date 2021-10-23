@@ -40,6 +40,8 @@ schema_view = get_schema_view(
 	permission_classes=(AllowAny,),
 )
 
+app_name = 'auth_api'
+
 urlpatterns = [
 	path('', MainView.as_view()),
 	path('admin/', admin.site.urls),
@@ -69,14 +71,14 @@ urlpatterns = [
 
 	path('api/auth/person-password-forgot-requests/',
 		 PersonForgotPasswordRequestConfirmView.as_view({'post': 'create'}),
-		 name='request-forgot_create'),
+		 name='person-forgot-requests-list'),
 
 	path('api/auth/person-password-forgot-requests/<key>/',
 		 PersonForgotPasswordRequestConfirmView.as_view({
 			 'get': 'retrieve',
 			 'patch': 'partial_update'
 		 }),
-		 name='request-forgot_actions'),
+		 name='person-forgot-requests-detail'),
 
 	path('api/auth/persons/',
 		 PersonRegistrationRequestVerifyView.as_view(),
@@ -84,11 +86,11 @@ urlpatterns = [
 
 	path('api/auth/person-registration-requests/',
 		 PersonRegistrationRequestView.as_view({'post': 'create'}),
-		 name='request-register_create'),
+		 name='person-registration-requests-list'),
 
 	path('api/auth/person-registration-requests/<key>/',
 		 PersonRegistrationRequestView.as_view({'get': 'retrieve'}),
-		 name='request-register_retrieve'),
+		 name='person-registration-requests-detail'),
 
 	path('api/auth/person-invitation-requests/',
 		 PersonInvitationRequestListView.as_view(),
@@ -96,7 +98,7 @@ urlpatterns = [
 
 	path('api/auth/person-invitation-requests/<key>/',
 		 PersonInvitationRequestRetrieveUpdateView.as_view(),
-		 name='person-invitations-requests-retrieve-update'),
+		 name='person-invitations-requests-detail'),
 
 	path('api/core/sprint-guideline/<key>/',
 		 SprintGuidelineView.as_view(),
