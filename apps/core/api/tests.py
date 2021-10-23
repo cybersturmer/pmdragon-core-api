@@ -32,6 +32,8 @@ SAMPLE_INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'
 
 SAMPLE_NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
 
+URL_PROJECTS_DETAIL = 'core_api:projects-detail'
+
 
 class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
@@ -444,7 +446,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_can_retrieve(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
@@ -486,7 +488,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_can_patch_title(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'title': 'NEW TITLE'
 		}
@@ -509,7 +511,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_can_patch_key(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'key': 'NEW'
 		}
@@ -532,7 +534,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_can_patch_owner_by(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.second_participant_person.id
 		}
@@ -555,7 +557,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_cant_patch_owner_by_to_not_participant(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
@@ -578,7 +580,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_cant_patch_owner_by_not_owner(self):
 		self.client.force_login(self.second_participant_user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
@@ -604,7 +606,7 @@ class ProjectTest(APIAuthBaseTestCase):
 		"""
 		self.client.force_login(self.third_not_participant_user)
 
-		url = reverse('core_api:projects-detail', args=[self.project.id])
+		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
