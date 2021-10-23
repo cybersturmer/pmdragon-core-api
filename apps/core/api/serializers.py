@@ -462,7 +462,7 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
 
 			try:
 				workspace.save()
-			except IntegrityError as e:
+			except IntegrityError:
 				# @todo Had problems with interpreting result of registration
 				# Workspace with given prefix url was already registered. was returned on different integrityError
 				raise serializers.ValidationError({
@@ -644,7 +644,7 @@ class ProjectSerializer(WorkspaceModelSerializer):
 
 		try:
 			project.save()
-		except IntegrityError as ie:
+		except IntegrityError:
 			raise serializers.ValidationError({
 				'detail': _('Project name and key should be unique.')
 			})
