@@ -185,6 +185,9 @@ class PersonInvitationRequestSerializer(serializers.ModelSerializer):
 			'created_at',
 			'expired_at'
 		)
+		extra_kwargs = {
+			'expired_at': {'read_only': True}
+		}
 
 
 class PersonForgotRequestSerializer(serializers.ModelSerializer):
@@ -211,11 +214,11 @@ class PersonInvitationRequestList(serializers.Serializer):
 	def update(self, instance, validated_data):
 		pass
 
-	invites = PersonInvitationRequestSerializer(many=True)
+	invitees = PersonInvitationRequestSerializer(many=True)
 
 	class Meta:
 		fields = (
-			'invites',
+			'invitees',
 		)
 
 
