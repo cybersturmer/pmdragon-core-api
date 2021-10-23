@@ -79,7 +79,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 			issue = await self.get_issue_filter_data(issue_pk=issue_pk)
 			await self.message_change_handler.subscribe(issue=issue)
 		except Issue.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=Issue.__name__))
 
 	@action()
 	async def unsubscribe_from_messages_in_issue(self, issue_pk, **kwargs):
@@ -87,7 +87,7 @@ class IssueMessagesObserver(AsyncAPIConsumer):
 			issue = await self.get_issue_filter_data(issue_pk=issue_pk)
 			await self.message_change_handler.unsubscribe(issue=issue)
 		except Issue.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=Issue.__name__))
 
 
 class WorkspaceIssuesObserver(AsyncAPIConsumer):
@@ -143,7 +143,7 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issues'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=Issue.__name__))
 
 	@action()
 	async def unsubscribe_from_issues_in_workspace(self, workspace_pk, **kwargs):
@@ -151,7 +151,7 @@ class WorkspaceIssuesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issues'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=Issue.__name__))
 
 
 class WorkspaceIssueTypeCategoriesObserver(AsyncAPIConsumer):
@@ -212,7 +212,7 @@ class WorkspaceIssueTypeCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_type_category_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue type category'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueTypeCategory.__name__))
 
 	@action()
 	async def unsubscribe_from_issue_type_categories_in_workspace(self, workspace_pk, **kwargs):
@@ -220,7 +220,7 @@ class WorkspaceIssueTypeCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_type_category_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue type category'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueTypeCategory.__name__))
 
 
 class WorkspaceIssueTypeCategoriesIconsObserver(AsyncAPIConsumer):
@@ -281,7 +281,7 @@ class WorkspaceIssueTypeCategoriesIconsObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_type_category_icon_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue type icon category'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueTypeCategoryIcon.__name__))
 
 	@action()
 	async def unsubscribe_from_issue_type_categories_icons_in_workspace(self, workspace_pk, **kwargs):
@@ -289,7 +289,7 @@ class WorkspaceIssueTypeCategoriesIconsObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_type_category_icon_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue type icon category'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueTypeCategoryIcon.__name__))
 
 
 class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
@@ -351,7 +351,7 @@ class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_state_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue state category'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueStateCategory.__name__))
 
 	@action()
 	async def unsubscribe_from_issue_state_categories_in_workspace(self, workspace_pk, **kwargs):
@@ -359,7 +359,7 @@ class WorkspaceIssueStateCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_state_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue type category'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueStateCategory.__name__))
 
 
 class WorkspaceIssueEstimationCategoriesObserver(AsyncAPIConsumer):
@@ -421,7 +421,7 @@ class WorkspaceIssueEstimationCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_estimation_category_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue estimation category'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueEstimationCategory.__name__))
 
 	@action()
 	async def unsubscribe_from_issue_estimation_categories_in_workspace(self, workspace_pk, **kwargs):
@@ -429,7 +429,7 @@ class WorkspaceIssueEstimationCategoriesObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.issue_estimation_category_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='issue estimation category'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=IssueEstimationCategory.__name__))
 
 
 class WorkspaceSprintEffortsHistoryObserver(AsyncAPIConsumer):
@@ -490,7 +490,7 @@ class WorkspaceSprintEffortsHistoryObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.sprint_efforts_history_change_handler.subscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='sprint efforts history'))
+			print(UNABLE_SUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=SprintEffortsHistory.__name__))
 
 	@action()
 	async def unsubscribe_from_sprint_efforts_history_in_workspace(self, workspace_pk, **kwargs):
@@ -498,5 +498,5 @@ class WorkspaceSprintEffortsHistoryObserver(AsyncAPIConsumer):
 			workspace = await self.get_workspace_filter_data(workspace_pk=workspace_pk)
 			await self.sprint_efforts_history_change_handler.unsubscribe(workspace=workspace)
 		except Workspace.DoesNotExist:
-			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj='sprint efforts history'))
+			print(UNABLE_UNSUBSCRIBE_NO_WORKSPACE_TEMPLATE.format(obj=SprintEffortsHistory.__name__))
 
