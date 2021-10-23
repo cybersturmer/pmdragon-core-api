@@ -92,14 +92,6 @@ urlpatterns = [
 		 PersonRegistrationRequestView.as_view({'get': 'retrieve'}),
 		 name='person-registration-requests-detail'),
 
-	path('api/auth/person-invitation-requests/',
-		 PersonInvitationRequestListView.as_view(),
-		 name='person-invitations-requests-list'),
-
-	path('api/auth/person-invitation-requests/<key>/',
-		 PersonInvitationRequestRetrieveUpdateView.as_view(),
-		 name='person-invitations-requests-detail'),
-
 	path('api/core/sprint-guideline/<key>/',
 		 SprintGuidelineView.as_view(),
 		 name='sprint-guideline'),
@@ -115,4 +107,5 @@ urlpatterns = [
 	path('api/core/', include('apps.core.api.urls', namespace='core_api'))
 ]
 
+# @todo Refactor it.
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

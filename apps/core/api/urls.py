@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework import routers
 
 from . import views
+from .views import PersonInvitationRequestRetrieveUpdateView
 
 app_name = 'core_api'
 
@@ -31,6 +32,9 @@ urlpatterns += [path('issue/ordering/',
                 path('person-invitation-requests/',
                      views.PersonInvitationRequestListCreateView.as_view(),
                      name='person-invitations-requests-list'),
+				path('person-invitation-requests/<key>/',
+					 PersonInvitationRequestRetrieveUpdateView.as_view(),
+					 name='person-invitations-requests-detail'),
                 path('issue-messages-packed/<int:issue_id>/',
                      views.IssueMessagesPackedView.as_view(),
                      name='issue-messages-packed')]
