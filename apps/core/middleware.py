@@ -49,9 +49,7 @@ class JWTAuthMiddleware:
             scope['user'] = await self.get_user_by_id(user_id=user_id)
 
         except (NoTokenError,
-                InvalidSignatureError,
-                ExpiredSignatureError,
-                DecodeError,
+				InvalidTokenError,
                 KeyError) as e:
             scope['user'] = AnonymousUser()
             print(f'JWTAuthMiddleware: {e.__class__.__name__}')
