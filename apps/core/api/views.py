@@ -211,7 +211,7 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
 				workspace=_workspace
 			)
 
-			if not settings.DEBUG:
+			if all([not settings.DEBUG, not settings.TESTING]):
 				send_invitation_email.delay(_invitation_request.pk)
 				print('DEBUG: Sent invitation email...')
 
