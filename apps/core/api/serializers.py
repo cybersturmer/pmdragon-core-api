@@ -49,9 +49,17 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
 	"""
 
 	def create(self, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	def update(self, instance, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	@classmethod
@@ -214,9 +222,17 @@ class PersonInvitationRequestList(serializers.Serializer):
 	From Team page on frontend.
 	"""
 	def create(self, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	def update(self, instance, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	invitees = PersonInvitationRequestSerializer(many=True)
@@ -247,9 +263,17 @@ class UserSetPasswordSerializer(serializers.Serializer):
 		self.set_password_form: [Form] = None
 
 	def create(self, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	def update(self, instance, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 	def validate_old_password(self, value):
@@ -322,6 +346,10 @@ class PersonPasswordResetConfirmSerializer(serializers.Serializer):
 		return instance
 
 	def create(self, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 
@@ -347,6 +375,10 @@ class PersonPasswordResetRequestSerializer(serializers.Serializer):
 		return password_forgot_request
 
 	def update(self, instance, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 
@@ -443,6 +475,10 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
 		return person
 
 	def update(self, instance, validated_data):
+		"""
+		Implemented for all abstract methods.
+		We dont need this method to serializer works properly.
+		"""
 		pass
 
 
