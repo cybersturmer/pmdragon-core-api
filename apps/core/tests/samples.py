@@ -1,0 +1,22 @@
+CORRECT_USERNAME = 'cybersturmer'
+CORRECT_FIRST_NAME = 'Vladimir'
+CORRECT_LAST_NAME = 'Shturmer'
+CORRECT_EMAIL = 'test@test.com'
+CORRECT_PHONE = '+79282412233'
+CORRECT_PREFIX_URL = 'TEST'
+
+CORRECT_PROJECT_TITLE = 'TEST'
+CORRECT_PROJECT_KEY = 'TST'
+
+CORRECT_ICON_CATEGORY_PREFIX = 'mdi-bookmark'
+CORRECT_COLOR = '#f02222'
+
+CORRECT_ISSUE_TYPE_CATEGORY_TITLE = 'User Story'
+
+CORRECT_ISSUE_TITLE = 'As a user i want to create new issue'
+CORRECT_ISSUE_DESCRIPTION = 'This description is really good'
+
+CORRECT_ISSUE_MESSAGE_DESCRIPTION = 'Hello, how are you?'
+
+CORRECT_SPRINT_TITLE = 'Crucial Sprint N15'
+CORRECT_SPRINT_GOAL = 'Do extremely important things.'

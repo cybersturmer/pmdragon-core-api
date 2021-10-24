@@ -4,41 +4,20 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from libs.cryptography import hashing
-from .models import Person, Workspace, Project, PersonForgotRequest, PersonRegistrationRequest, PersonInvitationRequest, \
+from apps.core.models import Person, Workspace, Project, PersonForgotRequest, PersonRegistrationRequest, PersonInvitationRequest, \
 	IssueTypeCategoryIcon, IssueTypeCategory, IssueStateCategory, IssueEstimationCategory, Issue, ProjectBacklog, \
 	IssueHistory, IssueMessage, Sprint, ProjectNonWorkingDay, ProjectWorkingDays, SprintEffortsHistory
 
-SAMPLE_CORRECT_USERNAME = 'cybersturmer'
-SAMPLE_CORRECT_FIRST_NAME = 'Vladimir'
-SAMPLE_CORRECT_LAST_NAME = 'Shturmer'
-SAMPLE_CORRECT_EMAIL = 'test@test.com'
-SAMPLE_CORRECT_PHONE = '+79282412233'
-SAMPLE_CORRECT_PREFIX_URL = 'TEST'
-
-SAMPLE_CORRECT_PROJECT_TITLE = 'TEST'
-SAMPLE_CORRECT_PROJECT_KEY = 'TST'
-
-SAMPLE_CORRECT_ICON_CATEGORY_PREFIX = 'mdi-bookmark'
-SAMPLE_CORRECT_COLOR = '#f02222'
-
-SAMPLE_CORRECT_ISSUE_TYPE_CATEGORY_TITLE = 'User Story'
-
-SAMPLE_CORRECT_ISSUE_TITLE = 'As a user i want to create new issue'
-SAMPLE_CORRECT_ISSUE_DESCRIPTION = 'This description is really good'
-
-SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION = 'Hello, how are you?'
-
-SAMPLE_CORRECT_SPRINT_TITLE = 'Crucial Sprint N15'
-SAMPLE_CORRECT_SPRINT_GOAL = 'Do extremely important things.'
+import samples
 
 
 class BaseModelTesting(TestCase):
 	def setUp(self):
 		self.user = User.objects.create_user(
-			username=SAMPLE_CORRECT_USERNAME,
-			first_name=SAMPLE_CORRECT_FIRST_NAME,
-			last_name=SAMPLE_CORRECT_LAST_NAME,
-			email=SAMPLE_CORRECT_EMAIL,
+			username=samples.CORRECT_USERNAME,
+			first_name=samples.CORRECT_FIRST_NAME,
+			last_name=samples.CORRECT_LAST_NAME,
+			email=samples.CORRECT_EMAIL,
 			is_staff=False,
 			is_active=True
 		)
@@ -47,13 +26,13 @@ class BaseModelTesting(TestCase):
 			.objects \
 			.create(
 				user=self.user,
-				phone=SAMPLE_CORRECT_PHONE
+				phone=samples.CORRECT_PHONE
 			)
 
 		self.workspace = Workspace \
 			.objects \
 			.create(
-				prefix_url=SAMPLE_CORRECT_PREFIX_URL,
+				prefix_url=samples.CORRECT_PREFIX_URL,
 				owned_by=self.person
 			)
 
@@ -63,8 +42,8 @@ class BaseModelTesting(TestCase):
 			.objects \
 			.create(
 				workspace=self.workspace,
-				title=SAMPLE_CORRECT_PROJECT_TITLE,
-				key=SAMPLE_CORRECT_PROJECT_KEY,
+				title=samples.CORRECT_PROJECT_TITLE,
+				key=samples.CORRECT_PROJECT_KEY,
 				owned_by=self.person
 			)
 
@@ -121,7 +100,7 @@ class WorkspaceModelTesting(BaseModelTesting):
 	def test_prefix_url(self):
 		self.assertTrue(
 			self.workspace.prefix_url,
-			SAMPLE_CORRECT_PREFIX_URL
+			samples.CORRECT_PREFIX_URL
 		)
 
 	def test_participants(self):
@@ -147,13 +126,13 @@ class ProjectModelTesting(BaseModelTesting):
 	def test_title(self):
 		self.assertEqual(
 			self.project.title,
-			SAMPLE_CORRECT_PROJECT_TITLE
+			samples.CORRECT_PROJECT_TITLE
 		)
 
 	def test_key(self):
 		self.assertEqual(
 			self.project.key,
-			SAMPLE_CORRECT_PROJECT_KEY
+			samples.CORRECT_PROJECT_KEY
 		)
 
 	def test_owned_by(self):
@@ -202,7 +181,7 @@ class PersonForgotRequestModelTesting(BaseModelTesting):
 		self.forgot_request = PersonForgotRequest \
 			.objects \
 			.create(
-				email=SAMPLE_CORRECT_EMAIL
+				email=samples.CORRECT_EMAIL
 			)
 
 	def test_key(self):
@@ -234,20 +213,20 @@ class PersonRegistrationRequestTesting(BaseModelTesting):
 		self.registration_request = PersonRegistrationRequest \
 			.objects \
 			.create(
-				email=SAMPLE_CORRECT_EMAIL,
-				prefix_url=SAMPLE_CORRECT_PREFIX_URL
+				email=samples.CORRECT_EMAIL,
+				prefix_url=samples.CORRECT_PREFIX_URL
 			)
 
 	def test_email(self):
 		self.assertEqual(
 			self.registration_request.email,
-			SAMPLE_CORRECT_EMAIL
+			samples.CORRECT_EMAIL
 		)
 
 	def test_prefix_url(self):
 		self.assertEqual(
 			self.registration_request.prefix_url,
-			SAMPLE_CORRECT_PREFIX_URL
+			samples.CORRECT_PREFIX_URL
 		)
 
 	def test_key(self):
@@ -283,14 +262,14 @@ class PersonInvitationRequestModelTesting(BaseModelTesting):
 		self.invitation_request = PersonInvitationRequest\
 			.objects\
 			.create(
-				email=SAMPLE_CORRECT_EMAIL,
+				email=samples.CORRECT_EMAIL,
 				workspace=self.workspace
 			)
 
 	def test_email(self):
 		self.assertEqual(
 			self.invitation_request.email,
-			SAMPLE_CORRECT_EMAIL
+			samples.CORRECT_EMAIL
 		)
 
 	def test_workspace(self):
@@ -554,8 +533,8 @@ class IssueBasedModelTesting(BaseModelTesting):
 			.create(
 				workspace=self.workspace,
 				project=self.project,
-				title=SAMPLE_CORRECT_ISSUE_TITLE,
-				description=SAMPLE_CORRECT_ISSUE_DESCRIPTION,
+				title=samples.CORRECT_ISSUE_TITLE,
+				description=samples.CORRECT_ISSUE_DESCRIPTION,
 				type_category=self.type_category,
 				state_category=self.state_category,
 				estimation_category=self.estimation_category,
@@ -569,13 +548,13 @@ class IssueModelTesting(IssueBasedModelTesting):
 	def test_title(self):
 		self.assertEqual(
 			self.issue.title,
-			SAMPLE_CORRECT_ISSUE_TITLE
+			samples.CORRECT_ISSUE_TITLE
 		)
 
 	def test_description(self):
 		self.assertEqual(
 			self.issue.description,
-			SAMPLE_CORRECT_ISSUE_DESCRIPTION
+			samples.CORRECT_ISSUE_DESCRIPTION
 		)
 
 	def test_type_category(self):
@@ -651,7 +630,7 @@ class IssueMessageModelTesting(IssueBasedModelTesting):
 				project=self.project,
 				issue=self.issue,
 				created_by=self.person,
-				description=SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION
+				description=samples.CORRECT_ISSUE_MESSAGE_DESCRIPTION
 			)
 
 	def test_issue(self):
@@ -663,7 +642,7 @@ class IssueMessageModelTesting(IssueBasedModelTesting):
 	def test_description(self):
 		self.assertEqual(
 			self.issue_message.description,
-			SAMPLE_CORRECT_ISSUE_MESSAGE_DESCRIPTION
+			samples.CORRECT_ISSUE_MESSAGE_DESCRIPTION
 		)
 
 	def test_created_at(self):
@@ -714,20 +693,20 @@ class SprintBasedModelTesting(BaseModelTesting):
 			.create(
 				workspace=self.workspace,
 				project=self.project,
-				title=SAMPLE_CORRECT_SPRINT_TITLE,
-				goal=SAMPLE_CORRECT_SPRINT_GOAL
+				title=samples.CORRECT_SPRINT_TITLE,
+				goal=samples.CORRECT_SPRINT_GOAL
 			)
 
 
 class SprintModelTesting(SprintBasedModelTesting):
 	def test_title(self):
 		self.assertEqual(
-			self.sprint.title, SAMPLE_CORRECT_SPRINT_TITLE
+			self.sprint.title, samples.CORRECT_SPRINT_TITLE
 		)
 
 	def test_goal(self):
 		self.assertEqual(
-			self.sprint.goal, SAMPLE_CORRECT_SPRINT_GOAL
+			self.sprint.goal, samples.CORRECT_SPRINT_GOAL
 		)
 
 	def test_issues(self):
