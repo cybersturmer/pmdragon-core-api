@@ -8,7 +8,7 @@ from apps.core.models import Person, Workspace, Project, PersonForgotRequest, Pe
 	IssueTypeCategoryIcon, IssueTypeCategory, IssueStateCategory, IssueEstimationCategory, Issue, ProjectBacklog, \
 	IssueHistory, IssueMessage, Sprint, ProjectNonWorkingDay, ProjectWorkingDays, SprintEffortsHistory
 
-import samples
+from apps.core.tests import samples
 
 
 class BaseModelTesting(TestCase):
