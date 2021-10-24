@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from conf.common.mime_settings import FRONTEND_ICON_SET
+from libs.helpers.strings import shorten_string_to, clean_string, foreign_key_title
 from libs.sprint.analyser import SprintAnalyser
 from .api.tasks import send_mentioned_in_message_email, \
 	send_mentioned_in_description_email
@@ -495,24 +496,6 @@ def signal_set_issue_history(instance: Issue, **kwargs):
 	all_fields = Issue._meta.concrete_fields
 	db_version = Issue.objects.get(pk=instance.id)
 
-	foreign_data = [
-		'workspace',
-		'project',
-		'type_category',
-		'state_category',
-		'estimation_category',
-		'assignee'
-	]
-
-	do_not_watch_fields = [
-		'workspace',
-		'number',
-		'created_by',
-		'updated_by',
-		'created_at',
-		'updated_at'
-	]
-
 	for field in all_fields:
 		_db_value = getattr(db_version, field.name)
 		_instance_value = getattr(instance, field.name)
@@ -521,32 +504,20 @@ def signal_set_issue_history(instance: Issue, **kwargs):
 		If value is the same or we decided do not track it - let's skip it
 		in creating history entry"""
 		if _db_value == _instance_value or \
-			field.name in do_not_watch_fields:
+			field.name in settings.PMDRAGON_ISSUE_DO_NOT_WATCH_FIELDS:
 			continue
 
 		_edited_field_verbose_name = field.verbose_name
 
-		if field.name in foreign_data:
-			_str_before = 'None' if _db_value is None else getattr(_db_value, 'title')
-			_str_after = 'None' if _instance_value is None else getattr(_instance_value, 'title')
+		if field.name in settings.PMDRAGON_ISSUE_FOREIGN_DATA:
+			_str_before = foreign_key_title(_db_value)
+			_str_after = foreign_key_title(_instance_value)
 		else:
-			_str_before = bleach.clean(
-				text=str(_db_value),
-				tags=[],
-				strip=True
-			)
+			_str_before = clean_string(_db_value)
+			_str_after = clean_string(_instance_value)
 
-			_str_after = bleach.clean(
-				text=str(_instance_value),
-				tags=[],
-				strip=True
-			)
-
-		if len(_str_before) > 60:
-			_str_before = f'{_str_before[0:60]}...'
-
-		if len(_str_after) > 60:
-			_str_after = f'{_str_after[0:60]}...'
+		_str_before = shorten_string_to(_str_before, 60)
+		_str_after = shorten_string_to(_str_after, 60)
 
 		"""
 		Issue history instance """

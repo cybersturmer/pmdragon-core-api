@@ -164,3 +164,21 @@ SWAGGER_SETTINGS = {
 		}
 	}
 }
+
+PMDRAGON_ISSUE_DO_NOT_WATCH_FIELDS = [
+		'workspace',
+		'number',
+		'created_by',
+		'updated_by',
+		'created_at',
+		'updated_at'
+]
+
+PMDRAGON_ISSUE_FOREIGN_DATA = [
+		'workspace',
+		'project',
+		'type_category',
+		'state_category',
+		'estimation_category',
+		'assignee'
+]
