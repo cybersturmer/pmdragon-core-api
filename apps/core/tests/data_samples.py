@@ -1,7 +1,17 @@
-CORRECT_USERNAME = 'cybersturmer'
-CORRECT_FIRST_NAME = 'Vladimir'
-CORRECT_LAST_NAME = 'Shturmer'
-CORRECT_EMAIL = 'test@test.com'
+CORRECT_USERNAME = 'test'
+CORRECT_USERNAME_2 = 'test2'
+CORRECT_USERNAME_3 = 'test3'
+
+CORRECT_PASSWORD = 'test'
+WRONG_PASSWORD = 'wrong password'
+
+CORRECT_FIRST_NAME = 'Test'
+CORRECT_LAST_NAME = 'Smith'
+
+CORRECT_EMAIL = 'test@email.com'
+CORRECT_EMAIL_2 = 'test2@email.com'
+CORRECT_EMAIL_3 = 'test3@email.com'
+
 CORRECT_PHONE = '+79282412233'
 CORRECT_PREFIX_URL = 'TEST'
 
@@ -20,3 +30,5 @@ CORRECT_ISSUE_MESSAGE_DESCRIPTION = 'Hello, how are you?'
 
 CORRECT_SPRINT_TITLE = 'Crucial Sprint N15'
 CORRECT_SPRINT_GOAL = 'Do extremely important things.'
+
+INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'

@@ -8,29 +8,11 @@ from rest_framework.test import APITestCase
 from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project, \
 	PersonInvitationRequest
 
-SAMPLE_CORRECT_USER_USERNAME = 'test'
-SAMPLE_CORRECT_USER_USERNAME_2 = 'test2'
-SAMPLE_CORRECT_USER_USERNAME_3 = 'test3'
-
-SAMPLE_CORRECT_USER_PASSWORD = 'test'
-SAMPLE_INCORRECT_USER_PASSWORD = 'no test'
-
-SAMPLE_CORRECT_USER_FIRST_NAME = 'Test'
-SAMPLE_CORRECT_USER_LAST_NAME = 'Test'
-
-SAMPLE_CORRECT_USER_EMAIL = 'test1@email.com'
-SAMPLE_CORRECT_USER_EMAIL_2 = 'test2@email.com'
-SAMPLE_CORRECT_USER_EMAIL_3 = 'test3@email.com'
-
-SAMPLE_CORRECT_USER_PHONE = '+79999999999'
-SAMPLE_CORRECT_PREFIX_URL = 'TEST'
-
-SAMPLE_CORRECT_PROJECT_TITLE = 'TEST'
-SAMPLE_CORRECT_PROJECT_KEY = 'TST'
+from apps.core.tests import data_samples
 
 SAMPLE_INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'
 
-SAMPLE_NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
+NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
 
 URL_PROJECTS_DETAIL = 'core_api:projects-detail'
 
@@ -39,8 +21,8 @@ class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
 		url = reverse('person-registration-requests-list')
 		data = {
-			'email': SAMPLE_CORRECT_USER_EMAIL,
-			'prefix_url': SAMPLE_CORRECT_PREFIX_URL
+			'email': data_samples.CORRECT_EMAIL,
+			'prefix_url': data_samples.CORRECT_PREFIX_URL
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -55,7 +37,7 @@ class PersonRegistrationRequestTest(APITestCase):
 
 		self.assertEqual(
 			json_response['email'],
-			SAMPLE_CORRECT_USER_EMAIL
+			data_samples.CORRECT_EMAIL
 		)
 
 		self.assertIn(
@@ -65,15 +47,15 @@ class PersonRegistrationRequestTest(APITestCase):
 
 		self.assertEqual(
 			json_response['prefix_url'],
-			SAMPLE_CORRECT_PREFIX_URL
+			data_samples.CORRECT_PREFIX_URL
 		)
 
 	def test_can_retrieve(self):
 		registration_request = PersonRegistrationRequest \
 			.objects \
 			.create(
-				email=SAMPLE_CORRECT_USER_EMAIL,
-				prefix_url=SAMPLE_CORRECT_PREFIX_URL
+				email=data_samples.CORRECT_EMAIL,
+				prefix_url=data_samples.CORRECT_PREFIX_URL
 			)
 
 		url = reverse(
@@ -94,7 +76,7 @@ class PersonForgotRequestTest(APITestCase):
 	def test_can_create(self):
 		url = reverse('person-forgot-requests-list')
 		data = {
-			'email': SAMPLE_CORRECT_USER_EMAIL
+			'email': data_samples.CORRECT_EMAIL
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -106,7 +88,7 @@ class PersonForgotRequestTest(APITestCase):
 	def test_can_retrieve(self):
 		request_model_data = PersonForgotRequest \
 			.objects \
-			.create(email=SAMPLE_CORRECT_USER_EMAIL)
+			.create(email=data_samples.CORRECT_EMAIL)
 
 		url = reverse(
 			'person-forgot-requests-detail',
@@ -139,18 +121,18 @@ class AuthTests(APITestCase):
 		user = User \
 			.objects \
 			.create_user(
-				username=SAMPLE_CORRECT_USER_USERNAME,
-				password=SAMPLE_CORRECT_USER_PASSWORD,
-				first_name=SAMPLE_CORRECT_USER_FIRST_NAME,
-				last_name=SAMPLE_CORRECT_USER_LAST_NAME,
-				email=SAMPLE_CORRECT_USER_EMAIL
+				username=data_samples.CORRECT_USERNAME,
+				password=data_samples.CORRECT_PASSWORD,
+				first_name=data_samples.CORRECT_FIRST_NAME,
+				last_name=data_samples.CORRECT_LAST_NAME,
+				email=data_samples.CORRECT_EMAIL
 			)
 
 		person = Person \
 			.objects \
 			.create(
 				user=user,
-				phone=SAMPLE_CORRECT_USER_PHONE
+				phone=data_samples.CORRECT_PHONE
 			)
 
 		cls.user = user
@@ -159,8 +141,8 @@ class AuthTests(APITestCase):
 	def test_can_get_tokens(self):
 		url = reverse('token_obtain_pair')
 		data = {
-			'username': SAMPLE_CORRECT_USER_USERNAME,
-			'password': SAMPLE_CORRECT_USER_PASSWORD
+			'username': data_samples.CORRECT_USERNAME,
+			'password': data_samples.CORRECT_PASSWORD
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -174,8 +156,8 @@ class AuthTests(APITestCase):
 	def test_cant_get_tokens_with_wrong_password(self):
 		url = reverse('token_obtain_pair')
 		data = {
-			'username': SAMPLE_CORRECT_USER_USERNAME,
-			'password': SAMPLE_INCORRECT_USER_PASSWORD
+			'username': data_samples.CORRECT_USERNAME,
+			'password': data_samples.WRONG_PASSWORD
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -195,8 +177,8 @@ class AuthTests(APITestCase):
 	def test_can_refresh_tokens(self):
 		url = reverse('token_obtain_pair')
 		data = {
-			'username': SAMPLE_CORRECT_USER_USERNAME,
-			'password': SAMPLE_CORRECT_USER_PASSWORD
+			'username': data_samples.CORRECT_USERNAME,
+			'password': data_samples.CORRECT_PASSWORD
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -220,7 +202,7 @@ class AuthTests(APITestCase):
 	def test_cant_refresh_tokens_with_wrong_refresh_token(self):
 		url = reverse('token_refresh')
 		data = {
-			'refresh': SAMPLE_INCORRECT_REFRESH_TOKEN
+			'refresh': data_samples.INCORRECT_REFRESH_TOKEN
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
@@ -248,22 +230,22 @@ class APIAuthBaseTestCase(APITestCase):
 		user = User \
 			.objects \
 			.create_user(
-				username=SAMPLE_CORRECT_USER_USERNAME,
-				email=SAMPLE_CORRECT_USER_EMAIL,
-				password=SAMPLE_CORRECT_USER_PASSWORD
+				username=data_samples.CORRECT_USERNAME,
+				email=data_samples.CORRECT_EMAIL,
+				password=data_samples.CORRECT_PASSWORD
 			)
 
 		person = Person \
 			.objects \
 			.create(
 				user=user,
-				phone=SAMPLE_CORRECT_USER_PHONE
+				phone=data_samples.CORRECT_PHONE
 			)
 
 		workspace = Workspace \
 			.objects \
 			.create(
-				prefix_url=SAMPLE_CORRECT_PREFIX_URL,
+				prefix_url=data_samples.CORRECT_PREFIX_URL,
 				owned_by=person
 			)
 
@@ -271,8 +253,8 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create(
 				workspace=workspace,
-				title=f'{SAMPLE_CORRECT_PROJECT_TITLE}N',
-				key=f'{SAMPLE_CORRECT_PROJECT_KEY}N',
+				title=f'{data_samples.CORRECT_PROJECT_TITLE}N',
+				key=f'{data_samples.CORRECT_PROJECT_KEY}N',
 				owned_by=person
 			)
 
@@ -280,7 +262,7 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create_user(
 				username='another',
-				email=SAMPLE_CORRECT_USER_EMAIL_2,
+				email=data_samples.CORRECT_EMAIL_2,
 				password='another'
 			)
 
@@ -294,7 +276,7 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create_user(
 				username='third_not_participant_user',
-				email=SAMPLE_CORRECT_USER_EMAIL_3
+				email=data_samples.CORRECT_EMAIL_3
 			)
 
 		third_not_participant_person = Person \
@@ -359,7 +341,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 		self.assertEqual(
-			SAMPLE_NO_AUTH_MESSAGE,
+			NO_AUTH_MESSAGE,
 			json_response['detail']
 		)
 
@@ -394,7 +376,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 		self.assertEqual(
-			SAMPLE_NO_AUTH_MESSAGE,
+			NO_AUTH_MESSAGE,
 			json_response['detail']
 		)
 
@@ -406,8 +388,8 @@ class ProjectTest(APIAuthBaseTestCase):
 		url = reverse('core_api:projects-list')
 		data = {
 			'workspace': self.workspace.id,
-			'title': SAMPLE_CORRECT_PROJECT_TITLE,
-			'key': SAMPLE_CORRECT_PROJECT_KEY,
+			'title': data_samples.CORRECT_PROJECT_TITLE,
+			'key': data_samples.CORRECT_PROJECT_KEY,
 			'owned_by': self.person.id
 		}
 
@@ -430,12 +412,12 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		self.assertEqual(
 			json_response['title'],
-			SAMPLE_CORRECT_PROJECT_TITLE
+			data_samples.CORRECT_PROJECT_TITLE
 		)
 
 		self.assertEqual(
 			json_response['key'],
-			SAMPLE_CORRECT_PROJECT_KEY
+			data_samples.CORRECT_PROJECT_KEY
 		)
 
 		self.assertEqual(
