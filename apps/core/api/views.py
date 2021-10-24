@@ -596,6 +596,7 @@ class IssueMessagesPackedView(GenericAPIView):
 	permission_classes = (
 		AllowAny,
 	)
+	serializer_class = IssueMessageSerializer
 
 	@staticmethod
 	def get(request, issue_id):
