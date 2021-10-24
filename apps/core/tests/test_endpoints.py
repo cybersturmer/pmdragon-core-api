@@ -9,10 +9,7 @@ from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequ
 	PersonInvitationRequest
 
 from apps.core.tests import data_samples
-
-SAMPLE_INCORRECT_REFRESH_TOKEN = 'INCORRECT REFRESH_TOKEN'
-
-NO_AUTH_MESSAGE = 'Authentication credentials were not provided.'
+from apps.core.tests import error_strings
 
 URL_PROJECTS_DETAIL = 'core_api:projects-detail'
 
@@ -168,7 +165,7 @@ class AuthTests(APITestCase):
 		self.assertIn('detail', json_response)
 		self.assertEqual(
 			json_response['detail'],
-			'No active account found with the given credentials'
+			error_strings.NO_ACTIVE_ACCOUNTS_FOUND_FOR_CREDENTIALS_MESSAGE
 		)
 
 		self.assertNotIn('access', json_response)
@@ -215,12 +212,12 @@ class AuthTests(APITestCase):
 
 		self.assertEqual(
 			json_response['detail'],
-			'Token is invalid or expired'
+			error_strings.TOKEN_IS_INVALID_OR_EXPIRED_MESSAGE
 		)
 
 		self.assertEqual(
 			json_response['code'],
-			'token_not_valid'
+			error_strings.TOKEN_IS_INVALID_OR_EXPIRED_CODE
 		)
 
 
@@ -253,17 +250,17 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create(
 				workspace=workspace,
-				title=f'{data_samples.CORRECT_PROJECT_TITLE}N',
-				key=f'{data_samples.CORRECT_PROJECT_KEY}N',
+				title=data_samples.CORRECT_PROJECT_TITLE_2,
+				key=data_samples.CORRECT_PROJECT_KEY_2,
 				owned_by=person
 			)
 
 		second_participant_user = User \
 			.objects \
 			.create_user(
-				username='another',
+				username=data_samples.CORRECT_USERNAME_2,
 				email=data_samples.CORRECT_EMAIL_2,
-				password='another'
+				password=data_samples.CORRECT_PASSWORD
 			)
 
 		second_participant_person = Person \
@@ -275,7 +272,7 @@ class APIAuthBaseTestCase(APITestCase):
 		third_not_participant_user = User \
 			.objects \
 			.create_user(
-				username='third_not_participant_user',
+				username=data_samples.CORRECT_USERNAME_3,
 				email=data_samples.CORRECT_EMAIL_3
 			)
 
@@ -341,7 +338,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 		self.assertEqual(
-			NO_AUTH_MESSAGE,
+			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
 			json_response['detail']
 		)
 
@@ -376,7 +373,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 		self.assertEqual(
-			NO_AUTH_MESSAGE,
+			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
 			json_response['detail']
 		)
 
@@ -472,7 +469,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
-			'title': 'NEW TITLE'
+			'title': data_samples.CORRECT_PROJECT_TITLE_3
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -495,7 +492,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
 		data = {
-			'key': 'NEW'
+			'key': data_samples.CORRECT_PROJECT_KEY_3
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
@@ -555,7 +552,7 @@ class ProjectTest(APIAuthBaseTestCase):
 		)
 
 		self.assertIn(
-			'You can change owner only to participant of current workspace',
+			error_strings.OWNER_IS_ONLY_PARTICIPANT_MESSAGE,
 			json_response['owned_by']
 		)
 
@@ -579,7 +576,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		self.assertEqual(
 			json_response['detail'],
-			'You do not have permission to perform this action.'
+			error_strings.YOU_DONT_HAVE_PERMISSION_ON_ACTION_MESSAGE
 		)
 
 	def test_cant_patch_owner_by_by_not_participant(self):
