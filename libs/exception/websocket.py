@@ -1,4 +1,4 @@
-class WebsocketError(BaseException):
+class WebsocketError(Exception):
     pass
 
 
