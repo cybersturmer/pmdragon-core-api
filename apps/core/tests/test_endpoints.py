@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project, \
-	PersonInvitationRequest
+	PersonInvitationRequest, IssueTypeCategoryIcon
 
 from apps.core.tests import data_samples
 from apps.core.tests import error_strings
@@ -741,3 +741,114 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 		)
 
 
+class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
+	def assertResponse(self, response, standard):
+		self.assertIn('id', response)
+		self.assertIn('workspace', response)
+		self.assertIn('project', response)
+		self.assertIn('prefix', response)
+		self.assertIn('color', response)
+
+		self.assertEqual(
+			response['workspace'],
+			standard['workspace']
+		)
+
+		self.assertEqual(
+			response['project'],
+			standard['project']
+		)
+
+		self.assertEqual(
+			response['prefix'],
+			standard['prefix']
+		)
+
+		self.assertEqual(
+			response['color'],
+			standard['color']
+		)
+
+	def test_can_create(self):
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:issue-type-icons-list')
+		data = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX,
+			'color': data_samples.CORRECT_COLOR
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
+		json_response = json.loads(response.content)
+
+		standard = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX,
+			'color': data_samples.CORRECT_COLOR
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_retrieve(self):
+		issue_type_icon = IssueTypeCategoryIcon \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX,
+				color=data_samples.CORRECT_COLOR
+			)
+
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:issue-type-icons-detail', args=[issue_type_icon.id])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		standard = {
+			'workspace': issue_type_icon.workspace_id,
+			'project': issue_type_icon.project_id,
+			'prefix': issue_type_icon.prefix,
+			'color': issue_type_icon.color
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_prefix(self):
+		issue_type_icon = IssueTypeCategoryIcon \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX,
+				color=data_samples.CORRECT_COLOR
+			)
+
+		self.client.force_login(self.user)
+
+		url = reverse('core_api:issue-type-icons-detail', args=[issue_type_icon.id])
+		data = {
+			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		standard = {
+			'workspace': issue_type_icon.workspace_id,
+			'project': issue_type_icon.project_id,
+			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2,
+			'color': issue_type_icon.color
+		}
+
+		self.assertResponse(json_response, standard)
