@@ -1157,12 +1157,3 @@ class IssueTest(APIAuthBaseTestCase):
 		}
 
 		self.assertResponse(json_response, standard)
-
-
-
-
-
-
-
-
-
