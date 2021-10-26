@@ -61,3 +61,19 @@ PERSON_INVITATIONS_REQUESTS_DETAIL = 'core_api:person-invitations-requests-detai
 TOKEN_OBTAIN = 'token-obtain'
 
 TOKEN_REFRESH = 'token-refresh'
+
+ISSUE_MESSAGES_PACKED = 'core_api:issue-messages-packed'
+
+ISSUE_ORDERING = 'core_api:issue-ordering'
+
+CHECK = 'check'
+
+PASSWORD_CHANGE = 'password-change'
+
+AUTH_PERSONS_DETAIL = 'persons-detail'
+
+SPRINT_GUIDELINE_DETAIL = 'sprint-guideline'
+
+ME = 'me'
+
+AVATAR = 'avatar'

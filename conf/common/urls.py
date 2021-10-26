@@ -53,7 +53,7 @@ urlpatterns = [
 
 	path('api/check/',
 		 CheckConnection.as_view(),
-		 name='check_connection'),
+		 name='check'),
 
 	path('api/auth/obtain/',
 		 TokenObtainPairExtendedView.as_view(),
@@ -65,7 +65,7 @@ urlpatterns = [
 
 	path('api/auth/password/change/',
 		 PersonSetPasswordView.as_view(),
-		 name='person_set_password'),
+		 name='password-change'),
 
 	path('api/auth/person-password-forgot-requests/',
 		 PersonForgotPasswordRequestConfirmView.as_view({'post': 'create'}),
@@ -80,7 +80,7 @@ urlpatterns = [
 
 	path('api/auth/persons/',
 		 PersonRegistrationRequestVerifyView.as_view(),
-		 name='person_create'),
+		 name='persons-detail'),
 
 	path('api/auth/person-registration-requests/',
 		 PersonRegistrationRequestView.as_view({'post': 'create'}),
