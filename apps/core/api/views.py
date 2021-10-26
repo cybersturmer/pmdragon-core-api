@@ -181,6 +181,7 @@ class PersonInvitationRequestListCreateView(generics.ListCreateAPIView):
 		AllowAny,
 	)
 	http_method_names = (
+		'get',
 		'post',
 		'head',
 		'options'
