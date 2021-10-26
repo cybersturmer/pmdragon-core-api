@@ -6,17 +6,17 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project, \
-	PersonInvitationRequest, IssueTypeCategoryIcon
+	PersonInvitationRequest, IssueTypeCategoryIcon, IssueStateCategory, IssueEstimationCategory, Issue, \
+	IssueTypeCategory
 
 from apps.core.tests import data_samples
 from apps.core.tests import error_strings
-
-URL_PROJECTS_DETAIL = 'core_api:projects-detail'
+from conf.common import url_aliases
 
 
 class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
-		url = reverse('person-registration-requests-list')
+		url = reverse(url_aliases.PERSON_REGISTRATION_REQUESTS_LIST)
 		data = {
 			'email': data_samples.CORRECT_EMAIL,
 			'prefix_url': data_samples.CORRECT_PREFIX_URL
@@ -56,7 +56,7 @@ class PersonRegistrationRequestTest(APITestCase):
 			)
 
 		url = reverse(
-			'person-registration-requests-detail',
+			url_aliases.PERSON_REGISTRATION_REQUESTS_DETAIL,
 			args=[registration_request.key]
 		)
 
@@ -71,7 +71,7 @@ class PersonRegistrationRequestTest(APITestCase):
 
 class PersonForgotRequestTest(APITestCase):
 	def test_can_create(self):
-		url = reverse('person-forgot-requests-list')
+		url = reverse(url_aliases.PERSON_FORGOT_REQUEST_LIST)
 		data = {
 			'email': data_samples.CORRECT_EMAIL
 		}
@@ -88,7 +88,7 @@ class PersonForgotRequestTest(APITestCase):
 			.create(email=data_samples.CORRECT_EMAIL)
 
 		url = reverse(
-			'person-forgot-requests-detail',
+			url_aliases.PERSON_FORGOT_REQUEST_DETAIL,
 			args=[request_model_data.key]
 		)
 
@@ -136,7 +136,7 @@ class AuthTests(APITestCase):
 		cls.person = person
 
 	def test_can_get_tokens(self):
-		url = reverse('token_obtain_pair')
+		url = reverse(url_aliases.TOKEN_OBTAIN)
 		data = {
 			'username': data_samples.CORRECT_USERNAME,
 			'password': data_samples.CORRECT_PASSWORD
@@ -151,7 +151,7 @@ class AuthTests(APITestCase):
 		self.assertIn('refresh', json_response)
 
 	def test_cant_get_tokens_with_wrong_password(self):
-		url = reverse('token_obtain_pair')
+		url = reverse(url_aliases.TOKEN_OBTAIN)
 		data = {
 			'username': data_samples.CORRECT_USERNAME,
 			'password': data_samples.WRONG_PASSWORD
@@ -172,7 +172,7 @@ class AuthTests(APITestCase):
 		self.assertNotIn('refresh', json_response)
 
 	def test_can_refresh_tokens(self):
-		url = reverse('token_obtain_pair')
+		url = reverse(url_aliases.TOKEN_OBTAIN)
 		data = {
 			'username': data_samples.CORRECT_USERNAME,
 			'password': data_samples.CORRECT_PASSWORD
@@ -185,7 +185,7 @@ class AuthTests(APITestCase):
 
 		refresh_token = json_response.get('refresh')
 
-		url = reverse('token_refresh')
+		url = reverse(url_aliases.TOKEN_REFRESH)
 		data = {
 			'refresh': refresh_token
 		}
@@ -197,7 +197,7 @@ class AuthTests(APITestCase):
 		self.assertIn('refresh', json_response)
 
 	def test_cant_refresh_tokens_with_wrong_refresh_token(self):
-		url = reverse('token_refresh')
+		url = reverse(url_aliases.TOKEN_REFRESH)
 		data = {
 			'refresh': data_samples.INCORRECT_REFRESH_TOKEN
 		}
@@ -297,35 +297,46 @@ class APIAuthBaseTestCase(APITestCase):
 		cls.third_not_participant_user = third_not_participant_user
 		cls.third_not_participant_person = third_not_participant_person
 
+	def assertComprehensivenessByStandard(self, response: dict, standard: dict):
+		for key in standard.keys():
+			self.assertIn(
+				key,
+				response
+			)
+
+	def assertEqualityByStandard(self, response: dict, standard: dict):
+		for key in standard.keys():
+			self.assertEqual(
+				standard[key],
+				response[key]
+			)
+
+	def assertResponse(self, response: dict, standard: dict):
+		self.assertComprehensivenessByStandard(response, standard)
+		self.assertEqualityByStandard(response, standard)
+
 
 class WorkspaceTest(APIAuthBaseTestCase):
 	def test_can_get_detail(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
+		url = reverse(url_aliases.WORKSPACES_DETAIL, args=[self.workspace.id])
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 
-		self.assertEqual(
-			json_response['id'],
-			self.workspace.id
-		)
+		standard = {
+			'id': self.workspace.id,
+			'prefix_url': self.workspace.prefix_url,
+			'participants': [self.second_participant_person.id, self.person.id]
+		}
 
-		self.assertEqual(
-			json_response['prefix_url'],
-			self.workspace.prefix_url
-		)
-
-		self.assertEqual(
-			json_response['participants'],
-			[self.second_participant_person.id, self.person.id]
-		)
+		self.assertResponse(json_response, standard)
 
 	def test_cant_get_detail_without_credentials(self):
-		url = reverse('core_api:workspaces-detail', kwargs={'pk': self.workspace.id})
+		url = reverse(url_aliases.WORKSPACES_DETAIL, args=[self.workspace.id])
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 401)
@@ -345,7 +356,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 	def test_can_get_list(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:workspaces-list')
+		url = reverse(url_aliases.WORKSPACES_LIST)
 
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
@@ -360,7 +371,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 		)
 
 	def test_cant_get_list_without_credentials(self):
-		url = reverse('core_api:workspaces-list')
+		url = reverse(url_aliases.WORKSPACES_LIST)
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 401)
@@ -382,7 +393,7 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:projects-list')
+		url = reverse(url_aliases.PROJECTS_LIST)
 		data = {
 			'workspace': self.workspace.id,
 			'title': data_samples.CORRECT_PROJECT_TITLE,
@@ -394,80 +405,32 @@ class ProjectTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
-
-		self.assertIn('id', json_response)
-		self.assertIn('workspace', json_response)
-		self.assertIn('title', json_response)
-		self.assertIn('key', json_response)
-		self.assertIn('owned_by', json_response)
-		self.assertIn('created_at', json_response)
-
-		self.assertEqual(
-			json_response['workspace'],
-			self.workspace.id
-		)
-
-		self.assertEqual(
-			json_response['title'],
-			data_samples.CORRECT_PROJECT_TITLE
-		)
-
-		self.assertEqual(
-			json_response['key'],
-			data_samples.CORRECT_PROJECT_KEY
-		)
-
-		self.assertEqual(
-			json_response['owned_by'],
-			self.person.id
-		)
+		self.assertResponse(json_response, data)
 
 	def test_can_retrieve(self):
 		self.client.force_login(self.user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 
-		self.assertIn('id', json_response)
-		self.assertIn('workspace', json_response)
-		self.assertIn('title', json_response)
-		self.assertIn('key', json_response)
-		self.assertIn('owned_by', json_response)
-		self.assertIn('created_at', json_response)
+		standard = {
+			'id': self.project.id,
+			'workspace': self.workspace.id,
+			'title': self.project.title,
+			'key': self.project.key,
+			'owned_by': self.project.owned_by_id
+		}
 
-		self.assertEqual(
-			self.project.id,
-			json_response['id']
-		)
-
-		self.assertEqual(
-			self.project.workspace.id,
-			json_response['workspace']
-		)
-
-		self.assertEqual(
-			self.project.title,
-			json_response['title']
-		)
-
-		self.assertEqual(
-			self.project.key,
-			json_response['key']
-		)
-
-		self.assertEqual(
-			self.project.owned_by.id,
-			json_response['owned_by']
-		)
+		self.assertResponse(json_response, standard)
 
 	def test_can_patch_title(self):
 		self.client.force_login(self.user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'title': data_samples.CORRECT_PROJECT_TITLE_3
 		}
@@ -477,20 +440,12 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'title',
-			json_response
-		)
-
-		self.assertEqual(
-			json_response['title'],
-			data['title']
-		)
+		self.assertResponse(json_response, data)
 
 	def test_can_patch_key(self):
 		self.client.force_login(self.user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'key': data_samples.CORRECT_PROJECT_KEY_3
 		}
@@ -500,20 +455,12 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'key',
-			json_response
-		)
-
-		self.assertEqual(
-			json_response['key'],
-			data['key']
-		)
+		self.assertResponse(json_response, data)
 
 	def test_can_patch_owner_by(self):
 		self.client.force_login(self.user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.second_participant_person.id
 		}
@@ -523,20 +470,12 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'owned_by',
-			json_response
-		)
-
-		self.assertEqual(
-			json_response['owned_by'],
-			self.second_participant_person.id
-		)
+		self.assertResponse(json_response, data)
 
 	def test_cant_patch_owner_by_to_not_participant(self):
 		self.client.force_login(self.user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
@@ -546,20 +485,16 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'owned_by',
-			json_response
-		)
+		standard = {
+			'owned_by': [error_strings.OWNER_IS_ONLY_PARTICIPANT_MESSAGE]
+		}
 
-		self.assertIn(
-			error_strings.OWNER_IS_ONLY_PARTICIPANT_MESSAGE,
-			json_response['owned_by']
-		)
+		self.assertResponse(json_response, standard)
 
 	def test_cant_patch_owner_by_not_owner(self):
 		self.client.force_login(self.second_participant_user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
@@ -569,15 +504,11 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'detail',
-			json_response
-		)
+		standard = {
+			'detail': error_strings.YOU_DONT_HAVE_PERMISSION_ON_ACTION_MESSAGE
+		}
 
-		self.assertEqual(
-			json_response['detail'],
-			error_strings.YOU_DONT_HAVE_PERMISSION_ON_ACTION_MESSAGE
-		)
+		self.assertResponse(json_response, standard)
 
 	def test_cant_patch_owner_by_by_not_participant(self):
 		"""
@@ -585,7 +516,7 @@ class ProjectTest(APIAuthBaseTestCase):
 		"""
 		self.client.force_login(self.third_not_participant_user)
 
-		url = reverse(URL_PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
@@ -595,22 +526,18 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'detail',
-			json_response
-		)
+		standard = {
+			'detail': error_strings.NOT_FOUND
+		}
 
-		self.assertEqual(
-			'Not found.',
-			json_response['detail']
-		)
+		self.assertResponse(json_response, standard)
 
 
-class PersonInvitationRequestTest(APIAuthBaseTestCase):
+class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:person-invitations-requests-list')
+		url = reverse(url_aliases.PERSON_INVITATIONS_REQUESTS_LIST)
 		data = {
 			'invitees': [
 				{
@@ -632,15 +559,10 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 
 		json_response_first_slice = json_response[0]
 
-		self.assertIn(
-			'email',
-			json_response_first_slice
-		)
-
-		self.assertIn(
-			'workspace',
-			json_response_first_slice
-		)
+		standard = {
+			'email': self.third_not_participant_person.email,
+			'workspace': self.workspace.id,
+		}
 
 		self.assertIn(
 			'created_at',
@@ -652,17 +574,11 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 			json_response_first_slice
 		)
 
-		self.assertEqual(
-			self.third_not_participant_person.email,
-			json_response_first_slice['email']
-		)
-
-		self.assertEqual(
-			self.workspace.id,
-			json_response_first_slice['workspace']
-		)
+		self.assertResponse(json_response_first_slice, standard)
 
 	def test_can_retrieve(self):
+		self.client.force_login(self.user)
+
 		person_invitation_request = PersonInvitationRequest \
 			.objects \
 			.create(
@@ -670,10 +586,8 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 				email=self.third_not_participant_person.email,
 			)
 
-		self.client.force_login(self.user)
-
 		url = reverse(
-			'core_api:person-invitations-requests-detail',
+			url_aliases.PERSON_INVITATIONS_REQUESTS_DETAIL,
 			args=[person_invitation_request.key]
 		)
 
@@ -682,17 +596,16 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'email',
-			json_response
-		)
+		standard = {
+			'workspace': self.workspace.id,
+			'email': self.third_not_participant_person.email
+		}
 
-		self.assertIn(
-			'workspace',
-			json_response
-		)
+		self.assertComprehensivenessByStandard(json_response, standard)
 
 	def test_can_be_accepted(self):
+		self.client.force_login(self.user)
+
 		person_invitation_request = PersonInvitationRequest \
 			.objects \
 			.create(
@@ -700,10 +613,8 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 				email=self.third_not_participant_person.email,
 			)
 
-		self.client.force_login(self.user)
-
 		url = reverse(
-			'core_api:person-invitations-requests-detail',
+			url_aliases.PERSON_INVITATIONS_REQUESTS_DETAIL,
 			args=[person_invitation_request.key]
 		)
 		data = {
@@ -714,6 +625,13 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
+
+		standard_comprehensiveness = {
+			'email': self.third_not_participant_person.email,
+			'workspace': self.workspace,
+		}
+
+		self.assertComprehensivenessByStandard(json_response, standard_comprehensiveness)
 
 		self.assertIn(
 			'email',
@@ -742,37 +660,20 @@ class PersonInvitationRequestTest(APIAuthBaseTestCase):
 
 
 class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
-	def assertResponse(self, response, standard):
-		self.assertIn('id', response)
-		self.assertIn('workspace', response)
-		self.assertIn('project', response)
-		self.assertIn('prefix', response)
-		self.assertIn('color', response)
-
-		self.assertEqual(
-			response['workspace'],
-			standard['workspace']
-		)
-
-		self.assertEqual(
-			response['project'],
-			standard['project']
-		)
-
-		self.assertEqual(
-			response['prefix'],
-			standard['prefix']
-		)
-
-		self.assertEqual(
-			response['color'],
-			standard['color']
-		)
+	def create_instance(self):
+		return IssueTypeCategoryIcon \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX,
+				color=data_samples.CORRECT_COLOR
+			)
 
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:issue-type-icons-list')
+		url = reverse(url_aliases.ISSUE_TYPE_ICONS_LIST)
 		data = {
 			'workspace': self.workspace.id,
 			'project': self.project.id,
@@ -795,18 +696,11 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 		self.assertResponse(json_response, standard)
 
 	def test_retrieve(self):
-		issue_type_icon = IssueTypeCategoryIcon \
-			.objects \
-			.create(
-				workspace=self.workspace,
-				project=self.project,
-				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX,
-				color=data_samples.CORRECT_COLOR
-			)
-
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:issue-type-icons-detail', args=[issue_type_icon.id])
+		issue_type_icon = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
 
 		response = self.client.get(url, format='json', follow=True)
 		self.assertEqual(response.status_code, 200)
@@ -823,18 +717,11 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_prefix(self):
-		issue_type_icon = IssueTypeCategoryIcon \
-			.objects \
-			.create(
-				workspace=self.workspace,
-				project=self.project,
-				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX,
-				color=data_samples.CORRECT_COLOR
-			)
-
 		self.client.force_login(self.user)
 
-		url = reverse('core_api:issue-type-icons-detail', args=[issue_type_icon.id])
+		issue_type_icon = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
 		data = {
 			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2
 		}
@@ -852,3 +739,430 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 		}
 
 		self.assertResponse(json_response, standard)
+
+	def test_can_patch_color(self):
+		self.client.force_login(self.user)
+
+		issue_type_icon = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
+		data = {
+			'color': data_samples.CORRECT_COLOR_RED
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		standard = {
+			'workspace': issue_type_icon.workspace_id,
+			'project': issue_type_icon.project_id,
+			'prefix': issue_type_icon.prefix,
+			'color': data_samples.CORRECT_COLOR_RED
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_delete(self):
+		self.client.force_login(self.user)
+
+		issue_type_icon = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 204)
+
+		with self.assertRaises(IssueTypeCategoryIcon.DoesNotExist):
+			IssueTypeCategoryIcon.objects.get(pk=issue_type_icon.id)
+
+
+class IssueStateCategoryTest(APIAuthBaseTestCase):
+	def create_instance(self):
+		return IssueStateCategory \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=data_samples.CORRECT_ISSUE_STATE_TITLE,
+				is_default=False,
+				is_done=False
+			)
+
+	def test_can_create(self):
+		self.client.force_login(self.user)
+
+		url = reverse(url_aliases.ISSUE_STATES_LIST)
+		data = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data_samples.CORRECT_ISSUE_STATE_TITLE,
+			'is_default': False,
+			'is_done': False
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
+		json_response = json.loads(response.content)
+		self.assertResponse(json_response, data)
+
+	def test_can_retrieve(self):
+		self.client.force_login(self.user)
+
+		issue_state_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': issue_state_category.workspace_id,
+			'project': issue_state_category.project_id,
+			'title': issue_state_category.title,
+			'is_default': issue_state_category.is_default,
+			'is_done': issue_state_category.is_done
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_title(self):
+		self.client.force_login(self.user)
+
+		issue_state_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
+		data = {
+			'title': data_samples.CORRECT_ISSUE_STATE_TITLE_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': issue_state_category.workspace_id,
+			'project': issue_state_category.project_id,
+			'title': data['title'],
+			'is_default': issue_state_category.is_default,
+			'is_done': issue_state_category.is_done
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_is_default(self):
+		self.client.force_login(self.user)
+
+		issue_state_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
+		data = {
+			'is_default': True
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': issue_state_category.workspace_id,
+			'project': issue_state_category.project_id,
+			'title': issue_state_category.title,
+			'is_default': data['is_default'],
+			'is_done': issue_state_category.is_done
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_is_done(self):
+		self.client.force_login(self.user)
+
+		issue_state_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
+		data = {
+			'is_done': True
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': issue_state_category.workspace_id,
+			'project': issue_state_category.project_id,
+			'title': issue_state_category.title,
+			'is_default': issue_state_category.is_default,
+			'is_done': data['is_done']
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_delete(self):
+		self.client.force_login(self.user)
+
+		issue_state_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 204)
+
+		with self.assertRaises(IssueStateCategory.DoesNotExist):
+			IssueStateCategory.objects.get(pk=issue_state_category.id)
+
+
+class EstimationCategoryTest(APIAuthBaseTestCase):
+	def create_instance(self):
+		return IssueEstimationCategory \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=data_samples.CORRECT_ISSUE_ESTIMATION_TITLE,
+				value=data_samples.CORRECT_ISSUE_ESTIMATION_VALUE
+			)
+
+	def test_can_create(self):
+		self.client.force_login(self.user)
+
+		url = reverse(url_aliases.ISSUE_ESTIMATIONS_LIST)
+		data = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE,
+			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
+		json_response = json.loads(response.content)
+
+		self.assertResponse(json_response, data)
+
+	def test_can_retrieve(self):
+		self.client.force_login(self.user)
+
+		issue_estimation_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': issue_estimation_category.workspace_id,
+			'project': issue_estimation_category.project_id,
+			'title': issue_estimation_category.title,
+			'value': issue_estimation_category.value
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_title(self):
+		self.client.force_login(self.user)
+
+		issue_estimation_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
+		data = {
+			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE_2,
+			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_value(self):
+		self.client.force_login(self.user)
+
+		issue_estimation_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
+		data = {
+			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE,
+			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE_2
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_delete(self):
+		self.client.force_login(self.user)
+
+		issue_estimation_category = self.create_instance()
+
+		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 204)
+
+		with self.assertRaises(IssueEstimationCategory.DoesNotExist):
+			IssueEstimationCategory.objects.get(pk=issue_estimation_category.id)
+
+
+class IssueTest(APIAuthBaseTestCase):
+	@classmethod
+	def setUpTestData(cls):
+		super().setUpTestData()
+
+		issue_type_category_icon = IssueTypeCategoryIcon \
+			.objects \
+			.create(
+				workspace=cls.workspace,
+				project=cls.project,
+				prefix=data_samples.CORRECT_ICON_CATEGORY_PREFIX_2,
+				color=data_samples.CORRECT_COLOR_RED
+			)
+
+		issue_type_category = IssueTypeCategory \
+			.objects \
+			.filter(
+				workspace=cls.workspace,
+				project=cls.project,
+				is_default=True) \
+			.get()
+
+		issue_state_category = IssueStateCategory \
+			.objects \
+			.filter(
+				workspace=cls.workspace,
+				project=cls.project,
+				is_default=True
+			) \
+			.get()
+
+		estimation_category = IssueEstimationCategory \
+			.objects \
+			.filter(
+				workspace=cls.workspace,
+				project=cls.project
+			) \
+			.first()
+
+		cls.type_category_icon = issue_type_category_icon
+		cls.type_category = issue_type_category
+		cls.state_category = issue_state_category
+		cls.estimation_category = estimation_category
+
+	def create_instance(self):
+		return Issue \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=data_samples.CORRECT_ISSUE_TITLE,
+				description=data_samples.CORRECT_ISSUE_DESCRIPTION,
+				type_category=self.type_category,
+				state_category=self.state_category,
+				estimation_category=self.estimation_category,
+				assignee=self.person
+			)
+
+	def test_can_create(self):
+		self.client.force_login(self.user)
+
+		url = reverse(url_aliases.ISSUES_LIST)
+		data = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data_samples.CORRECT_ISSUE_TITLE,
+			'description': data_samples.CORRECT_ISSUE_DESCRIPTION,
+			'type_category': self.type_category.id,
+			'state_category': self.state_category.id,
+			'estimation_category': self.estimation_category.id,
+			'assignee': self.person.id
+		}
+
+		response = self.client.post(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 201)
+
+		json_response = json.loads(response.content)
+
+		self.assertResponse(json_response, data)
+
+	def test_can_patch_title(self):
+		self.client.force_login(self.user)
+
+		issue = self.create_instance()
+
+		url = reverse(url_aliases.ISSUES_DETAIL, args=[issue.id])
+		data = {
+			'title': data_samples.CORRECT_ISSUE_TITLE_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data['title'],
+			'description': data_samples.CORRECT_ISSUE_DESCRIPTION,
+			'type_category': self.type_category.id,
+			'state_category': self.state_category.id,
+			'estimation_category': self.estimation_category.id,
+			'assignee': self.person.id
+		}
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_patch_description(self):
+		self.client.force_login(self.user)
+
+		issue = self.create_instance()
+
+		url = reverse(url_aliases.ISSUES_DETAIL, args=[issue.id])
+		data = {
+			'title': data_samples.CORRECT_ISSUE_DESCRIPTION_2
+		}
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = {
+			'workspace': self.workspace.id,
+			'project': self.project.id,
+			'title': data['title'],
+			'description': data_samples.CORRECT_ISSUE_DESCRIPTION,
+			'type_category': self.type_category.id,
+			'state_category': self.state_category.id,
+			'estimation_category': self.estimation_category.id,
+			'assignee': self.person.id
+		}
+
+		self.assertResponse(json_response, standard)
+
+
+
+
+
+
+
+
+

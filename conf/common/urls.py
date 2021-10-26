@@ -14,8 +14,6 @@ from apps.core.api.views import PersonRegistrationRequestVerifyView, \
 	UserUpdateView, \
 	PersonAvatarUpload, \
 	PersonRegistrationRequestView, \
-	PersonInvitationRequestListView, \
-	PersonInvitationRequestRetrieveUpdateView, \
 	PersonForgotPasswordRequestConfirmView, \
 	CheckConnection, SprintGuidelineView
 
@@ -59,11 +57,11 @@ urlpatterns = [
 
 	path('api/auth/obtain/',
 		 TokenObtainPairExtendedView.as_view(),
-		 name='token_obtain_pair'),
+		 name='token-obtain'),
 
 	path('api/auth/refresh/',
 		 TokenRefreshView.as_view(),
-		 name='token_refresh'),
+		 name='token-refresh'),
 
 	path('api/auth/password/change/',
 		 PersonSetPasswordView.as_view(),

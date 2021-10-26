@@ -6,3 +6,5 @@ TOKEN_IS_INVALID_OR_EXPIRED_MESSAGE = 'Token is invalid or expired'
 
 OWNER_IS_ONLY_PARTICIPANT_MESSAGE = 'You can change owner only to participant of current workspace'
 YOU_DONT_HAVE_PERMISSION_ON_ACTION_MESSAGE = 'You do not have permission to perform this action.'
+
+NOT_FOUND = 'Not found.'
