@@ -13,6 +13,9 @@ from apps.core.tests import data_samples
 from apps.core.tests import error_strings
 from conf.common import url_aliases
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+
 
 class PersonRegistrationRequestTest(APITestCase):
 	def test_can_create(self):
@@ -314,6 +317,42 @@ class APIAuthBaseTestCase(APITestCase):
 	def assertResponse(self, response: dict, standard: dict):
 		self.assertComprehensivenessByStandard(response, standard)
 		self.assertEqualityByStandard(response, standard)
+
+	@staticmethod
+	def create_standard_by_instance(instance):
+
+		fields = instance._meta.get_fields()
+		result = {}
+
+		for field in fields:
+			# Lets check that model contain field
+			if not hasattr(instance, field.name):
+				continue
+
+			# Here we sure that model contain field,
+			# but dont know is it field or relation to another model
+
+			attribute = getattr(instance, field.name)
+
+			# If this value is a primitive type
+			is_primitive = type(attribute) in [int, str, None, datetime.datetime, datetime.date]
+
+			# Ot maybe that's model.
+			is_model = issubclass(type(attribute), models.Model)
+
+			# Models have instance.attribute_id for foreign keys
+			foreign_key_field = f'{field.name}_id'
+
+			# That's decision tree to understand what type is our field value
+			decision_tree = {
+				is_primitive: attribute,
+				is_model: getattr(instance, foreign_key_field) if hasattr(instance, foreign_key_field) else None
+			}
+
+			if decision_tree.get(True):
+				result[field.name] = decision_tree.get(True)
+
+		return result
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
@@ -1108,6 +1147,9 @@ class IssueTest(APIAuthBaseTestCase):
 		self.client.force_login(self.user)
 
 		issue = self.create_instance()
+		issue_standard = self.create_standard_by_instance(issue)
+
+		print(issue_standard)
 
 		url = reverse(url_aliases.ISSUES_DETAIL, args=[issue.id])
 		data = {
