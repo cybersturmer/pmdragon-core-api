@@ -725,7 +725,9 @@ class IssueEstimationSerializer(WorkspaceModelSerializer):
 			'workspace',
 			'project',
 			'title',
-			'value'
+			'value',
+			'created_at',
+			'updated_at'
 		)
 
 	def validate_value(self, attrs):

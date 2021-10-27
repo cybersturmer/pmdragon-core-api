@@ -319,7 +319,7 @@ class APIAuthBaseTestCase(APITestCase):
 		self.assertEqualityByStandard(response, standard)
 
 	@staticmethod
-	def create_standard_by_instance(instance):
+	def create_standard(instance):
 
 		fields = instance._meta.get_fields()
 		result = {}
@@ -345,7 +345,7 @@ class APIAuthBaseTestCase(APITestCase):
 
 			# That's decision tree to understand what type is our field value
 			decision_tree = {
-				is_primitive: attribute,
+				is_primitive: attribute if type(attribute) != datetime.datetime else attribute.utcnow().isoformat(),
 				is_model: getattr(instance, foreign_key_field) if hasattr(instance, foreign_key_field) else None
 			}
 
@@ -353,6 +353,19 @@ class APIAuthBaseTestCase(APITestCase):
 				result[field.name] = decision_tree.get(True)
 
 		return result
+
+	@staticmethod
+	def patch_standard(standard: dict, patch: dict):
+		result = standard.copy()
+
+		for key in patch.keys():
+			result[key] = patch[key]
+
+		return result
+
+	def create_patched_standard(self, instance, patch: dict):
+		standard = self.create_standard(instance)
+		return self.patch_standard(standard, patch)
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
@@ -725,14 +738,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'workspace': self.workspace.id,
-			'project': self.project.id,
-			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX,
-			'color': data_samples.CORRECT_COLOR
-		}
-
-		self.assertResponse(json_response, standard)
+		self.assertResponse(json_response, data)
 
 	def test_retrieve(self):
 		self.client.force_login(self.user)
@@ -746,12 +752,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'workspace': issue_type_icon.workspace_id,
-			'project': issue_type_icon.project_id,
-			'prefix': issue_type_icon.prefix,
-			'color': issue_type_icon.color
-		}
+		standard = self.create_standard(issue_type_icon)
 
 		self.assertResponse(json_response, standard)
 
@@ -770,12 +771,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'workspace': issue_type_icon.workspace_id,
-			'project': issue_type_icon.project_id,
-			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2,
-			'color': issue_type_icon.color
-		}
+		standard = self.create_patched_standard(issue_type_icon, data)
 
 		self.assertResponse(json_response, standard)
 
@@ -794,12 +790,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'workspace': issue_type_icon.workspace_id,
-			'project': issue_type_icon.project_id,
-			'prefix': issue_type_icon.prefix,
-			'color': data_samples.CORRECT_COLOR_RED
-		}
+		standard = self.create_patched_standard(issue_type_icon, data)
 
 		self.assertResponse(json_response, standard)
 
@@ -858,13 +849,8 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-		standard = {
-			'workspace': issue_state_category.workspace_id,
-			'project': issue_state_category.project_id,
-			'title': issue_state_category.title,
-			'is_default': issue_state_category.is_default,
-			'is_done': issue_state_category.is_done
-		}
+
+		standard = self.create_standard(issue_state_category)
 
 		self.assertResponse(json_response, standard)
 
@@ -882,13 +868,8 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-		standard = {
-			'workspace': issue_state_category.workspace_id,
-			'project': issue_state_category.project_id,
-			'title': data['title'],
-			'is_default': issue_state_category.is_default,
-			'is_done': issue_state_category.is_done
-		}
+
+		standard = self.create_patched_standard(issue_state_category, data)
 
 		self.assertResponse(json_response, standard)
 
@@ -906,13 +887,8 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-		standard = {
-			'workspace': issue_state_category.workspace_id,
-			'project': issue_state_category.project_id,
-			'title': issue_state_category.title,
-			'is_default': data['is_default'],
-			'is_done': issue_state_category.is_done
-		}
+
+		standard = self.create_patched_standard(issue_state_category, data)
 
 		self.assertResponse(json_response, standard)
 
@@ -930,13 +906,8 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-		standard = {
-			'workspace': issue_state_category.workspace_id,
-			'project': issue_state_category.project_id,
-			'title': issue_state_category.title,
-			'is_default': issue_state_category.is_default,
-			'is_done': data['is_done']
-		}
+
+		standard = self.create_patched_standard(issue_state_category, data)
 
 		self.assertResponse(json_response, standard)
 
@@ -994,12 +965,8 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-		standard = {
-			'workspace': issue_estimation_category.workspace_id,
-			'project': issue_estimation_category.project_id,
-			'title': issue_estimation_category.title,
-			'value': issue_estimation_category.value
-		}
+
+		standard = self.create_standard(issue_estimation_category)
 
 		self.assertResponse(json_response, standard)
 
@@ -1147,7 +1114,7 @@ class IssueTest(APIAuthBaseTestCase):
 		self.client.force_login(self.user)
 
 		issue = self.create_instance()
-		issue_standard = self.create_standard_by_instance(issue)
+		issue_standard = self.create_standard(issue)
 
 		print(issue_standard)
 
