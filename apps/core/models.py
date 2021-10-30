@@ -904,7 +904,7 @@ class Issue(ProjectWorkspaceAbstractModel):
 		super().save(*args, **kwargs)
 
 
-class IssueHistory(models.Model):
+class IssueHistory(ProjectWorkspaceAbstractModel):
 	"""
 		Issue History allow us to show history for all changes in a Issue
 		So that we can understand who did changes and when.
@@ -948,6 +948,12 @@ class IssueHistory(models.Model):
 		ordering = ['updated_at']
 		verbose_name = _('Issue History')
 		verbose_name_plural = _('Issue History')
+
+	def save(self, *args, **kwargs):
+		self.workspace = self.issue.workspace
+		self.project = self.issue.project
+
+		super().save(*args, **kwargs)
 
 	def __str__(self):
 		return f'#{self.issue.id} ({self.issue.title}) - {self.edited_field} changed [ {self.updated_at:%B %d %Y} ]'
