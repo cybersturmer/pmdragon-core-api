@@ -225,8 +225,18 @@ class AuthTests(APITestCase):
 
 
 class APIAuthBaseTestCase(APITestCase):
+	"""
+	We use this class to extend it when we need
+	3 different users, 3 different persons,
+	workspace, project and get some methods
+	to create standard from instance, patch it
+	assert comprehensiveness of standard, and equality
+	of request and standard.
+	"""
 	@classmethod
 	def setUpTestData(cls):
+		"""
+		This user (related person) will be participant of single workspace """
 		user = User \
 			.objects \
 			.create_user(
@@ -311,15 +321,40 @@ class APIAuthBaseTestCase(APITestCase):
 		for key in standard.keys():
 			self.assertEqual(
 				standard[key],
-				response[key]
+				response[key],
+				msg=key
 			)
 
 	def assertResponse(self, response: dict, standard: dict):
 		self.assertComprehensivenessByStandard(response, standard)
 		self.assertEqualityByStandard(response, standard)
 
+	def create_instance(self):
+		raise NotImplementedError
+
+	def base_can_patch_entity(self, url_alias, data: dict = None, exclude: list = None):
+		self.client.force_login(self.user)
+
+		instance = self.create_instance()
+
+		url = reverse(url_alias, args=[instance.id])
+
+		response = self.client.patch(url, data, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = self.create_standard(instance, patch=data, exclude=exclude)
+
+		self.assertResponse(json_response, standard)
+
+		return json_response
+
 	@staticmethod
-	def create_standard(instance):
+	def _create_standard(instance):
+		"""
+		We need standard to validate data (http json response)
+		This method can create standard by
+		"""
 
 		fields = instance._meta.get_fields()
 		result = {}
@@ -355,7 +390,7 @@ class APIAuthBaseTestCase(APITestCase):
 		return result
 
 	@staticmethod
-	def patch_standard(standard: dict, patch: dict):
+	def _patch_standard(standard: dict, patch: dict):
 		result = standard.copy()
 
 		for key in patch.keys():
@@ -363,12 +398,29 @@ class APIAuthBaseTestCase(APITestCase):
 
 		return result
 
-	def create_patched_standard(self, instance, patch: dict):
-		standard = self.create_standard(instance)
-		return self.patch_standard(standard, patch)
+	@staticmethod
+	def _exclude_from_standard(standard: dict, exclude: list):
+		for key in exclude:
+			del standard[key]
+
+		return standard
+
+	def create_standard(self, instance, patch: dict = None, exclude: list = None):
+		standard = self._create_standard(instance)
+
+		if patch is not None:
+			standard = self._patch_standard(standard, patch)
+
+		if exclude is not None:
+			standard = self._exclude_from_standard(standard, exclude)
+
+		return standard
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
+	def create_instance(self):
+		return self.workspace
+
 	def test_can_get_detail(self):
 		self.client.force_login(self.user)
 
@@ -442,6 +494,9 @@ class WorkspaceTest(APIAuthBaseTestCase):
 
 
 class ProjectTest(APIAuthBaseTestCase):
+	def create_instance(self):
+		return self.project
+
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
@@ -469,60 +524,30 @@ class ProjectTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'id': self.project.id,
-			'workspace': self.workspace.id,
-			'title': self.project.title,
-			'key': self.project.key,
-			'owned_by': self.project.owned_by_id
-		}
+		standard = self.create_standard(instance=self.project, exclude=['created_at'])
 
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_title(self):
-		self.client.force_login(self.user)
-
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
-		data = {
-			'title': data_samples.CORRECT_PROJECT_TITLE_3
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		self.assertResponse(json_response, data)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.PROJECTS_DETAIL,
+			data={'title': data_samples.CORRECT_PROJECT_TITLE_3},
+			exclude=['created_at']
+		)
 
 	def test_can_patch_key(self):
-		self.client.force_login(self.user)
-
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
-		data = {
-			'key': data_samples.CORRECT_PROJECT_KEY_3
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		self.assertResponse(json_response, data)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.PROJECTS_DETAIL,
+			data={'key': data_samples.CORRECT_PROJECT_KEY_3},
+			exclude=['created_at']
+		)
 
 	def test_can_patch_owner_by(self):
-		self.client.force_login(self.user)
-
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
-		data = {
-			'owned_by': self.second_participant_person.id
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		self.assertResponse(json_response, data)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.PROJECTS_DETAIL,
+			data={'owned_by': self.second_participant_person.id},
+			exclude=['created_at']
+		)
 
 	def test_cant_patch_owner_by_to_not_participant(self):
 		self.client.force_login(self.user)
@@ -586,6 +611,14 @@ class ProjectTest(APIAuthBaseTestCase):
 
 
 class PersonInvitationRequestsTest(APIAuthBaseTestCase):
+	def create_instance(self):
+		return PersonInvitationRequest\
+			.objects\
+			.create(
+				email=self.third_not_participant_person.email,
+				workspace=self.workspace.id
+			)
+
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
@@ -752,47 +785,21 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = self.create_standard(issue_type_icon)
+		standard = self._create_standard(issue_type_icon)
 
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_prefix(self):
-		self.client.force_login(self.user)
-
-		issue_type_icon = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
-		data = {
-			'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		standard = self.create_patched_standard(issue_type_icon, data)
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_TYPE_ICONS_DETAIL,
+			data={'prefix': data_samples.CORRECT_ICON_CATEGORY_PREFIX_2}
+		)
 
 	def test_can_patch_color(self):
-		self.client.force_login(self.user)
-
-		issue_type_icon = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
-		data = {
-			'color': data_samples.CORRECT_COLOR_RED
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		standard = self.create_patched_standard(issue_type_icon, data)
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_TYPE_ICONS_DETAIL,
+			data={'color': data_samples.CORRECT_COLOR_RED}
+		)
 
 	def test_can_delete(self):
 		self.client.force_login(self.user)
@@ -836,6 +843,7 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
+
 		self.assertResponse(json_response, data)
 
 	def test_can_retrieve(self):
@@ -850,66 +858,27 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = self.create_standard(issue_state_category)
+		standard = self._create_standard(issue_state_category)
 
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_title(self):
-		self.client.force_login(self.user)
-
-		issue_state_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
-		data = {
-			'title': data_samples.CORRECT_ISSUE_STATE_TITLE_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		standard = self.create_patched_standard(issue_state_category, data)
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_STATES_DETAIL,
+			data={'title': data_samples.CORRECT_ISSUE_STATE_TITLE_2}
+		)
 
 	def test_can_patch_is_default(self):
-		self.client.force_login(self.user)
-
-		issue_state_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
-		data = {
-			'is_default': True
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		standard = self.create_patched_standard(issue_state_category, data)
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_STATES_DETAIL,
+			data={'is_default': True}
+		)
 
 	def test_can_patch_is_done(self):
-		self.client.force_login(self.user)
-
-		issue_state_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
-		data = {
-			'is_done': True
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-
-		standard = self.create_patched_standard(issue_state_category, data)
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_STATES_DETAIL,
+			data={'is_done': True}
+		)
 
 	def test_can_delete(self):
 		self.client.force_login(self.user)
@@ -966,55 +935,26 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 
 		json_response = json.loads(response.content)
 
-		standard = self.create_standard(issue_estimation_category)
+		standard = self.create_standard(issue_estimation_category, exclude=[
+			'created_at',
+			'updated_at',
+		])
 
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_title(self):
-		self.client.force_login(self.user)
-
-		issue_estimation_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
-		data = {
-			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-		standard = {
-			'workspace': self.workspace.id,
-			'project': self.project.id,
-			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE_2,
-			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE
-		}
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_ESTIMATIONS_DETAIL,
+			data={'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE_2},
+			exclude=['created_at', 'updated_at']
+		)
 
 	def test_can_patch_value(self):
-		self.client.force_login(self.user)
-
-		issue_estimation_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
-		data = {
-			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-		standard = {
-			'workspace': self.workspace.id,
-			'project': self.project.id,
-			'title': data_samples.CORRECT_ISSUE_ESTIMATION_TITLE,
-			'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE_2
-		}
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUE_ESTIMATIONS_DETAIL,
+			data={'value': data_samples.CORRECT_ISSUE_ESTIMATION_VALUE_2},
+			exclude=['created_at', 'updated_at']
+		)
 
 	def test_can_delete(self):
 		self.client.force_login(self.user)
@@ -1111,58 +1051,15 @@ class IssueTest(APIAuthBaseTestCase):
 		self.assertResponse(json_response, data)
 
 	def test_can_patch_title(self):
-		self.client.force_login(self.user)
-
-		issue = self.create_instance()
-		issue_standard = self.create_standard(issue)
-
-		print(issue_standard)
-
-		url = reverse(url_aliases.ISSUES_DETAIL, args=[issue.id])
-		data = {
-			'title': data_samples.CORRECT_ISSUE_TITLE_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-		standard = {
-			'workspace': self.workspace.id,
-			'project': self.project.id,
-			'title': data['title'],
-			'description': data_samples.CORRECT_ISSUE_DESCRIPTION,
-			'type_category': self.type_category.id,
-			'state_category': self.state_category.id,
-			'estimation_category': self.estimation_category.id,
-			'assignee': self.person.id
-		}
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'title': data_samples.CORRECT_ISSUE_TITLE_2},
+			exclude=['created_at', 'updated_at']
+		)
 
 	def test_can_patch_description(self):
-		self.client.force_login(self.user)
-
-		issue = self.create_instance()
-
-		url = reverse(url_aliases.ISSUES_DETAIL, args=[issue.id])
-		data = {
-			'title': data_samples.CORRECT_ISSUE_DESCRIPTION_2
-		}
-
-		response = self.client.patch(url, data, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
-
-		json_response = json.loads(response.content)
-		standard = {
-			'workspace': self.workspace.id,
-			'project': self.project.id,
-			'title': data['title'],
-			'description': data_samples.CORRECT_ISSUE_DESCRIPTION,
-			'type_category': self.type_category.id,
-			'state_category': self.state_category.id,
-			'estimation_category': self.estimation_category.id,
-			'assignee': self.person.id
-		}
-
-		self.assertResponse(json_response, standard)
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'title': data_samples.CORRECT_ISSUE_DESCRIPTION_2},
+			exclude=['created_at', 'updated_at']
+		)
