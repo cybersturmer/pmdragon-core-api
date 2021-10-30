@@ -1153,6 +1153,8 @@ class IssueHistoryTest(IssueBasedTest):
 		json_response_first_slice = json_response[0]
 
 		standard = self.create_standard(issue_history_entry, exclude=[
+			'workspace',
+			'project',
 			'issue',
 			'created_at',
 			'updated_at'
@@ -1179,8 +1181,6 @@ class IssueHistoryTest(IssueBasedTest):
 	def test_cant_get_issue_filtered_list_for_not_participant(self):
 		self.client.force_login(self.third_not_participant_user)
 
-		print(f'Logged in as {self.third_not_participant_user}')
-
 		issue_history_entry: IssueHistory = self.create_or_get_instance()
 
 		url = reverse(url_aliases.ISSUES_HISTORY_LIST)
@@ -1197,14 +1197,53 @@ class IssueHistoryTest(IssueBasedTest):
 		)
 
 
-class IssueMessageTest(APIAuthBaseTestCase):
+class IssueMessageTest(IssueBasedTest):
 	def create_or_get_instance(self):
-		return IssueMessage.objects.create()
+		issue = super().create_or_get_instance()
+
+		return IssueMessage \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				issue=issue,
+				description=data_samples.CORRECT_ISSUE_DESCRIPTION,
+				created_by=self.person
+			)
+
+	def test_can_issue_filtered_list(self):
+		self.client.force_login(self.user)
+
+		issue_message: IssueMessage = self.create_or_get_instance()
+
+		url = reverse(url_aliases.ISSUE_MESSAGES_LIST)
+		url_with_filter = f'{url}?issue={issue_message.issue.id}'
+
+		response = self.client.get(url_with_filter, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		json_response_first_slice = json_response[0]
+
+		standard = self.create_standard(issue_message, exclude=[
+			'workspace',
+			'project',
+			'issue',
+			'created_at',
+			'updated_at'
+		])
+
+		self.assertResponse(json_response_first_slice, standard)
 
 
 class ProjectBacklogTest(APIAuthBaseTestCase):
 	def create_or_get_instance(self):
-		return ProjectBacklog.objects.create()
+		return ProjectBacklog\
+			.objects\
+			.filter(
+				workspace=self.workspace,
+				project=self.project
+			)
 
 
 class SprintDurationTest(APIAuthBaseTestCase):
