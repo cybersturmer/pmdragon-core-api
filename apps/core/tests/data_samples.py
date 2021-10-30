@@ -35,6 +35,9 @@ CORRECT_ISSUE_TYPE_CATEGORY_TITLE_2 = 'Spike'
 CORRECT_ISSUE_TITLE = 'As a user i want to create new issue'
 CORRECT_ISSUE_TITLE_2 = 'As a user i want to open the Project Backlog, but some error occurred'
 
+CORRECT_ISSUE_ORDERING = 1
+CORRECT_ISSUE_ORDERING_2 = 15
+
 CORRECT_ISSUE_DESCRIPTION = 'This description is really good'
 CORRECT_ISSUE_DESCRIPTION_2 = 'This description is even better good'
 
