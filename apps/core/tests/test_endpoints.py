@@ -7,7 +7,8 @@ from rest_framework.test import APITestCase
 
 from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequest, Workspace, Project, \
 	PersonInvitationRequest, IssueTypeCategoryIcon, IssueStateCategory, IssueEstimationCategory, Issue, \
-	IssueTypeCategory
+	IssueTypeCategory, IssueHistory, IssueMessage, ProjectBacklog, SprintDuration, Sprint, ProjectNonWorkingDay, \
+	ProjectWorkingDays
 
 from apps.core.tests import data_samples
 from apps.core.tests import error_strings
@@ -329,13 +330,13 @@ class APIAuthBaseTestCase(APITestCase):
 		self.assertComprehensivenessByStandard(response, standard)
 		self.assertEqualityByStandard(response, standard)
 
-	def create_instance(self):
+	def create_or_get_instance(self):
 		raise NotImplementedError
 
 	def base_can_patch_entity(self, url_alias, data: dict = None, exclude: list = None):
 		self.client.force_login(self.user)
 
-		instance = self.create_instance()
+		instance = self.create_or_get_instance()
 
 		url = reverse(url_alias, args=[instance.id])
 
@@ -348,6 +349,19 @@ class APIAuthBaseTestCase(APITestCase):
 		self.assertResponse(json_response, standard)
 
 		return json_response
+
+	def base_can_delete_entity(self, url_alias):
+		self.client.force_login(self.user)
+
+		instance: models.Model = self.create_or_get_instance()
+
+		url = reverse(url_alias, args=[instance.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 204)
+
+		with self.assertRaises(getattr(instance.__class__, 'DoesNotExist')):
+			instance.__class__.objects.get(pk=instance.id)
 
 	@staticmethod
 	def _create_standard(instance):
@@ -418,7 +432,7 @@ class APIAuthBaseTestCase(APITestCase):
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return self.workspace
 
 	def test_can_get_detail(self):
@@ -494,7 +508,7 @@ class WorkspaceTest(APIAuthBaseTestCase):
 
 
 class ProjectTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return self.project
 
 	def test_can_create(self):
@@ -611,7 +625,7 @@ class ProjectTest(APIAuthBaseTestCase):
 
 
 class PersonInvitationRequestsTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return PersonInvitationRequest\
 			.objects\
 			.create(
@@ -745,7 +759,7 @@ class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 
 
 class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return IssueTypeCategoryIcon \
 			.objects \
 			.create(
@@ -776,7 +790,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 	def test_retrieve(self):
 		self.client.force_login(self.user)
 
-		issue_type_icon = self.create_instance()
+		issue_type_icon = self.create_or_get_instance()
 
 		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
 
@@ -802,21 +816,13 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 		)
 
 	def test_can_delete(self):
-		self.client.force_login(self.user)
-
-		issue_type_icon = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
-
-		response = self.client.delete(url, format='json', follow=True)
-		self.assertEqual(response.status_code, 204)
-
-		with self.assertRaises(IssueTypeCategoryIcon.DoesNotExist):
-			IssueTypeCategoryIcon.objects.get(pk=issue_type_icon.id)
+		self.base_can_delete_entity(
+			url_aliases.ISSUE_TYPE_ICONS_DETAIL
+		)
 
 
 class IssueStateCategoryTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return IssueStateCategory \
 			.objects \
 			.create(
@@ -849,7 +855,7 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 	def test_can_retrieve(self):
 		self.client.force_login(self.user)
 
-		issue_state_category = self.create_instance()
+		issue_state_category = self.create_or_get_instance()
 
 		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
 
@@ -881,21 +887,13 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		)
 
 	def test_can_delete(self):
-		self.client.force_login(self.user)
-
-		issue_state_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
-
-		response = self.client.delete(url, format='json', follow=True)
-		self.assertEqual(response.status_code, 204)
-
-		with self.assertRaises(IssueStateCategory.DoesNotExist):
-			IssueStateCategory.objects.get(pk=issue_state_category.id)
+		self.base_can_delete_entity(
+			url_aliases.ISSUE_STATES_DETAIL
+		)
 
 
 class EstimationCategoryTest(APIAuthBaseTestCase):
-	def create_instance(self):
+	def create_or_get_instance(self):
 		return IssueEstimationCategory \
 			.objects \
 			.create(
@@ -926,7 +924,7 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 	def test_can_retrieve(self):
 		self.client.force_login(self.user)
 
-		issue_estimation_category = self.create_instance()
+		issue_estimation_category = self.create_or_get_instance()
 
 		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
 
@@ -957,20 +955,29 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 		)
 
 	def test_can_delete(self):
-		self.client.force_login(self.user)
-
-		issue_estimation_category = self.create_instance()
-
-		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
-
-		response = self.client.delete(url, format='json', follow=True)
-		self.assertEqual(response.status_code, 204)
-
-		with self.assertRaises(IssueEstimationCategory.DoesNotExist):
-			IssueEstimationCategory.objects.get(pk=issue_estimation_category.id)
+		self.base_can_delete_entity(
+			url_aliases.ISSUE_ESTIMATIONS_DETAIL
+		)
 
 
-class IssueTest(APIAuthBaseTestCase):
+class IssueBasedTest(APIAuthBaseTestCase):
+	project = None
+	workspace = None
+
+	def create_or_get_instance(self):
+		return Issue \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=data_samples.CORRECT_ISSUE_TITLE,
+				description=data_samples.CORRECT_ISSUE_DESCRIPTION,
+				type_category=self.type_category,
+				state_category=self.state_category,
+				estimation_category=self.estimation_category,
+				assignee=self.person
+			)
+
 	@classmethod
 	def setUpTestData(cls):
 		super().setUpTestData()
@@ -1014,20 +1021,8 @@ class IssueTest(APIAuthBaseTestCase):
 		cls.state_category = issue_state_category
 		cls.estimation_category = estimation_category
 
-	def create_instance(self):
-		return Issue \
-			.objects \
-			.create(
-				workspace=self.workspace,
-				project=self.project,
-				title=data_samples.CORRECT_ISSUE_TITLE,
-				description=data_samples.CORRECT_ISSUE_DESCRIPTION,
-				type_category=self.type_category,
-				state_category=self.state_category,
-				estimation_category=self.estimation_category,
-				assignee=self.person
-			)
 
+class IssueTest(IssueBasedTest):
 	def test_can_create(self):
 		self.client.force_login(self.user)
 
@@ -1124,3 +1119,106 @@ class IssueTest(APIAuthBaseTestCase):
 			data={'ordering': data_samples.CORRECT_ISSUE_ORDERING_2},
 			exclude=['created_at', 'updated_at']
 		)
+
+	def test_can_delete(self):
+		self.base_can_delete_entity(
+			url_aliases.ISSUES_DETAIL
+		)
+
+
+class IssueHistoryTest(IssueBasedTest):
+	def create_or_get_instance(self):
+		issue = super().create_or_get_instance()
+
+		return IssueHistory \
+			.objects \
+			.filter(
+				issue=issue
+			) \
+			.get()
+
+	def test_can_get_issue_filtered_list(self):
+		self.client.force_login(self.user)
+
+		issue_history_entry: IssueHistory = self.create_or_get_instance()
+
+		url = reverse(url_aliases.ISSUES_HISTORY_LIST)
+		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
+
+		response = self.client.get(url_with_filter, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		json_response_first_slice = json_response[0]
+
+		standard = self.create_standard(issue_history_entry, exclude=[
+			'issue',
+			'created_at',
+			'updated_at'
+		])
+
+		self.assertResponse(json_response_first_slice, standard)
+
+	def test_cant_get_issue_filtered_list_without_credentials(self):
+		issue_history_entry: IssueHistory = self.create_or_get_instance()
+
+		url = reverse(url_aliases.ISSUES_HISTORY_LIST)
+		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
+
+		response = self.client.get(url_with_filter, format='json', follow=True)
+		self.assertEqual(response.status_code, 401)
+
+		json_response = json.loads(response.content)
+
+		self.assertEqual(
+			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
+			json_response['detail']
+		)
+
+	def test_cant_get_issue_filtered_list_for_not_participant(self):
+		self.client.force_login(self.third_not_participant_user)
+
+		issue_history_entry: IssueHistory = self.create_or_get_instance()
+
+		url = reverse(url_aliases.ISSUES_HISTORY_LIST)
+		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
+
+		response = self.client.get(url_with_filter, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		self.assertEqual(
+			json_response,
+			[]
+		)
+
+
+class IssueMessageTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return IssueMessage.objects.create()
+
+
+class ProjectBacklogTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return ProjectBacklog.objects.create()
+
+
+class SprintDurationTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return SprintDuration.objects.create()
+
+
+class SprintTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return Sprint.objects.create()
+
+
+class ProjectNonWorkingDaysTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return ProjectNonWorkingDay.objects.create()
+
+
+class ProjectWorkingDaysTest(APIAuthBaseTestCase):
+	def create_or_get_instance(self):
+		return ProjectWorkingDays.objects.create()
