@@ -253,22 +253,6 @@ class APIAuthBaseTestCase(APITestCase):
 				phone=data_samples.CORRECT_PHONE
 			)
 
-		workspace = Workspace \
-			.objects \
-			.create(
-				prefix_url=data_samples.CORRECT_PREFIX_URL,
-				owned_by=person
-			)
-
-		project = Project \
-			.objects \
-			.create(
-				workspace=workspace,
-				title=data_samples.CORRECT_PROJECT_TITLE_2,
-				key=data_samples.CORRECT_PROJECT_KEY_2,
-				owned_by=person
-			)
-
 		second_participant_user = User \
 			.objects \
 			.create_user(
@@ -287,7 +271,8 @@ class APIAuthBaseTestCase(APITestCase):
 			.objects \
 			.create_user(
 				username=data_samples.CORRECT_USERNAME_3,
-				email=data_samples.CORRECT_EMAIL_3
+				email=data_samples.CORRECT_EMAIL_3,
+				password=data_samples.CORRECT_PASSWORD
 			)
 
 		third_not_participant_person = Person \
@@ -296,8 +281,24 @@ class APIAuthBaseTestCase(APITestCase):
 				user=third_not_participant_user
 			)
 
+		workspace = Workspace \
+			.objects \
+			.create(
+				prefix_url=data_samples.CORRECT_PREFIX_URL,
+				owned_by=person
+			)
+
 		workspace.participants.add(person)
 		workspace.participants.add(second_participant_person)
+
+		project = Project \
+			.objects \
+			.create(
+				workspace=workspace,
+				title=data_samples.CORRECT_PROJECT_TITLE_2,
+				key=data_samples.CORRECT_PROJECT_KEY_2,
+				owned_by=person
+			)
 
 		cls.workspace = workspace
 		cls.project = project
@@ -1177,6 +1178,8 @@ class IssueHistoryTest(IssueBasedTest):
 
 	def test_cant_get_issue_filtered_list_for_not_participant(self):
 		self.client.force_login(self.third_not_participant_user)
+
+		print(f'Logged in as {self.third_not_participant_user}')
 
 		issue_history_entry: IssueHistory = self.create_or_get_instance()
 
