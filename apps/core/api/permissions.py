@@ -48,9 +48,6 @@ class IsParticipateInWorkspace(permissions.BasePermission):
     Or current user participate in workspace
     """
     def has_object_permission(self, request, view, obj):
-        if not hasattr(obj, 'workspace'):
-            return False
-
         try:
             if request.user.person in obj.workspace.participants.all():
                 return True
