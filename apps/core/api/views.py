@@ -518,11 +518,10 @@ class IssueViewSet(WorkspacesModelViewSet):
 	)
 
 
-class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+class IssueHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 	"""
 	We use this view to get history entries for current issue.
 	We use filter backend for it with issue param.
-	@todo check that IsParticipateInWorkspace is not a problem's root.
 	"""
 	queryset = IssueHistory.objects.all()
 	serializer_class = IssueHistorySerializer
@@ -532,21 +531,6 @@ class IssueHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 	)
 	filter_backends = [DjangoFilterBackend]
 	filterset_fields = ['issue']
-
-	def get_serializer_context(self):
-		"""
-		Put to serializer context information about current person
-		"""
-		context = super().get_serializer_context()
-
-		try:
-			context.update({
-				'person': self.request.user.person
-			})
-		except Person.DoesNotExist:
-			pass
-
-		return context
 
 
 class IssueMessagesViewSet(WorkspacesModelViewSet):
