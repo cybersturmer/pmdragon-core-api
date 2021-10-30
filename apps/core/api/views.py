@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from rest_framework import filters
 from django.contrib.auth.models import AnonymousUser, User
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -361,29 +362,14 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 		)
 
 
-class WorkspaceReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
-	"""
-	Get all workspaces current Person participate in
-	We need it on frontend to understand list of workspaces to switch between
-	If person does not participate in Workspace -> he / her has no access
-	to Workspace related data.
-	On the other hand - if person participate in Workspace - he / her has full access
-	to all Workspace related data.
-	"""
-	permission_classes = (
-		IsAuthenticated,
-	)
-
-	serializer_class = WorkspaceDetailedSerializer
-	queryset = Workspace.objects.all()
-
-	def get_queryset(self):
-		queryset = super().get_queryset()
+class SpacedFilter(filters.BaseFilterBackend):
+	def filter_queryset(self, request, queryset, view):
 		try:
-			person = self.request.user.person
-			return queryset.filter(participants__in=[person]).all()
+			person = Person.objects.get(user=request.user)
 		except Person.DoesNotExist:
 			return queryset.none()
+
+		return queryset.filter(workspace__participants__in=[person]).all()
 
 
 class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -396,17 +382,9 @@ class WorkspacesReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
 	permission_classes = (
 		IsAuthenticated,
 	)
-
-	def get_queryset(self):
-		"""
-		Getting all instances, that belong to this workspace.
-		"""
-		queryset = super().get_queryset()
-		try:
-			person = self.request.user.person
-			return queryset.filter(workspace__participants__in=[person]).all()
-		except Person.DoesNotExist:
-			return queryset.none()
+	filter_backends = (
+		SpacedFilter,
+	)
 
 	def get_serializer_context(self):
 		"""
@@ -518,6 +496,12 @@ class IssueViewSet(WorkspacesModelViewSet):
 	)
 
 
+class IssueFilterBackend(filters.BaseFilterBackend):
+	def filter_queryset(self, request, queryset, view):
+		issue_id = request.query_params.get('issue')
+		return queryset.filter(issue_id=issue_id)
+
+
 class IssueHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 	"""
 	We use this view to get history entries for current issue.
@@ -527,10 +511,12 @@ class IssueHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 	serializer_class = IssueHistorySerializer
 	permission_classes = (
 		IsAuthenticated,
-		IsParticipateInWorkspace
+		IsParticipateInWorkspace,
 	)
-	filter_backends = [DjangoFilterBackend]
-	filterset_fields = ['issue']
+	filter_backends = (
+		SpacedFilter,
+		IssueFilterBackend,
+	)
 
 
 class IssueMessagesViewSet(WorkspacesModelViewSet):
@@ -545,8 +531,10 @@ class IssueMessagesViewSet(WorkspacesModelViewSet):
 		IsParticipateInWorkspace,
 		IsCreatorOrReadOnly
 	)
-	filter_backends = [DjangoFilterBackend]
-	filterset_fields = ['issue']
+	filter_backends = (
+		SpacedFilter,
+		IssueFilterBackend,
+	)
 
 
 def format_message(message: IssueMessage, is_mine: bool, is_label: bool):
@@ -794,6 +782,12 @@ class SprintViewSet(WorkspacesModelViewSet):
 	)
 
 
+class SprintFilterBackend(filters.BaseFilterBackend):
+	def filter_queryset(self, request, queryset, view):
+		sprint_id = request.query_params.get('sprint')
+		return queryset.filter(sprint_id=sprint_id)
+
+
 class SprintEffortsHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 	"""
 	Estimation is auto-calculated so we can just get it.
@@ -804,8 +798,10 @@ class SprintEffortsHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 		IsAuthenticated,
 		IsParticipateInWorkspace,
 	)
-	filter_backends = [DjangoFilterBackend]
-	filterset_fields = ['sprint']
+	filter_backends = (
+		SpacedFilter,
+		SprintFilterBackend
+	)
 
 
 class SprintGuidelineView(views.APIView):
