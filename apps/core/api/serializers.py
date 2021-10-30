@@ -809,8 +809,6 @@ class IssueHistorySerializer(serializers.ModelSerializer):
 		model = IssueHistory
 		fields = (
 			'id',
-			'workspace',
-			'project',
 			'entry_type',
 			'edited_field',
 			'before_value',
