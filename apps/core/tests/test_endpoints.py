@@ -1063,3 +1063,66 @@ class IssueTest(APIAuthBaseTestCase):
 			data={'title': data_samples.CORRECT_ISSUE_DESCRIPTION_2},
 			exclude=['created_at', 'updated_at']
 		)
+
+	def test_can_patch_type_category(self):
+		another_type_category = IssueTypeCategory \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project,
+				is_default=False
+			) \
+			.first()
+
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'type_category': another_type_category.id},
+			exclude=['created_at', 'updated_at']
+		)
+
+	def test_can_patch_state_category(self):
+		another_state_category = IssueStateCategory \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project,
+				is_default=False
+			) \
+			.first()
+
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'state_category': another_state_category.id},
+			exclude=['created_at', 'updated_at']
+		)
+
+	def test_can_patch_estimation_category(self):
+		another_estimation_category = IssueEstimationCategory \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project
+			). \
+			last()
+
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'estimation_category': another_estimation_category.id},
+			exclude=['created_at', 'updated_at']
+		)
+
+	def test_can_patch_assignee(self):
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'assignee': self.second_participant_person.id},
+			exclude=['created_at', 'updated_at']
+		)
+
+	def test_can_patch_ordering(self):
+		self.base_can_patch_entity(
+			url_alias=url_aliases.ISSUES_DETAIL,
+			data={'ordering': data_samples.CORRECT_ISSUE_ORDERING_2},
+			exclude=['created_at', 'updated_at']
+		)
+
+
