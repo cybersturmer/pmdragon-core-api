@@ -10,8 +10,8 @@ PERSONS_DETAIL = 'core_api:persons-detail'
 ISSUES_LIST = 'core_api:issues-list'
 ISSUES_DETAIL = 'core_api:issues-detail'
 
-ISSUES_HISTORY_LIST = 'core_api:issues-history-list'
-ISSUES_HISTORY_DETAIL = 'core_api:issues-history-detail'
+ISSUES_HISTORY_LIST = 'core_api:issue-history-list'
+ISSUES_HISTORY_DETAIL = 'core_api:issue-history-detail'
 
 ISSUE_TYPES_LIST = 'core_api:issue-types-list'
 ISSUE_TYPES_DETAIL = 'core_api:issue-types-detail'
