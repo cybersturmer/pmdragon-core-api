@@ -1124,5 +1124,3 @@ class IssueTest(APIAuthBaseTestCase):
 			data={'ordering': data_samples.CORRECT_ISSUE_ORDERING_2},
 			exclude=['created_at', 'updated_at']
 		)
-
-
