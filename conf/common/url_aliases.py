@@ -28,6 +28,9 @@ ISSUE_STATES_DETAIL = 'core_api:issue-states-detail'
 ISSUE_ESTIMATIONS_LIST = 'core_api:issue-estimations-list'
 ISSUE_ESTIMATIONS_DETAIL = 'core_api:issue-estimations-detail'
 
+PROJECT_NON_WORKING_DAYS_LIST = 'core_api:non-working-days-list'
+PROJECT_NON_WORKING_DAYS_DETAIL = 'core_api:non-working-days-detail'
+
 ISSUE_MESSAGES_LIST = 'core_api:issue-messages-list'
 ISSUE_MESSAGES_DETAIL = 'core_api:issue-messages-detail'
 
