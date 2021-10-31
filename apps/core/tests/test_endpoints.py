@@ -14,7 +14,6 @@ from apps.core.tests import data_samples
 from apps.core.tests import error_strings
 from conf.common import url_aliases
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
