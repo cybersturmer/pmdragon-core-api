@@ -877,7 +877,7 @@ class BacklogWritableSerializer(WorkspaceModelSerializer):
 		fields = (
 			'id',
 			'workspace',
-			'project_id',
+			'project',
 			'issues'
 		)
 
