@@ -4,6 +4,9 @@ WORKSPACES_DETAIL = 'core_api:workspaces-detail'
 PROJECTS_LIST = 'core_api:projects-list'
 PROJECTS_DETAIL = 'core_api:projects-detail'
 
+PROJECT_BACKLOG_LIST = 'core_api:backlogs-list'
+PROJECT_BACKLOG_DETAIL = 'core_api:backlogs-detail'
+
 PERSONS_LIST = 'core_api:persons-list'
 PERSONS_DETAIL = 'core_api:persons-detail'
 
