@@ -359,7 +359,7 @@ class APIAuthBaseTestCase(APITestCase):
 		url = reverse(url_alias, args=[instance.id])
 
 		response = self.client.delete(url, format='json', follow=True)
-		self.assertEqual(response.status_code, 204)
+		self.assertEqual(response.status_code, 204, msg=response.content)
 
 		with self.assertRaises(getattr(instance.__class__, 'DoesNotExist')):
 			instance.__class__.objects.get(pk=instance.id)
@@ -1238,29 +1238,88 @@ class IssueMessageTest(IssueBasedTest):
 
 class ProjectBacklogTest(APIAuthBaseTestCase):
 	def create_or_get_instance(self):
-		return ProjectBacklog\
-			.objects\
+		return ProjectBacklog \
+			.objects \
 			.filter(
 				workspace=self.workspace,
 				project=self.project
-			)
+			) \
+			.get()
+
+	def test_can_retrieve(self):
+		backlog = self.create_or_get_instance()
+
+		self.client.force_login(self.user)
+
+		url = reverse(url_aliases.PROJECT_BACKLOG_DETAIL, args=[backlog.id])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+
+		standard = self.create_standard(backlog)
+		self.assertResponse(json_response, standard)
 
 
 class SprintDurationTest(APIAuthBaseTestCase):
+	""" In reality we do not use it yet, so let's skip it so far """
 	def create_or_get_instance(self):
 		return SprintDuration.objects.create()
 
 
 class SprintTest(APIAuthBaseTestCase):
 	def create_or_get_instance(self):
-		return Sprint.objects.create()
+		return Sprint \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				title=data_samples.CORRECT_SPRINT_TITLE,
+				goal=data_samples.CORRECT_SPRINT_GOAL
+			)
+
+	def test_can_retrieve(self):
+		sprint = self.create_or_get_instance()
+		self.client.force_login(self.user)
+
+		url = reverse(url_aliases.SPRINTS_DETAIL, args=[sprint.id])
+
+		response = self.client.get(url, format='json', follow=True)
+		self.assertEqual(response.status_code, 200, msg=response.content)
+
+		json_response = json.loads(response.content)
+		standard = self.create_standard(sprint)
+
+		self.assertResponse(json_response, standard)
+
+	def test_can_delete(self):
+		self.base_can_delete_entity(
+			url_aliases.SPRINTS_DETAIL
+		)
 
 
 class ProjectNonWorkingDaysTest(APIAuthBaseTestCase):
 	def create_or_get_instance(self):
-		return ProjectNonWorkingDay.objects.create()
+		return ProjectNonWorkingDay \
+			.objects \
+			.create(
+				workspace=self.workspace,
+				project=self.project,
+				date=datetime.date.today()
+			)
+
+	def test_can_delete(self):
+		self.base_can_delete_entity(
+			url_aliases.PROJECT_NON_WORKING_DAYS_DETAIL
+		)
 
 
 class ProjectWorkingDaysTest(APIAuthBaseTestCase):
 	def create_or_get_instance(self):
-		return ProjectWorkingDays.objects.create()
+		return ProjectWorkingDays \
+			.objects \
+			.filter(
+				workspace=self.workspace,
+				project=self.project
+			)
