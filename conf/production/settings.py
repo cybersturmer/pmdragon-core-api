@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from conf.common.settings import *
 
+TESTING = False
+
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 SIMPLE_JWT = {
 	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
