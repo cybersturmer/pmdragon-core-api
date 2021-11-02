@@ -11,7 +11,7 @@ from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequ
 	ProjectWorkingDays
 
 from apps.core.tests import data_samples
-from apps.core.tests import error_strings
+from apps.core.tests import errors_samples
 from conf.common import url_aliases
 
 from django.db import models
@@ -30,10 +30,7 @@ class PersonRegistrationRequestTest(APITestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'email',
-			json_response
-		)
+		self.assertIn('email', json_response)
 
 		self.assertEqual(
 			json_response['email'],
@@ -64,6 +61,7 @@ class PersonRegistrationRequestTest(APITestCase):
 		)
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -80,9 +78,11 @@ class PersonForgotRequestTest(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
+
 		self.assertIn('email', json_response)
 
 	def test_can_retrieve(self):
@@ -96,9 +96,11 @@ class PersonForgotRequestTest(APITestCase):
 		)
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
+
 		self.assertIn(
 			'email',
 			json_response
@@ -146,6 +148,7 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -161,6 +164,7 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
@@ -168,7 +172,7 @@ class AuthTests(APITestCase):
 		self.assertIn('detail', json_response)
 		self.assertEqual(
 			json_response['detail'],
-			error_strings.NO_ACTIVE_ACCOUNTS_FOUND_FOR_CREDENTIALS_MESSAGE
+			errors_samples.NO_ACTIVE_ACCOUNTS_FOUND_FOR_CREDENTIALS_MESSAGE
 		)
 
 		self.assertNotIn('access', json_response)
@@ -182,6 +186,7 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -206,6 +211,7 @@ class AuthTests(APITestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
@@ -215,12 +221,12 @@ class AuthTests(APITestCase):
 
 		self.assertEqual(
 			json_response['detail'],
-			error_strings.TOKEN_IS_INVALID_OR_EXPIRED_MESSAGE
+			errors_samples.TOKEN_IS_INVALID_OR_EXPIRED_MESSAGE
 		)
 
 		self.assertEqual(
 			json_response['code'],
-			error_strings.TOKEN_IS_INVALID_OR_EXPIRED_CODE
+			errors_samples.TOKEN_IS_INVALID_OR_EXPIRED_CODE
 		)
 
 
@@ -335,12 +341,11 @@ class APIAuthBaseTestCase(APITestCase):
 
 	def base_can_patch_entity(self, url_alias, data: dict = None, exclude: list = None):
 		self.client.force_login(self.user)
-
 		instance = self.create_or_get_instance()
 
 		url = reverse(url_alias, args=[instance.id])
-
 		response = self.client.patch(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -350,14 +355,15 @@ class APIAuthBaseTestCase(APITestCase):
 
 		return json_response
 
-	def base_can_delete_entity(self, url_alias):
-		self.client.force_login(self.user)
+	def base_can_delete_entity(self, url_alias, user: User = None):
+		chosen_user = self.user if user is None else user
 
+		self.client.force_login(chosen_user)
 		instance: models.Model = self.create_or_get_instance()
 
 		url = reverse(url_alias, args=[instance.id])
-
 		response = self.client.delete(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 204, msg=response.content)
 
 		with self.assertRaises(getattr(instance.__class__, 'DoesNotExist')):
@@ -432,19 +438,25 @@ class APIAuthBaseTestCase(APITestCase):
 
 
 class WorkspaceTest(APIAuthBaseTestCase):
+	@classmethod
+	def setUpTestData(cls):
+		super().setUpTestData()
+
+		cls.url_list = url_aliases.WORKSPACES_LIST
+		cls.url_detail = url_aliases.WORKSPACES_DETAIL
+
 	def create_or_get_instance(self):
 		return self.workspace
 
 	def test_can_get_detail(self):
 		self.client.force_login(self.user)
-
-		url = reverse(url_aliases.WORKSPACES_DETAIL, args=[self.workspace.id])
+		url = reverse(self.url_detail, args=[self.workspace.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-
 		standard = {
 			'id': self.workspace.id,
 			'prefix_url': self.workspace.prefix_url,
@@ -453,131 +465,154 @@ class WorkspaceTest(APIAuthBaseTestCase):
 
 		self.assertResponse(json_response, standard)
 
-	def test_cant_get_detail_without_credentials(self):
-		url = reverse(url_aliases.WORKSPACES_DETAIL, args=[self.workspace.id])
+	def test_cant_retrieve_without_credentials(self):
+		url = reverse(self.url_detail, args=[self.workspace.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'detail',
-			json_response
-		)
+		self.assertResponse(json_response,
+							errors_samples.AUTHENTICATION_CREDENTIALS_WERE_NOT_PROVIDED_STANDARD)
 
-		self.assertEqual(
-			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
-			json_response['detail']
-		)
+	def test_cant_retrieve_for_not_participant(self):
+		self.client.force_login(self.third_not_participant_user)
+		url = reverse(self.url_detail, args=[self.workspace.id])
+
+		response = self.client.get(url, format='json', follow=True)
+
+		self.assertEqual(response.status_code, 404)
+
+		json_response = json.loads(response.content)
+
+		self.assertResponse(json_response, errors_samples.NOT_FOUND_STANDARD)
 
 	def test_can_get_list(self):
 		self.client.force_login(self.user)
 
-		url = reverse(url_aliases.WORKSPACES_LIST)
+		url = reverse(self.url_list)
 
 		response = self.client.get(url)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 
 		self.assertIsInstance(json_response, list)
-
 		self.assertEqual(
 			len(json_response),
 			1
 		)
 
 	def test_cant_get_list_without_credentials(self):
-		url = reverse(url_aliases.WORKSPACES_LIST)
+		url = reverse(self.url_list)
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
 
-		self.assertIn(
-			'detail',
-			json_response
-		)
-
-		self.assertEqual(
-			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
-			json_response['detail']
-		)
+		self.assertResponse(json_response,
+							errors_samples.AUTHENTICATION_CREDENTIALS_WERE_NOT_PROVIDED_STANDARD)
 
 
 class ProjectTest(APIAuthBaseTestCase):
+	person = None
+	workspace = None
+
+	@classmethod
+	def setUpTestData(cls):
+		super().setUpTestData()
+		cls.post_data = {
+			'workspace': cls.workspace.id,
+			'title': data_samples.CORRECT_PROJECT_TITLE,
+			'key': data_samples.CORRECT_PROJECT_KEY,
+			'owned_by': cls.person.id
+		}
+
+		cls.standard_exclude_fields = ['created_at']
+		cls.url_list = url_aliases.PROJECTS_LIST
+		cls.url_detail = url_aliases.PROJECTS_DETAIL
+
 	def create_or_get_instance(self):
 		return self.project
 
 	def test_can_create(self):
 		self.client.force_login(self.user)
+		url = reverse(self.url_list)
 
-		url = reverse(url_aliases.PROJECTS_LIST)
-		data = {
-			'workspace': self.workspace.id,
-			'title': data_samples.CORRECT_PROJECT_TITLE,
-			'key': data_samples.CORRECT_PROJECT_KEY,
-			'owned_by': self.person.id
-		}
+		response = self.client.post(url, self.post_data, format='json', follow=True)
 
-		response = self.client.post(url, data, format='json', follow=True)
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
-		self.assertResponse(json_response, data)
 
-	def test_can_retrieve(self):
-		self.client.force_login(self.user)
+		self.assertResponse(json_response, self.post_data)
 
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
+	def test_cant_create_without_credentials(self):
+		url = reverse(self.url_list)
 
-		response = self.client.get(url, format='json', follow=True)
-		self.assertEqual(response.status_code, 200)
+		response = self.client.post(url, self.post_data, format='json', follow=True)
+
+		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
 
-		standard = self.create_standard(instance=self.project, exclude=['created_at'])
+		self.assertEqual(json_response,
+						 errors_samples.AUTHENTICATION_CREDENTIALS_WERE_NOT_PROVIDED_STANDARD)
+
+	def test_can_retrieve(self):
+		self.client.force_login(self.user)
+		url = reverse(self.url_detail, args=[self.project.id])
+
+		response = self.client.get(url, format='json', follow=True)
+
+		self.assertEqual(response.status_code, 200)
+
+		json_response = json.loads(response.content)
+		standard = self.create_standard(instance=self.project, exclude=self.standard_exclude_fields)
 
 		self.assertResponse(json_response, standard)
 
 	def test_can_patch_title(self):
 		self.base_can_patch_entity(
-			url_alias=url_aliases.PROJECTS_DETAIL,
+			url_alias=self.url_detail,
 			data={'title': data_samples.CORRECT_PROJECT_TITLE_3},
-			exclude=['created_at']
+			exclude=self.standard_exclude_fields
 		)
 
 	def test_can_patch_key(self):
 		self.base_can_patch_entity(
-			url_alias=url_aliases.PROJECTS_DETAIL,
+			url_alias=self.url_detail,
 			data={'key': data_samples.CORRECT_PROJECT_KEY_3},
-			exclude=['created_at']
+			exclude=self.standard_exclude_fields
 		)
 
 	def test_can_patch_owner_by(self):
 		self.base_can_patch_entity(
-			url_alias=url_aliases.PROJECTS_DETAIL,
+			url_alias=self.url_detail,
 			data={'owned_by': self.second_participant_person.id},
-			exclude=['created_at']
+			exclude=self.standard_exclude_fields
 		)
 
 	def test_cant_patch_owner_by_to_not_participant(self):
 		self.client.force_login(self.user)
 
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(self.url_detail, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 400)
 
 		json_response = json.loads(response.content)
-
 		standard = {
-			'owned_by': [error_strings.OWNER_IS_ONLY_PARTICIPANT_MESSAGE]
+			'owned_by': [errors_samples.OWNER_IS_ONLY_PARTICIPANT_MESSAGE]
 		}
 
 		self.assertResponse(json_response, standard)
@@ -585,21 +620,18 @@ class ProjectTest(APIAuthBaseTestCase):
 	def test_cant_patch_owner_by_not_owner(self):
 		self.client.force_login(self.second_participant_user)
 
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(self.url_detail, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 403)
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'detail': error_strings.YOU_DONT_HAVE_PERMISSION_ON_ACTION_MESSAGE
-		}
-
-		self.assertResponse(json_response, standard)
+		self.assertResponse(json_response, errors_samples.YOU_DONT_HAVE_PERMISSION_ON_ACTION_STANDARD)
 
 	def test_cant_patch_owner_by_by_not_participant(self):
 		"""
@@ -607,21 +639,58 @@ class ProjectTest(APIAuthBaseTestCase):
 		"""
 		self.client.force_login(self.third_not_participant_user)
 
-		url = reverse(url_aliases.PROJECTS_DETAIL, args=[self.project.id])
+		url = reverse(self.url_detail, args=[self.project.id])
 		data = {
 			'owned_by': self.third_not_participant_person.id
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 404)
 
 		json_response = json.loads(response.content)
 
-		standard = {
-			'detail': error_strings.NOT_FOUND
-		}
+		self.assertResponse(json_response, errors_samples.NOT_FOUND_STANDARD)
 
-		self.assertResponse(json_response, standard)
+	def test_can_delete(self):
+		"""
+		Theoretically we can delete project by owner of project
+		"""
+		self.base_can_delete_entity(
+			self.url_detail
+		)
+
+	def test_cant_delete_by_not_owner(self):
+		self.client.force_login(self.second_participant_user)
+
+		instance: models.Model = self.create_or_get_instance()
+		url = reverse(self.url_detail, args=[instance.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+
+		self.assertEqual(response.status_code, 403)
+
+		json_response = json.loads(response.content)
+
+		self.assertResponse(json_response, errors_samples.YOU_DONT_HAVE_PERMISSION_ON_ACTION_STANDARD)
+
+	def test_cant_delete_by_not_participant(self):
+		"""
+		Person have no vision on workspace, if user is not participant
+		So returning 404 error is correct.
+		"""
+		self.client.force_login(self.third_not_participant_user)
+
+		instance: models.Model = self.create_or_get_instance()
+		url = reverse(self.url_detail, args=[instance.id])
+
+		response = self.client.delete(url, format='json', follow=True)
+
+		self.assertEqual(response.status_code, 404)
+
+		json_response = json.loads(response.content)
+
+		self.assertResponse(json_response, errors_samples.NOT_FOUND_STANDARD)
 
 
 class PersonInvitationRequestsTest(APIAuthBaseTestCase):
@@ -635,7 +704,6 @@ class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 
 	def test_can_create(self):
 		self.client.force_login(self.user)
-
 		url = reverse(url_aliases.PERSON_INVITATIONS_REQUESTS_LIST)
 		data = {
 			'invitees': [
@@ -647,10 +715,10 @@ class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
-
 		self.assertEqual(
 			1,
 			len(json_response)
@@ -691,6 +759,7 @@ class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 		)
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -721,6 +790,7 @@ class PersonInvitationRequestsTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.patch(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -771,7 +841,6 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 	def test_can_create(self):
 		self.client.force_login(self.user)
-
 		url = reverse(url_aliases.ISSUE_TYPE_ICONS_LIST)
 		data = {
 			'workspace': self.workspace.id,
@@ -781,6 +850,7 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
@@ -789,16 +859,14 @@ class IssueTypeCategoryIconTest(APIAuthBaseTestCase):
 
 	def test_retrieve(self):
 		self.client.force_login(self.user)
-
 		issue_type_icon = self.create_or_get_instance()
-
 		url = reverse(url_aliases.ISSUE_TYPE_ICONS_DETAIL, args=[issue_type_icon.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
-
 		standard = self._create_standard(issue_type_icon)
 
 		self.assertResponse(json_response, standard)
@@ -846,6 +914,7 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
@@ -860,6 +929,7 @@ class IssueStateCategoryTest(APIAuthBaseTestCase):
 		url = reverse(url_aliases.ISSUE_STATES_DETAIL, args=[issue_state_category.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -915,6 +985,7 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
@@ -929,6 +1000,7 @@ class EstimationCategoryTest(APIAuthBaseTestCase):
 		url = reverse(url_aliases.ISSUE_ESTIMATIONS_DETAIL, args=[issue_estimation_category.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -1039,6 +1111,7 @@ class IssueTest(IssueBasedTest):
 		}
 
 		response = self.client.post(url, data, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 201)
 
 		json_response = json.loads(response.content)
@@ -1146,6 +1219,7 @@ class IssueHistoryTest(IssueBasedTest):
 		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
 
 		response = self.client.get(url_with_filter, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -1168,14 +1242,12 @@ class IssueHistoryTest(IssueBasedTest):
 		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
 
 		response = self.client.get(url_with_filter, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 401)
 
 		json_response = json.loads(response.content)
 
-		self.assertEqual(
-			error_strings.NO_AUTH_CREDENTIALS_MESSAGE,
-			json_response['detail']
-		)
+		self.assertResponse(json_response, errors_samples.AUTHENTICATION_CREDENTIALS_WERE_NOT_PROVIDED_STANDARD)
 
 	def test_cant_get_issue_filtered_list_for_not_participant(self):
 		self.client.force_login(self.third_not_participant_user)
@@ -1186,6 +1258,7 @@ class IssueHistoryTest(IssueBasedTest):
 		url_with_filter = f'{url}?issue={issue_history_entry.issue.id}'
 
 		response = self.client.get(url_with_filter, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
@@ -1197,6 +1270,18 @@ class IssueHistoryTest(IssueBasedTest):
 
 
 class IssueMessageTest(IssueBasedTest):
+	@classmethod
+	def setUpTestData(cls):
+		super().setUpTestData()
+
+		cls.standard_exclude_fields = [
+			'workspace',
+			'project',
+			'issue',
+			'created_at',
+			'updated_at'
+		]
+
 	def create_or_get_instance(self):
 		issue = super().create_or_get_instance()
 
@@ -1219,18 +1304,14 @@ class IssueMessageTest(IssueBasedTest):
 		url_with_filter = f'{url}?issue={issue_message.issue.id}'
 
 		response = self.client.get(url_with_filter, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 		json_response_first_slice = json_response[0]
 
-		standard = self.create_standard(issue_message, exclude=[
-			'workspace',
-			'project',
-			'issue',
-			'created_at',
-			'updated_at'
-		])
+		standard = self.create_standard(issue_message,
+										exclude=self.standard_exclude_fields)
 
 		self.assertResponse(json_response_first_slice, standard)
 
@@ -1253,11 +1334,13 @@ class ProjectBacklogTest(APIAuthBaseTestCase):
 		url = reverse(url_aliases.PROJECT_BACKLOG_DETAIL, args=[backlog.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200)
 
 		json_response = json.loads(response.content)
 
 		standard = self.create_standard(backlog)
+
 		self.assertResponse(json_response, standard)
 
 
@@ -1285,6 +1368,7 @@ class SprintTest(APIAuthBaseTestCase):
 		url = reverse(url_aliases.SPRINTS_DETAIL, args=[sprint.id])
 
 		response = self.client.get(url, format='json', follow=True)
+
 		self.assertEqual(response.status_code, 200, msg=response.content)
 
 		json_response = json.loads(response.content)
@@ -1315,6 +1399,13 @@ class ProjectNonWorkingDaysTest(APIAuthBaseTestCase):
 
 
 class ProjectWorkingDaysTest(APIAuthBaseTestCase):
+	@classmethod
+	def setUpTestData(cls):
+		super().setUpTestData()
+
+		cls.url_detail = url_aliases.NON_WORKING_DAYS_DETAIL
+		cls.url_list = url_aliases.NON_WORKING_DAYS_LIST
+
 	def create_or_get_instance(self):
 		return ProjectWorkingDays \
 			.objects \
