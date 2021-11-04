@@ -416,6 +416,8 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 	if not sprint.exists():
 		return
 
+	sprint_instance = sprint.get()
+
 	"""
 	If this Sprint was just created - we have to create first History Entry. """
 	project_standard_working_days = ProjectWorkingDays \
@@ -425,13 +427,13 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 
 	"""
 	Analysing sprint to get total story points """
-	sprint_analyser = SprintAnalyser(sprint.get(), project_standard_working_days)
+	sprint_analyser = SprintAnalyser(sprint_instance, project_standard_working_days)
 	last_history_entry = SprintEffortsHistory \
 		.objects \
 		.filter(
 			workspace=instance.workspace,
 			project=instance.project,
-			sprint=sprint.get()
+			sprint=sprint_instance
 		) \
 		.order_by('-point_at') \
 		.first()
@@ -446,7 +448,7 @@ def signal_sprint_estimation_change(instance: Issue, created: bool, **kwargs):
 	sprint_history = SprintEffortsHistory(
 		workspace=instance.workspace,
 		project=instance.project,
-		sprint=sprint.get(),
+		sprint=sprint_instance,
 		total_value=total_sp,
 		done_value=completed_sp
 	)
