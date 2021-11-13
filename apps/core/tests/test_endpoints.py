@@ -380,11 +380,11 @@ class APIAuthBaseTestCase(APITestCase):
 		result = {}
 
 		for field in fields:
-			# Lets check that model contain field
+			# Lets check that this model contain field
 			if not hasattr(instance, field.name):
 				continue
 
-			# Here we sure that model contain field,
+			# Here we are sure that model contain field,
 			# but dont know is it field or relation to another model
 
 			attribute = getattr(instance, field.name)
@@ -392,13 +392,13 @@ class APIAuthBaseTestCase(APITestCase):
 			# If this value is a primitive type
 			is_primitive = type(attribute) in [int, str, None, datetime.datetime, datetime.date]
 
-			# Ot maybe that's model.
+			# Or maybe that's the model.
 			is_model = issubclass(type(attribute), models.Model)
 
 			# Models have instance.attribute_id for foreign keys
 			foreign_key_field = f'{field.name}_id'
 
-			# That's decision tree to understand what type is our field value
+			# That's the decision tree to understand type of our field
 			decision_tree = {
 				is_primitive: attribute if type(attribute) != datetime.datetime else attribute.utcnow().isoformat(),
 				is_model: getattr(instance, foreign_key_field) if hasattr(instance, foreign_key_field) else None
