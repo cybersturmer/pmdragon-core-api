@@ -224,14 +224,14 @@ class PersonInvitationRequestList(serializers.Serializer):
 	def create(self, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
 	def update(self, instance, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
@@ -246,7 +246,7 @@ class PersonInvitationRequestList(serializers.Serializer):
 class UserSetPasswordSerializer(serializers.Serializer):
 	"""
 	Serializer to update password of user.
-	We use it normally on the Me page on frontend.
+	We use it normally on Me page on frontend.
 	"""
 
 	old_password = serializers.CharField(max_length=128, write_only=True)
@@ -348,7 +348,7 @@ class PersonPasswordResetConfirmSerializer(serializers.Serializer):
 	def create(self, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
@@ -477,7 +477,7 @@ class PersonRegistrationOrInvitationRequestSerializer(serializers.Serializer):
 	def update(self, instance, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
@@ -505,7 +505,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class PersonSerializer(serializers.ModelSerializer):
 	"""
 	Common Person Serializer.
-	We dont need it yet.
+	We don't need it yet.
 	But maybe we will.
 	"""
 
@@ -598,6 +598,9 @@ class WorkspaceDetailedSerializer(serializers.ModelSerializer):
 
 
 class WorkspaceModelSerializer(serializers.ModelSerializer):
+	"""
+	In most cases we just extend this class
+	"""
 	def validate_workspace(self, value):
 		"""
 		Check that given workspace contains person sending request.
@@ -805,6 +808,10 @@ class IssueSerializer(WorkspaceModelSerializer):
 
 
 class IssueHistorySerializer(serializers.ModelSerializer):
+	"""
+	Issue History allow us to track changes and reflect it
+	on issue history.
+	"""
 	class Meta:
 		model = IssueHistory
 		fields = (
@@ -820,6 +827,9 @@ class IssueHistorySerializer(serializers.ModelSerializer):
 
 
 class IssueMessageSerializer(WorkspaceModelSerializer):
+	"""
+	We use this serializer to get messages for chosen issue
+	"""
 	class Meta:
 		model = IssueMessage
 		fields = (
@@ -849,6 +859,9 @@ class IssueMessageSerializer(WorkspaceModelSerializer):
 
 
 class IssueAttachmentSerializer(WorkspaceModelSerializer):
+	"""
+	We use this serializer to get all attachments for Issue
+	"""
 	class Meta:
 		model = IssueAttachment
 		fields = (
@@ -872,6 +885,9 @@ class IssueAttachmentSerializer(WorkspaceModelSerializer):
 
 
 class BacklogWritableSerializer(WorkspaceModelSerializer):
+	"""
+	This serializer allow us to change issues in backlog
+	"""
 	class Meta:
 		model = ProjectBacklog
 		fields = (
@@ -898,6 +914,10 @@ class NonWorkingDaysSerializer(WorkspaceModelSerializer):
 
 
 class ProjectWorkingDaysSerializer(WorkspaceModelSerializer):
+	"""
+	We use working days to determine working and non-working days.
+	We also use it to build burndown chart delivery plan.
+	"""
 	class Meta:
 		model = ProjectWorkingDays
 		fields = (

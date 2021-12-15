@@ -58,6 +58,10 @@ class IsParticipateInWorkspace(permissions.BasePermission):
 
 
 class WorkspaceOwnerOrReadOnly(permissions.BasePermission):
+	"""
+	Allow access to everyone, but allow changing only for owner.
+	We use it to prevent workspace or project changes by non-owner.
+	"""
 	def has_object_permission(self, request, view, obj):
 		if request.method in permissions.SAFE_METHODS:
 			return True
