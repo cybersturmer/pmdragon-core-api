@@ -51,14 +51,14 @@ class TokenObtainPairExtendedSerializer(serializers_jwt.TokenObtainPairSerialize
 	def create(self, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
 	def update(self, instance, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
@@ -265,14 +265,14 @@ class UserSetPasswordSerializer(serializers.Serializer):
 	def create(self, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
 	def update(self, instance, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
@@ -377,7 +377,7 @@ class PersonPasswordResetRequestSerializer(serializers.Serializer):
 	def update(self, instance, validated_data):
 		"""
 		Implemented for all abstract methods.
-		We dont need this method to serializer works properly.
+		We don't need this method to serializer works properly.
 		"""
 		pass
 
