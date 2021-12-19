@@ -916,7 +916,7 @@ class NonWorkingDaysSerializer(WorkspaceModelSerializer):
 class ProjectWorkingDaysSerializer(WorkspaceModelSerializer):
 	"""
 	We use working days to determine working and non-working days.
-	We also use it to build burndown chart delivery plan.
+	We also use it to build burn down chart delivery plan.
 	"""
 	class Meta:
 		model = ProjectWorkingDays
