@@ -10,7 +10,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 	For others this permission allow only read access.
 	We use it for example in IssueMessages.
 	"""
-	def has_object_permission(self, request, view, obj):
+	def has_object_permission(self, request, view, obj) -> bool:
 		if request.method in permissions.SAFE_METHODS:
 			return True
 
@@ -29,7 +29,7 @@ class IsCreatorOrReadOnly(permissions.BasePermission):
 	Model should contain created by field.
 	Just because maybe we dont have user data in
 	"""
-	def has_object_permission(self, request, view, obj):
+	def has_object_permission(self, request, view, obj) -> bool:
 		if request.method in permissions.SAFE_METHODS:
 			return True
 
@@ -47,7 +47,7 @@ class IsParticipateInWorkspace(permissions.BasePermission):
 	Allow access to object if object workspace do not determined
 	Or current user participate in workspace
 	"""
-	def has_object_permission(self, request, view, obj):
+	def has_object_permission(self, request, view, obj) -> bool:
 		try:
 			if request.user.person in obj.workspace.participants.all():
 				return True
@@ -62,7 +62,7 @@ class WorkspaceOwnerOrReadOnly(permissions.BasePermission):
 	Allow access to everyone, but allow changing only for owner.
 	We use it to prevent workspace or project changes by non-owner.
 	"""
-	def has_object_permission(self, request, view, obj):
+	def has_object_permission(self, request, view, obj) -> bool:
 		if request.method in permissions.SAFE_METHODS:
 			return True
 
@@ -84,7 +84,7 @@ class IsMeOrReadOnly(permissions.BasePermission):
 	Reject update / delete for others
 	We will use it in all Person related views.
 	"""
-	def has_object_permission(self, request, view, obj: Person):
+	def has_object_permission(self, request, view, obj: Person) -> bool:
 		if request.method in permissions.SAFE_METHODS:
 			return True
 
