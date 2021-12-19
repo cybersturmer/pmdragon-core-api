@@ -1,10 +1,9 @@
 import json
 
 from django.conf import settings
-from rest_framework import filters
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework import viewsets, generics, mixins, status, views
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView, UpdateAPIView
@@ -289,7 +288,7 @@ class PersonsViewSet(viewsets.ReadOnlyModelViewSet):
 		except Person.DoesNotExist:
 			workspaces = queryset.none()
 
-		# @todo Make it much simplier via db
+		# @todo Make it much simpler via db
 		collaborators = []
 		for workspace in workspaces:
 			for participant in workspace.participants.all():
@@ -558,9 +557,9 @@ class IssueMessagesPackedView(GenericAPIView):
 	Actually we already have a message view.
 	But on frontend we have to group close by time
 	and author messages.
-	I think it's much more easier to get already packed
+	I think it's much easier to get already packed
 	messages from backend.
-	Of course we can pack it on frontend, but it can lead us to
+	Of course, we can pack it on frontend, but it can lead us to
 	performance related issues on client side.
 
 	When we add one more message or remove one from the group -
@@ -576,7 +575,7 @@ class IssueMessagesPackedView(GenericAPIView):
 		"""
 		We need packed messages to group messaged
 		for the same author and same date
-		It's look much much better
+		Its look much better
 		"""
 		messages = IssueMessage \
 			.objects \
@@ -714,7 +713,7 @@ class ProjectBacklogViewSet(WorkspacesReadOnlyModelViewSet,
 	"""
 	View for getting, editing, instance.
 	Project Backlog view allow us to read issues list
-	or change it if we moving issues between sprint Backlog and
+	or change it if we are moving issues between sprint Backlog and
 	Project Backlog.
 	"""
 	queryset = ProjectBacklog.objects.all()
@@ -806,7 +805,7 @@ class SprintEffortsHistoryViewSet(WorkspacesReadOnlyModelViewSet):
 
 class SprintGuidelineView(views.APIView):
 	"""
-	This view let us to get Sprint Guideline
+	This view let us get Sprint Guideline
 	For Sprint BurnDown Chart.
 	We use this chart to predict Sprint implementation
 	"""
@@ -943,7 +942,7 @@ def validate_ids(data, field='id', unique=True):
 	We don't really know what to do if we got
 	2 different order for the same issue.
 	Of course frontend should prevent it.
-	But i decided not raise an Exception for this case.
+	But I decided not raise an Exception for this case.
 	"""
 	if not isinstance(data, list):
 		return [data]
