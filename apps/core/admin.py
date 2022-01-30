@@ -9,6 +9,11 @@ from apps.core.models import Person, PersonRegistrationRequest, PersonForgotRequ
 
 
 class PersonInlineAdmin(admin.StackedInline):
+	"""
+	Person is a bit more high level definition
+	than user.
+	We extend user to add custom attributes.
+	"""
 	model = Person
 	fields = (
 		'phone',
