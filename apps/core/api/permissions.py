@@ -80,7 +80,7 @@ class WorkspaceOwnerOrReadOnly(permissions.BasePermission):
 
 class IsMeOrReadOnly(permissions.BasePermission):
 	"""
-	Allow access to Person if its me.
+	Allow access to Person if it's me.
 	Reject update / delete for others
 	We will use it in all Person related views.
 	"""
