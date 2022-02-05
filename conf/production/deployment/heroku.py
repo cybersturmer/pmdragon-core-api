@@ -1,3 +1,5 @@
+import os
+
 from conf.production.settings import *
 import django_on_heroku
 import sentry_sdk
@@ -31,7 +33,7 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 # Your Amazon Web Services storage bucket name, as a string.
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_SERVER = 'eu-central-1'
+AWS_SERVER = os.getenv('AWS_SERVER')
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_SERVER}.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400'
