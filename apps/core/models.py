@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 from datetime import datetime
 from enum import Enum
@@ -12,10 +13,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F, ExpressionWrapper, fields
+from django.db.models import Max, F
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-import re
 
 from conf.common import mime_settings
 from libs.cryptography import hashing
