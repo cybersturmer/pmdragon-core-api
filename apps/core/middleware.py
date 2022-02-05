@@ -1,13 +1,11 @@
-import traceback
 from urllib.parse import parse_qs
 
-from jwt import decode as jwt_decode, InvalidTokenError
-from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from channels.db import database_sync_to_async
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import close_old_connections
-from django.conf import settings
+from jwt import decode as jwt_decode, InvalidTokenError
 
 from libs.exception.websocket import NoTokenError
 
