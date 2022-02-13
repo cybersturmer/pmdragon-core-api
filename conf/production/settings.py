@@ -44,10 +44,7 @@ EMAIL_PORT = 465
 EMAIL_SUBJECT_PREFIX = '[PmDragon] '
 
 
-CORS_ALLOWED_ORIGINS = [
-	'https://pmdragon.org',
-	'https://pmdragon-client.herokuapp.com'
-]
+CORS_ALLOWED_ORIGINS = '*'
 
 CORS_ADDITIONAL_HOST = os.getenv('CORS_ADDITIONAL_HOST')
 
