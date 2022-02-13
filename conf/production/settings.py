@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 
 from conf.common.settings import *
@@ -47,6 +48,11 @@ CORS_ALLOWED_ORIGINS = [
 	'https://pmdragon.org',
 	'https://pmdragon-client.herokuapp.com'
 ]
+
+CORS_ADDITIONAL_HOST = os.getenv('CORS_ADDITIONAL_HOST')
+
+if CORS_ADDITIONAL_HOST:
+	CORS_ALLOWED_ORIGINS.append(CORS_ADDITIONAL_HOST)
 
 CORS_ALLOW_METHODS = [
 	'DELETE',
