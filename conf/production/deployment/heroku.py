@@ -7,6 +7,8 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 DEBUG = False
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 DEPLOYMENT = 'HEROKU'
 ALLOWED_HOSTS = [os.getenv('API_HOSTNAME')]
 CELERY_BROKER_URL = os.getenv('CLOUDAMQP_URL')
