@@ -4,9 +4,9 @@ A project management tool for tracking tasks, epics, and bugs, with Agile boards
 The server side of the PmDragon Community software is powered by a Django REST Framework–based API.
 
 ## Useful links
-| Backlog | Video | Client | Tools |
-| ------- | ----- | --- | ------ |
-| [GitHub Project](https://github.com/cybersturmer/pmdragon/projects/1?fullscreen=true) | [YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0) | [GitHub](https://github.com/cybersturmer/pmdragon-client) | [GitHub](https://github.com/cybersturmer/pmdragon) |
+| Video | Client | Tools |
+| ----- | --- | ------ |
+| [YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0) | [GitHub](https://github.com/cybersturmer/pmdragon-client) | [GitHub](https://github.com/cybersturmer/pmdragon) |
 
 ## Deploy your own API by one click
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/cybersturmer/pmdragon-core-api)
