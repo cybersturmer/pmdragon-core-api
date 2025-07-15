@@ -1,15 +1,12 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cybersturmer_pmdragon-core-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=cybersturmer_pmdragon-core-api)
 # PmDragon API
-Project management tool to track tasks, epics, bugs and manage it with agile boards and sprints.
-Django Rest Framework based API as a server side of PmDragon Community  software.
+A project management tool for tracking tasks, epics, and bugs, with Agile boards and sprint management.
+The server side of the PmDragon Community software is powered by a Django REST Framework–based API.
 
 ## Useful links
 | Backlog | Video | Client | Tools |
 | ------- | ----- | --- | ------ |
 | [GitHub Project](https://github.com/cybersturmer/pmdragon/projects/1?fullscreen=true) | [YouTube](https://www.youtube.com/watch?v=WMnpMHidtAk&list=PLS5PU3BKdEGuFIM_HychaVfK8wwyLmTR0) | [GitHub](https://github.com/cybersturmer/pmdragon-client) | [GitHub](https://github.com/cybersturmer/pmdragon) |
-
-## Swagger documentation
-https://pmdragon.org/swagger/
 
 ## Deploy your own API by one click
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/cybersturmer/pmdragon-core-api)
@@ -23,8 +20,7 @@ Special thanks to [JetBrains](https://www.jetbrains.com/?from=pmdragon) for prov
 
 ## License
 
-PmDragon is an MIT-licensed open source project.
-
-Copyright ©2020-present Vladimir Shturmer
+PmDragon is an open-source project licensed under the MIT License.
+© 2020–present Vladimir Shturmer. All rights reserved.
 
 [MIT License](https://en.wikipedia.org/wiki/MIT_License)
